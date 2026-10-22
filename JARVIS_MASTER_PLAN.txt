@@ -1,0 +1,457 @@
+# JARVIS OS — MASTER PLAN I DZIENNIK POSTĘPU
+
+> **Jedno źródło prawdy dla Codex / Work.** Ten plik jest jednocześnie specyfikacją, checklistą, raportem i dziennikiem realizacji. Aktualizuj go W TYM SAMYM COMMICIE co kod. Nie usuwaj zadań, nie fałszuj wyników testów i nie deklaruj ukończenia na podstawie samej dokumentacji.
+
+## Projekt i cel
+
+Repozytorium referencyjne AutoLogika OS: https://github.com/endiszyd-rgb/Autologika-OS. Twórz **osobny** JARVIS OS; nie modyfikuj produkcyjnej AutoLogiki, Supabase ani fizycznych urządzeń bez osobnego zatwierdzenia. Docelowo Windows 11 + Docker/WSL2, panel iPhone/Android, FastAPI, React/TS, Supabase/Postgres, Home Assistant, MQTT/ESP32, n8n, Twilio WhatsApp i modularny system pluginów MCP/OpenAPI. Preferuj modułowy monolit, niski koszt, gotowe biblioteki i izolację integracji.
+
+Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zmiana modeli i instrukcji, samodzielna konfiguracja i automatyzacje, pluginy, AutoLogika (terminarz, zlecenia, klienci, pojazdy, diagnostyka, części, wyceny, QC, finanse), dom/światła/brama/czujniki, Twilio WhatsApp wiadomości/głosówki/Calling (jeśli kwalifikacja), obsługa klientów i pilne przekazywanie połączeń, godziny dostępności, Windows/iPhone/Android, bezpieczeństwo, kopie i aktualizacje.
+
+## Nienegocjowalne reguły agenta
+
+1. **Na początku KAŻDEJ sesji** przeczytaj cały ten plik i `AGENTS.md` (jeśli istnieje), sprawdź git status i istniejący kod; rozpocznij od pierwszego zadania TODO/BLOCKED możliwego do wykonania. Nie powtarzaj wykonanej pracy.
+2. **Przed każdym zadaniem** ustaw status `IN_PROGRESS`, wpisz datę UTC, plan implementacji i kryterium akceptacji. Zapisz plik.
+3. **Po każdym zadaniu** zaktualizuj status, konkretny rezultat, ścieżki plików, komendy i wyniki testów, commit/hash (jeśli jest), ryzyka i następny krok. Aktualizuj ten sam plik w tym samym commicie. Zapisuj prawdziwe wyniki: `NOT_RUN`, `PASS`, `FAIL`.
+4. Statusy: `TODO` = nierozpoczęte, `IN_PROGRESS` = w trakcie, `BLOCKED` = zależność, `DONE` = implementacja bez pełnej weryfikacji, `VERIFIED` = kod + odpowiednie testy i kryteria akceptacji spełnione. Symulator nigdy nie dowodzi działania sprzętu.
+5. **Nie zatrzymuj się po napisaniu planu.** Realizuj kolejny bezpieczny punkt, testuj i kontynuuj aż do ograniczeń środowiska. Nie pytaj o zgodę na rutynowe, odwracalne prace lokalne.
+6. Wymagaj osobnej zgody na: wydatki, produkcyjne zmiany, publikację sekretów, wdrożenie, dostęp do cudzych danych, realne sterowanie bramą, modyfikacje repo AutoLogika.
+7. Sekrety tylko w `.env`/menedżerze sekretów, nigdy w Git. RLS i minimalne uprawnienia. WhatsApp/caller ID nie autoryzuje otwarcia bramy; użyj potwierdzenia w zaufanej aplikacji i fizycznych zabezpieczeń.
+8. Nie wymyślaj istniejących endpointów AutoLogiki ani funkcji Twilio. Gdy usługa niedostępna, dodaj adapter/mock, testy i oznacz `BLOCKED` dla realnej integracji.
+9. Jeśli zmieniasz zakres lub architekturę, dopisz uzasadnienie do `docs/DECISIONS.md` i zachowaj wszystkie pierwotne funkcje w backlogu.
+10. Na koniec każdej sesji odśwież **Snapshot**, **Dziennik**, **Blokady** i **Następny krok**. Użytkownik powinien móc otworzyć TYLKO TEN PLIK i zrozumieć postęp.
+
+## Snapshot (aktualizuj po każdej sesji)
+
+- Data ostatniej aktualizacji: NIE ROZPOCZĘTO
+- Bieżący etap: M0
+- Aktualne zadanie: M0.1
+- Zadania VERIFIED: 0 / 45
+- Zadania DONE: 0 / 45
+- Ostatni commit: brak
+- Testy: NOT_RUN
+- Co działa rzeczywiście: niezweryfikowane
+- Co działa tylko jako mock/demo: niezweryfikowane
+- Następny krok: M0.1
+
+## Procedura wykonania pojedynczego zadania
+
+1. Sprawdź zależności, odczytaj odpowiednie źródła i ustal kryteria akceptacji.
+2. Zmień status poniżej na `IN_PROGRESS`; zapisz.
+3. Implementuj najmniejszy testowalny fragment; dodaj testy i dokumentację.
+4. Uruchom testy, lint/typecheck/build właściwe dla fragmentu. Zanotuj dokładne komendy i wynik.
+5. Jeśli testy przejdą, ustaw `VERIFIED`; jeśli nie da się przetestować — `DONE` lub `BLOCKED` z przyczyną.
+6. Uaktualnij Snapshot, Dziennik, Blokady i Następny krok, wykonaj commit, przejdź dalej.
+
+## Zadania (każde ma osobny status i notatki)
+
+### M0 — Audyt i przygotowanie
+
+#### M0.1 — Przeczytaj ten plik, AGENTS.md, istniejący starter i dokumentację; ustal stan rzeczywisty.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M0.2 — Zbadaj repozytorium AutoLogika-OS: struktura, backend, Supabase, auth, RLS, migracje, API, modele i testy. Bez zmian produkcyjnych.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M0.3 — Udokumentuj potwierdzone interfejsy i braki; nie wymyślaj tabel ani endpointów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M0.4 — Utwórz osobne monorepo JARVIS OS i ADR dotyczące architektury, bezpieczeństwa i kosztów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M0.5 — Ustal zależności i priorytety; przygotuj Windows checklist i strategię testów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M1 — Fundament backendu
+
+#### M1.1 — FastAPI, wersjonowane REST API, health/readiness, konfiguracja .env i walidacja.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M1.2 — Docker Compose i instrukcje Windows 11/WSL2, bez wymagania komputera do budowania w chmurze.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M1.3 — Uwierzytelnianie, role, sesje, rate limits, CORS, audit trail, bezpieczne przechowywanie sekretów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M1.4 — PostgreSQL/Supabase, migracje, RLS, minimalne granty dla anon/authenticated/service_role zgodnie z potrzebami i testy uprawnień.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M1.5 — Rejestr narzędzi i polityki wykonania; mocki, testy unit/integration i CI.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M2 — JARVIS Control Center
+
+#### M2.1 — React + TypeScript, responsywny dark UI z nawigacją i dashboardem.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M2.2 — Panel rozmów, ustawień, modeli AI i historii działań.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M2.3 — Plugin Manager: status, konfiguracja, uprawnienia, test połączenia, enable/disable.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M2.4 — Widoki AutoLogika, Home, Devices, Automations, Memory, Telephony, Notifications, Security, Logs.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M2.5 — Przegląd zmian i zatwierdzeń; testy komponentów, accessibility i build.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M3 — AI, rozmowa i pamięć
+
+#### M3.1 — Abstrakcja dostawców LLM, Ollama i przynajmniej jeden provider cloud z konfiguracją kosztów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M3.2 — Pętla tool-calling ze schematami argumentów, limitami, autoryzacją i odpornością na prompt injection.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M3.3 — Pamięć krótkoterminowa, długoterminowa (Postgres/pgvector), podział danych prywatnych i warsztatowych.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M3.4 — Przeglądanie, korekta, usuwanie pamięci; instrukcje, profile, wersjonowanie.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M3.5 — Zadania wieloetapowe, przerwania i testy scenariuszy.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M4 — AutoLogika OS
+
+#### M4.1 — Adapter wyłącznie do rzeczywiście znalezionych endpointów/operacji; mock przy braku dostępu.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M4.2 — Odczyt terminarza, pojazdów, klientów, zleceń, diagnostyki i części.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M4.3 — Raporty, finanse, powiadomienia i statusy QC, jeśli wspierane przez system.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M4.4 — Operacje zapisu: notatki, zadania, wyceny i statusy tylko z uprawnieniami oraz potwierdzeniem.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M4.5 — Testy kontraktowe, RLS i separacji klientów; dokumentacja nieobsługiwanych funkcji.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M5 — Dom, warsztat i ESP32
+
+#### M5.1 — Adapter Home Assistant REST/WebSocket z ograniczonym tokenem.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M5.2 — MQTT/Mosquitto, ESPHome/ESP32, status urządzeń i reconnect.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M5.3 — Światło: on/off, dimming, sceny, harmonogramy i czujniki.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M5.4 — Symulator bramy: stany, blokady, logi, timeout i potwierdzenie w zaufanej aplikacji.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M5.5 — Adapter prawdziwej bramy tylko po inspekcji centrali, czujników i fabrycznych zabezpieczeń; bez zdalnego otwarcia w testach.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M6 — Automatyzacje i zmiany zachowania
+
+#### M6.1 — Integracja n8n self-hosted; import/eksport i wersjonowanie workflow.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M6.2 — Raport poranny AutoLogika, przypomnienia części, opóźnienia zleceń, raport dnia.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M6.3 — Automatyzacje światła, statusu bramy, alertów o połączeniach i godzin dostępności.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M6.4 — Zmiana reguł z rozmowy: propozycja -> walidacja -> podgląd -> zatwierdzenie -> zapis -> rollback.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M6.5 — Zmiana kodu wyłącznie przez osobny branch/PR, testy i zatwierdzenie; żadnego autonomicznego deploy produkcyjnego.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M7 — WhatsApp, telefonia i głos
+
+#### M7.1 — Zweryfikuj aktualne Twilio WhatsApp Business Calling: wymagania Meta, zgody, ograniczenia, realny transport audio i koszty.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M7.2 — WhatsApp Messaging: webhook signature validation, idempotency, wysyłka i odbiór; sandbox jako test wiadomości, nie połączeń.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M7.3 — Głosówki, STT/TTS, streaming, interruption i mierzenie opóźnienia.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M7.4 — Połączenia przychodzące/wychodzące tylko gdy konto i dokumentacja potwierdzą możliwość; fallback tekstowy.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M7.5 — Asystent klienta: intencje, zgłoszenia, eskalacja pilna, godziny dostępności i reguły przekierowań; oddzielny adapter GSM/SIP w przyszłości.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+### M8 — Urządzenia, stabilizacja i wdrożenie
+
+#### M8.1 — Panel mobilny PWA na iPhone/Android; integracja z Android AutoLogika po audycie.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M8.2 — Powiadomienia, monitoring, health checks, retry i alerty.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M8.3 — Backup, restore drill, migracje, aktualizacje i rollback.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M8.4 — Testy end-to-end, bezpieczeństwa, regresji, CI i skan sekretów.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+#### M8.5 — Instrukcja uruchomienia Windows i checklista testów w środę; wyraźne oddzielenie demo/production.
+- **Status:** TODO
+- **Rozpoczęto / aktualizacja UTC:** —
+- **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
+- **Wykonano / dowody (pliki, commit):** —
+- **Testy (komenda, wynik):** NOT_RUN
+- **Blokady / dalsze kroki:** —
+
+## Wymagane przykładowe scenariusze E2E
+
+- „Jakie samochody mam jutro?” -> realny odczyt AutoLogiki lub jawny mock.
+- „Dodaj notatkę do zlecenia Peugeota” -> podgląd, autoryzacja, zapis, audyt.
+- „Włącz światło w salonie na 30% i wyłącz za godzinę” -> Home Assistant + reguła n8n, potwierdzony stan.
+- „Otwórz bramę” -> brak wykonania bez niezależnego potwierdzenia; symulator i czujnik stanu.
+- „Od jutra przypominaj o częściach po 10” -> propozycja, walidacja, zapis wersji, rollback.
+- Klient dzwoni poza godzinami -> zbierz wiadomość; pilne eskalacje tylko według ustawionych reguł.
+- Brak Twilio/Meta -> reszta systemu działa; funkcje telefoniczne jawnie niedostępne.
+
+## Dziennik realizacji (dopisywać chronologicznie)
+
+| Data UTC | Zadanie | Zmiana i dowody | Testy | Commit | Następny krok |
+|---|---|---|---|---|---|
+| — | — | Jeszcze nie rozpoczęto | NOT_RUN | — | M0.1 |
+
+## Blokady i decyzje użytkownika
+
+| ID | Blokada / pytanie | Co można robić mimo blokady | Status |
+|---|---|---|---|
+| B1 | Brak lokalnego PC do środy | Kod, testy CI, mocki, dokumentacja | OPEN |
+| B2 | Brak kont Twilio i Meta Business | Adapter i webhook testowy bez prawdziwych rozmów | OPEN |
+| B3 | Nieznany model centrali bramy i oświetlenia | Symulatory, interfejsy i polityki bezpieczeństwa | OPEN |
+| B4 | Brak potwierdzonego dostępu do repo AutoLogika | Audyt publicznych/dostępnych plików, kontrakty mock | OPEN |
+
+## Następny krok
+
+**M0.1:** Przeczytaj wszystkie materiały i sprawdź aktualny kod. Po zakończeniu zaktualizuj ten plik i automatycznie przejdź do M0.2.
+
+## Instrukcja uruchomienia agenta (do wklejenia Codex)
+
+> Przeczytaj `JARVIS_MASTER_PLAN.md` i traktuj go jako nadrzędną instrukcję oraz jedyny dziennik postępu. Wykonuj zadania M0–M8 kolejno, aktualizując status, dowody, testy, Snapshot, Dziennik i Następny krok w tym samym pliku po KAŻDYM zadaniu. Nie kończ na planie; twórz kod i testy. Nie zmieniaj produkcyjnej AutoLogiki, Supabase ani urządzeń. Kontynuuj od pierwszego niewykonanego zadania. Jeżeli czegoś nie da się wykonać, oznacz BLOCKED, opisz przyczynę i realizuj następne niezależne zadanie.
