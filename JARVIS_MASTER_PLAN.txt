@@ -23,12 +23,12 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-10-28T14:16:39+00:00
+- Data ostatniej aktualizacji: 2026-10-28T14:20:39+00:00
 - Bieżący etap: M3 — ukończony; STOP przed M4
-- Aktualne zadanie: publikacja GitHub IN_PROGRESS; M3.5 ukończone
+- Aktualne zadanie: brak; publikacja źródeł potwierdzona, B5 zamknięta; STOP po M3
 - Zadania VERIFIED: 20 / 45
 - Zadania DONE: 0 / 45
-- Ostatni commit: źródłowy snapshot 5aba06c (manifest, bez historii .git); publikacja w toku na historii a8b5ee8
+- Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
 - Testy: 28.10 Windows PASS843pytest/75skip220.45s,149UI/typecheck/build, task HTTP/MCP, pip/JS/plan. PG76/Chromium/Docker to historyczne wyniki 27.10, bez powtórki lokalnie.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
@@ -47,7 +47,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 | Izolowany PostgreSQL i embedding | PASS76/0skip w --memory --browser po integracji M3.5; evals/postgres-m35.json. Rzeczywisty PG/Core/Chromium/HTTP, syntetyczne odpowiedzi modeli i wektory. |
 | Docker Core | PASS nowy M3.5 build/Compose/assets/auth/persistence/limits/non-root/cleanup; docs/evals/docker-m35.json. |
 | Interfejs | PASS149UI/typecheck/build, actualChromium390px+desktop nowego panelu PG; docs/evals/control-m34-mobile.png i desktop.png. |
-| GitHub | Uwierzytelnienie i prawo push potwierdzone 28.10; import snapshotu 5aba06c na historię a8b5ee8. Publikacja IN_PROGRESS; local_commits_pushed=false do potwierdzonego push. |
+| GitHub | PASS push origin/main i zgodność ls-remote/HEAD: 8cf20683525bdaeb20192e604d2cf881ce4afb1f. Snapshot 5aba06c zaimportowany na zachowaną historię a8b5ee8; lokalna historia źródłowa nie była w ZIP. B5 CLOSED; local_commits_pushed=true. |
 | Produkcja i urządzenia | AutoLogika/Supabase bez zmian. Windows/WSL2, telefony, sprzęt, operator i wykonanie GitHub CI NOT_RUN. |
 
 ## Procedura wykonania pojedynczego zadania
@@ -505,6 +505,8 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 | 2026-10-28T14:16:39+00:00 | Publikacja IN_PROGRESS | Import snapshotu 5aba06c (379 plików), zachowana historia origin; poprawki przenośności 3 testów, README/status/ignore. docs/audits/GITHUB-SYNC-2026-10-28.md. | Manifest/149UI/build/protokoły/JS/pip/plan PASS; końcowy backend843PASS/75skip/0FAIL220.45s. | bieżący commit importu | push, weryfikacja HEAD, zamknięcie B5; STOP po M3 |
 
+| 2026-10-28T14:20:39+00:00 | Publikacja VERIFIED | git push origin main PASS; ls-remote potwierdza 8cf20683525bdaeb20192e604d2cf881ce4afb1f. Zamknięto B5, README/status/handoff/raport/master zaktualizowane. | Źródła843pytest/75skip,149UI/build/protokoły/JS/pip/plan PASS; dokumentacja: plan25testów i diff. | źródła8cf2068; bieżący commit zamknięcia B5 | STOP po M3 |
+
 ## Blokady i decyzje użytkownika
 
 | ID | Blokada / pytanie | Co można robić mimo blokady | Status |
@@ -513,11 +515,11 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 | B2 | Brak kont Twilio i Meta Business | Adapter i webhook testowy bez prawdziwych rozmów | OPEN |
 | B3 | Nieznany model centrali bramy i oświetlenia | Symulatory, interfejsy i polityki bezpieczeństwa | OPEN |
 | B4 | Publiczne źródła AutoLogika odczytano w M0.2 (681f7f5),17hashy potwierdzono; brak instalacji/danych produkcyjnych | Adapter readonly i kontrakty lab, bez zmian AutoLogiki/Supabase | SOURCE_AUDIT_CLOSED; LIVE_OPEN |
-| B5 | GitHub push zlecony 2026-10-26T07:19:08+00:00; brak poprawnego uwierzytelnienia (Git brakUsername, gh401). PołączenieGitHub niepotwierdzone. To blokada techniczna, zgoda właściciela już jest. | Cały kod i historia lokalnie, ZIP/bundle do przekazania; M3 ukończone; kompletne źródła i historia lokalnie. M4 nie rozpoczęte. | OPEN_PUBLICATION_AUTH |
+| B5 | Publikacja źródeł potwierdzona 2026-10-28T14:20:39+00:00: git push origin main PASS, zdalny HEAD=8cf20683525bdaeb20192e604d2cf881ce4afb1f. | Zgoda i uwierzytelnienie potwierdzone; import snapshotu bez odtworzenia brakujących commitów. STOP po M3. | CLOSED |
 
 ## Następny krok
 
-**STOP — zakończono M3.1–M3.5.** Właściciel 2026-10-27 ograniczył zlecenie do końcaM3. Nie rozpoczynaj M4 ani późniejszych etapów. Wszystkie zadaniaM4 zachowująTODO. Następne prace wymagają nowego polecenia właściciela; nie jest to blokada techniczna ani fałszywy statusBLOCKED. GitHubB5 nadal blokuje publikację; zgoda na push obowiązuje, bez poprawnego uwierzytelnienia nie deklaruj synchronizacji.
+**STOP — zakończono M3.1–M3.5.** Właściciel 2026-10-27 ograniczył zlecenie do końcaM3. Nie rozpoczynaj M4 ani późniejszych etapów. Wszystkie zadaniaM4 zachowująTODO. Następne prace wymagają nowego polecenia właściciela; nie jest to blokada techniczna ani fałszywy statusBLOCKED. Publikacja GitHub została potwierdzona 28.10.2026; B5 zamknięta, historia zdalna zachowana. Brak historii źródłowej ZIP opisano w raporcie synchronizacji.
 
 ## Instrukcja uruchomienia agenta (do wklejenia Codex)
 
@@ -525,8 +527,10 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 > Przeczytaj `JARVIS_MASTER_PLAN.md` i traktuj go jako nadrzędną instrukcję oraz jedyny dziennik postępu. Wykonuj zadania M0–M8 kolejno, aktualizując status, dowody, testy, Snapshot, Dziennik i Następny krok w tym samym pliku po KAŻDYM zadaniu. Nie kończ na planie; twórz kod i testy. Nie zmieniaj produkcyjnej AutoLogiki, Supabase ani urządzeń. Kontynuuj od pierwszego niewykonanego zadania. Jeżeli czegoś nie da się wykonać, oznacz BLOCKED, opisz przyczynę i realizuj następne niezależne zadanie.
 
-## Synchronizacja GitHub 2026-10-28 — IN_PROGRESS
+## Synchronizacja GitHub 2026-10-28 — VERIFIED
 
 Plan: import 379 plików zweryfikowanego manifestu 5aba06c na istniejącą historię origin/main, kontrole i push bez force, następnie zamknięcie B5 dopiero po potwierdzeniu zdalnego HEAD. Kryterium: opublikowane źródła/testy/migracje/dokumentacja, brak sekretów i zgodność HEAD. Dostarczono snapshot ZIP bez .git/bundle; historyczne commity nie są dostępne i nie zostaną odtworzone sztucznie. M4+ poza zakresem.
 
 Kontrole przed push: 843pytest PASS/75skip/0FAIL (220.45 s),149UI PASS,typecheck/build,task-protocols,pip,JS,plan i git diff --check PASS. Pierwsze trzy błędy przenośności testów Windows poprawiono, pełny backend powtórzono. Nie powtarzano lokalnie PG/Docker/Chromium.
+
+Wynik publikacji 2026-10-28T14:20:39+00:00: źródła 8cf20683525bdaeb20192e604d2cf881ce4afb1f opublikowane i potwierdzone przez git ls-remote. B5 CLOSED. Bieżący commit dokumentacji wymaga osobnego push, zgodnie z poleceniem właściciela; po nim końcowy HEAD sprawdzany zdalnie.

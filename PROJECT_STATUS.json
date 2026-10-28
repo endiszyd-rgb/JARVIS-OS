@@ -303,7 +303,7 @@
     "last_completed": "M3.5",
     "journal": "JARVIS_MASTER_PLAN.md"
   },
-  "local_commits_pushed": false,
+  "local_commits_pushed": true,
   "transport": {
     "mode": "closed_text_lab",
     "carrier_connected": false,
@@ -333,23 +333,26 @@
     "verified": 20,
     "done": 0,
     "total": 45,
-    "updated_utc": "2026-10-28T14:16:39+00:00"
+    "updated_utc": "2026-10-28T14:20:39+00:00"
   },
   "publication": {
     "requested": true,
     "authorized_utc": "2026-10-26T07:19:08+00:00",
     "repository": "endiszyd-rgb/JARVIS-OS",
     "branch": "main",
-    "status": "in_progress_snapshot_import",
+    "status": "published_verified",
     "source_checkpoint": "5aba06cf52334454d65522a8fd4161c1a0cd1403",
     "remote_head_at_fetch": "a8b5ee80f2fe15301541bb671a6f2f7e552efbda",
-    "git_push": "not_attempted_this_session",
-    "gh_repository_access": "authenticated",
+    "git_push": "passed",
+    "gh_repository_access": "authenticated_write_confirmed",
     "github_connection_confirmed": true,
     "requires_repeat_owner_approval": false,
     "secrets_and_local_runtime_excluded": true,
     "source_history_available": false,
-    "audit_report": "docs/audits/GITHUB-SYNC-2026-10-28.md"
+    "audit_report": "docs/audits/GITHUB-SYNC-2026-10-28.md",
+    "verified_source_commit": "8cf20683525bdaeb20192e604d2cf881ce4afb1f",
+    "verified_source_push_utc": "2026-10-28T14:20:39+00:00",
+    "blocker_B5": "closed"
   },
   "owner_scope": {
     "through": "M3",

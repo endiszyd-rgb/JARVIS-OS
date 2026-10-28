@@ -1,6 +1,6 @@
 # JARVIS OS 0.10.4 — M3 ukończone
 
-Aktualizacja publikacji 28.10.2026: [raport synchronizacji](audits/GITHUB-SYNC-2026-10-28.md). Snapshot zweryfikowany, brak historii .git w dostawie; publikacja IN_PROGRESS, B5 niezamknięta. Poniższe wyniki M3 pochodzą z 27.10.2026.
+Aktualizacja publikacji 28.10.2026: [raport synchronizacji](audits/GITHUB-SYNC-2026-10-28.md). Snapshot zweryfikowany, brak historii .git w dostawie; publikacja źródeł 8cf20683525bdaeb20192e604d2cf881ce4afb1f potwierdzona zdalnie, B5 CLOSED. Świeże kontrole Windows:843pytest PASS/75skip,149UI/typecheck/build,protokoły zadań/JS/pip/plan PASS. Poniższe wyniki M3 pochodzą z 27.10.2026.
 
 2026-10-27T08:15:42+00:00. **20/45 VERIFIED. M3.1–M3.5 zakończone; STOP przedM4 zgodnie z poleceniem właściciela.**
 
@@ -10,4 +10,4 @@ PASS .venv/bin/python -m pytest -q:843/75skip128.17s; pipcheck/JSsyntax/diff/typ
 
 Zadania są RAM-only w jednym workerze, bez wznowienia/replay po restarcie i bez osobnego GUI zadań. Anulowanie nie cofa wysłanych żądań ani kosztu. TTL900s oznacza odmowę dostępu i lazy cleanup przy kolejnym użyciu rejestru; bez ruchu RAM czyszczony przy shutdown. Szczegóły AI-TASKS.md. Pamięć/profile/panelM3.4 pozostają sprawdzone, PGfeature4/PGfoundation1/SQLite12. Nie edytuj migracji0001–0004.
 
-Najpierw odczytaj masterTXT/MD i AGENTS. M4 pozostajeTODO; nie wybieraj go automatycznie tylko dlatego, że walidator zależności wskazuje je jako technicznie możliwe. GitHubpush nadal niepotwierdzony/B5, pełna historia lokalna; produkcjaAutoLogika/Supabase bez zmian.
+Najpierw odczytaj masterTXT/MD i AGENTS. M4 pozostajeTODO; nie wybieraj go automatycznie tylko dlatego, że walidator zależności wskazuje je jako technicznie możliwe. GitHubpush potwierdzony 28.10, B5 CLOSED; brakująca historia źródłowego ZIP nie została odzyskana; produkcjaAutoLogika/Supabase bez zmian.

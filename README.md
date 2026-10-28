@@ -39,7 +39,7 @@ Aktualny stan: **20/45 VERIFIED; całe M3 ukończone. Zatrzymano pracę przed M4
 
 Zaimportowano zweryfikowany snapshot 0.10.4 z manifestem źródła `5aba06cf52334454d65522a8fd4161c1a0cd1403` (379 plików). Import rozwija istniejącą historię `origin/main` od `a8b5ee8`; nie nadpisuje zdalnej historii. Dostarczony ZIP nie zawiera `.git`, a bundle nie jest dostępny: źródłowy hash dokumentuje pochodzenie, ale sam commit i jego lokalni przodkowie nie zostali odzyskani. Oryginalna paczka pozostaje bez zmian.
 
-Uwierzytelnienie GitHub działa. Publikacja w toku; B5 pozostaje otwarta do potwierdzonego push. Świeże kontrole: 149 UI PASS, typecheck/build, protokoły zadań, pip check, JS i walidator planu PASS. Poprawiono trzy testy nieprzenośne na Windows; końcowa regresja backendu: **843 PASS / 75 skip / 0 FAIL (220.45 s)**. [Pełny raport przejęcia](docs/audits/GITHUB-SYNC-2026-10-28.md); wyniki etapów z 27.10 są historyczne. M4 i późniejsze etapy nie zostały rozpoczęte.
+**Publikacja źródeł potwierdzona; B5 zamknięta.** Zwykły push do `origin/main` opublikował `8cf20683525bdaeb20192e604d2cf881ce4afb1f`; `git ls-remote` potwierdził identyczny zdalny HEAD. Bieżąca aktualizacja dokumentacji zapisuje ten dowód i zamyka blokadę. Świeże kontrole: 149 UI PASS, typecheck/build, protokoły zadań, pip check, JS i walidator planu PASS. Poprawiono trzy testy nieprzenośne na Windows; końcowa regresja backendu: **843 PASS / 75 skip / 0 FAIL (220.45 s)**. [Pełny raport przejęcia](docs/audits/GITHUB-SYNC-2026-10-28.md); wyniki etapów z 27.10 są historyczne. M4 i późniejsze etapy nie zostały rozpoczęte.
 
 ## Aktualny etap 0.10.4 — koniec M3
 
@@ -49,7 +49,7 @@ Zadania działają w pamięci jednego procesu. Wyniki wygasają900s po zakończe
 
 Pamięć → „Pamięć i profile PostgreSQL” nadal obsługuje CRUD/history/CAS, potwierdzenie usunięcia oraz profil i0–5notatek do osobnej rozmowy. Profil/revision i zakres są stałe, zmiana źródła wymaga nowej sesji. Cloud wymaga zgody per tura. [Profile i GUI](docs/POSTGRES-PROFILES.md), [kontekst](docs/POSTGRES-CONTEXT.md). PGfeature4 wymaga jawnej migracji; SQLite12 i PGfoundation1 bez zmian.
 
-**843pytest PASS/75skip (128.17s),76realnePG/API/Chromium PASS/0skip**, pipcheck/JSsyntax i nowy typecheck/build oraz Docker/Compose PASS.149UI=M3.4 bezpowtórki. [Dowód zadań](docs/evals/ai-tasks-m35.json):26POST modeli,6odczytówOpenAPI,6MCP; cztery kombinacje po dwa etapy i cancel przed odczytem. [PG/browser](docs/evals/postgres-m35.json), [Docker](docs/evals/docker-m35.json). Modele odpowiadają syntetycznie; realna inferencja/konto cloud, Windows/telefony/sprzęt/GitHubCI NOT_RUN. GitHubB5 nadal blokuje publikację.
+**843pytest PASS/75skip (128.17s),76realnePG/API/Chromium PASS/0skip**, pipcheck/JSsyntax i nowy typecheck/build oraz Docker/Compose PASS.149UI=M3.4 bezpowtórki. [Dowód zadań](docs/evals/ai-tasks-m35.json):26POST modeli,6odczytówOpenAPI,6MCP; cztery kombinacje po dwa etapy i cancel przed odczytem. [PG/browser](docs/evals/postgres-m35.json), [Docker](docs/evals/docker-m35.json). Modele odpowiadają syntetycznie; realna inferencja/konto cloud, Windows/telefony/sprzęt/GitHubCI NOT_RUN. Publikację potwierdzono 28.10.2026; B5 zamknięta.
 
 ## Historia: checkpoint M3.4 przed ukończeniem
 

@@ -35,4 +35,8 @@
 
 ## Publikacja
 
-IN_PROGRESS. `gh` uwierzytelniony, repo permissions.push=true; fetch potwierdził origin/main a8b5ee8. B5 pozostaje otwarta do potwierdzenia push. Po publikacji trzeba zapisać potwierdzenie zdalnego HEAD i opublikować zamknięcie B5.
+PASS: `git push origin main` opublikował `8cf20683525bdaeb20192e604d2cf881ce4afb1f`; `git ls-remote origin refs/heads/main` zwrócił identyczny hash (2026-10-28T14:20:39+00:00). Przed push fetch potwierdził brak nowych commitów zdalnych: 0 remote-only / 1 local-only. Historia GitHub zachowana. B5 CLOSED, local_commits_pushed=true.
+
+Bieżący commit dokumentacji zapisuje potwierdzenie i zamknięcie B5 po udanym push źródeł, zgodnie z poleceniem właściciela. Obejmuje README, status, master TXT/MD i handoff/raport. Kontrole dokumentacji: walidator planu, 25 testów master planu, identyczność TXT/MD i git diff --check. Końcowy hash dokumentacji jest w historii Git; po jego push ponownie porównywany z origin/main.
+
+Nie odzyskano źródłowego obiektu `5aba06c` ani brakujących przodków; opublikowano zweryfikowane pliki snapshotu. To jedyne ograniczenie przeniesienia historii. Wyniki CI są osobne od lokalnych kontroli; nie deklarujemy ich zaliczenia bez zakończonego workflow.
