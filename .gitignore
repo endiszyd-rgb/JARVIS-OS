@@ -26,3 +26,7 @@ models/
 *.safetensors
 *.pem
 *.key
+
+# Windows packaging outputs
+installer-build/
+installer-dist/

@@ -44,3 +44,7 @@ The owner explicitly requested pushing the current project and all project files
 ## Current owner scope — 2026-10-27
 
 Continue only through the end of M3. Complete M3.4 and M3.5 where verifiable, then stop. Do not start M4 or later stages without a new owner instruction. This overrides the master plan automatic continuation beyond M3.
+
+## Owner delivery scope — 2026-10-28
+
+The owner explicitly requested a Windows installer to install and view the existing interface. Package and verify the current M3 release as a separate delivery task. This does not authorize M4 integrations or declare the whole M8 stage complete.

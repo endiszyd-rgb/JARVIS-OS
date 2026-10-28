@@ -1,5 +1,7 @@
 # Historyczna kolejka R01–R07
 
+Nowe polecenie 28.10: instalator bieżącego M3 dostarczony i zweryfikowany. Następny krok użytkownika: instalacja oraz odbiór interfejsu według WINDOWS-INSTALLER.md. Nie rozpoczynaj automatycznie M4 ani dawnej kolejki R05.
+
 Od importu planu M0–M8 obowiązuje ../JARVIS_MASTER_PLAN.txt (identyczny dziennik MD). Ta wcześniejsza lista opisuje dostarczony zakres i zaległości; nie wybieraj z niej kolejności prac zamiast planu nadrzędnego.
 
 M3.1–M3.5 ukończone. STOP przed M4 zgodnie z właścicielem; nie rozpoczynaj kolejnego etapu automatycznie w planie nadrzędnym. Poniższe opisy R01–R07 są historyczne. Wersja historycznego przekazania 0.8.4-handoff.1. R01 zaimplementowane; jakość rzeczywistego modelu nadal niesprawdzona. Następne zadanie: R05 — odczyt czujników i laboratorium MQTT. R04 dostarczono laboratoryjnie, bez operatora. Stan bieżący w PROJECT_STATUS.json; zamknięcie zadania wymaga kodu, dowodów i aktualizacji stanu. Te opisy są docelowymi wymaganiami — nie implementacją.

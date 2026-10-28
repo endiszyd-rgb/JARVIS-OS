@@ -333,7 +333,7 @@
     "verified": 20,
     "done": 0,
     "total": 45,
-    "updated_utc": "2026-10-28T14:20:39+00:00"
+    "updated_utc": "2026-10-28T14:58:29+00:00"
   },
   "publication": {
     "requested": true,
@@ -359,7 +359,8 @@
     "stop_before": "M4",
     "date": "2026-10-27",
     "status": "completed_stopped_before_M4",
-    "next_requires_new_owner_instruction": true
+    "next_requires_new_owner_instruction": true,
+    "windows_installer_authorized": "2026-10-28"
   },
   "verification_source_date": "2026-10-27",
   "publication_verification": {
@@ -377,5 +378,19 @@
     "pytest_skipped": 75,
     "pytest_failed": 0,
     "pytest_seconds": 220.45
+  },
+  "windows_delivery": {
+    "status": "verified",
+    "version": "0.10.4-windows.1",
+    "installer": "JARVIS-OS-0.10.4-Setup-x64.exe",
+    "sha256": "2b58ceff9f0558054c0231f8c7781520b3ed32765db4f4b5f78527d33e9b660a",
+    "bytes": 28223337,
+    "release_url": "https://github.com/endiszyd-rgb/JARVIS-OS/releases/tag/v0.10.4-windows.1",
+    "report": "docs/evals/windows-installer-0104.json",
+    "pytest_passed": 847,
+    "pytest_skipped": 75,
+    "signed": false,
+    "visual_inspection": "not_run_tool_unavailable",
+    "m4_started": false
   }
 }

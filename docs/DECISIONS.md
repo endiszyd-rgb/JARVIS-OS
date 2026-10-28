@@ -54,3 +54,7 @@ Właściciel ograniczył kontynuację do końca M3; M4 pozostaje TODO. Profil/re
 ## 2026-10-27 — M3.5, zakończenie zakresu M3
 
 Wieloetapowe zadania są jawnym API read-only na istniejącej pętli, nie nowym autonomicznym wykonawcą. Plan1–4etapy pochodzi od właściciela; wspólny limit kosztu, aktualna autoryzacja i cancel przy ostatnimdispatch. RAM-only/jedenworker/TTL900s i brakautoreplay po restarcie są świadomymi ograniczeniami MVP. Nie dołączamy prywatnej pamięci do tego przepływu. CałeM3zakończone; zgodnie z poleceniem właściciela nie rozpoczynamyM4.
+
+## 2026-10-28 — instalator bieżącego M3
+
+Właściciel zlecił instalator do lokalnego obejrzenia interfejsu. Pakujemy obecne M3 jako osobne zadanie dystrybucji, bez M4 i bez zmiany statusów M8. Per-user/offline runtime, localhost-only, osobny katalog danych, lokalny losowy klucz, brak automatycznego uruchamiania i brak aktywacji integracji. Deinstalacja zachowuje dane. Panel pozostaje aplikacją web w domyślnej przeglądarce, launcher zarządza lokalnym procesem.

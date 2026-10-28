@@ -1,5 +1,7 @@
 # Przekazanie JARVIS OS 0.10.4
 
+Dostawa Windows 28.10: instalator 0.10.4-windows.1 VERIFIED; instalacja/reinstalacja/runtime/API/assets/Tk/restart/uninstall PASS, dane zachowane. Regresja847PASS/75skip258.56s; podpis i wizualny podgląd NOT_RUN. Instrukcja: WINDOWS-INSTALLER.md, dowód evals/windows-installer-0104.json. Osobna dostawa na nowe polecenie, M4 nadal nierozpoczęte.
+
 Aktualizacja publikacji 28.10.2026: [raport synchronizacji](audits/GITHUB-SYNC-2026-10-28.md). Snapshot zweryfikowany, brak historii .git w dostawie; publikacja źródeł 8cf20683525bdaeb20192e604d2cf881ce4afb1f potwierdzona zdalnie, B5 CLOSED. Świeże kontrole Windows:843pytest PASS/75skip,149UI/typecheck/build,protokoły zadań/JS/pip/plan PASS. Poniższe wyniki M3 pochodzą z 27.10.2026.
 
 2026-10-27T08:15:42+00:00. **20/45 VERIFIED. M3.1–M3.5 zakończone; STOP przedM4 zgodnie z poleceniem właściciela.**

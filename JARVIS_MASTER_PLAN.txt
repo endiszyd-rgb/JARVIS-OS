@@ -23,16 +23,16 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-10-28T14:20:39+00:00
+- Data ostatniej aktualizacji: 2026-10-28T14:58:29+00:00
 - Bieżący etap: M3 — ukończony; STOP przed M4
-- Aktualne zadanie: brak; publikacja źródeł potwierdzona, B5 zamknięta; STOP po M3
+- Aktualne zadanie: dostawa instalatora Windows VERIFIED; M3 ukończone, M4 nie rozpoczęto
 - Zadania VERIFIED: 20 / 45
 - Zadania DONE: 0 / 45
 - Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
 - Testy: 28.10 Windows PASS843pytest/75skip220.45s,149UI/typecheck/build, task HTTP/MCP, pip/JS/plan. PG76/Chromium/Docker to historyczne wyniki 27.10, bez powtórki lokalnie.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: STOP po M3. Nie rozpoczynać M4 ani dalszych etapów bez nowego polecenia właściciela.
+- Następny krok: zainstalować JARVIS OS i ocenić panel lokalny. Integracje M4+ wymagają osobnego polecenia; nie rozpoczęto ich w ramach instalatora.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -507,6 +507,8 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 | 2026-10-28T14:20:39+00:00 | Publikacja VERIFIED | git push origin main PASS; ls-remote potwierdza 8cf20683525bdaeb20192e604d2cf881ce4afb1f. Zamknięto B5, README/status/handoff/raport/master zaktualizowane. | Źródła843pytest/75skip,149UI/build/protokoły/JS/pip/plan PASS; dokumentacja: plan25testów i diff. | źródła8cf2068; bieżący commit zamknięcia B5 | STOP po M3 |
 
+| 2026-10-28T14:58:29+00:00 | Instalator Windows VERIFIED (osobna dostawa) | Samowystarczalny per-user x64, localhost launcher, prywatny klucz/dane, skróty i uninstall. README/docs/WINDOWS-INSTALLER.md, scripts/windows_launcher.py/build_windows_installer.py/check_windows_installer.py, packaging/windows/jarvis.iss. | PASS847pytest/75skip,pipcheck/build,instalacja/reinstalacja/API/assets/Tk/restart/uninstall z zachowaniem danych; visual NOT_RUN | bieżący commit instalatora | odbiór lokalnego panelu; M4 STOP |
+
 ## Blokady i decyzje użytkownika
 
 | ID | Blokada / pytanie | Co można robić mimo blokady | Status |
@@ -534,3 +536,9 @@ Plan: import 379 plików zweryfikowanego manifestu 5aba06c na istniejącą histo
 Kontrole przed push: 843pytest PASS/75skip/0FAIL (220.45 s),149UI PASS,typecheck/build,task-protocols,pip,JS,plan i git diff --check PASS. Pierwsze trzy błędy przenośności testów Windows poprawiono, pełny backend powtórzono. Nie powtarzano lokalnie PG/Docker/Chromium.
 
 Wynik publikacji 2026-10-28T14:20:39+00:00: źródła 8cf20683525bdaeb20192e604d2cf881ce4afb1f opublikowane i potwierdzone przez git ls-remote. B5 CLOSED. Bieżący commit dokumentacji wymaga osobnego push, zgodnie z poleceniem właściciela; po nim końcowy HEAD sprawdzany zdalnie.
+
+## Instalator Windows — VERIFIED (2026-10-28T14:44:51+00:00)
+
+Nowe polecenie właściciela: dostarczyć instalator i możliwość obejrzenia obecnego interfejsu. Osobne zadanie dystrybucji 0.10.4; nie rozpoczyna M4 i nie oznacza całego M8 jako ukończonego. Plan: samowystarczalny runtime Python3.12 + dependencies + frontend/dist, launcher localhost, prywatny katalog danych/klucz, skróty i deinstalator. Kryteria: kompilacja instalatora, izolowana instalacja/uruchomienie/API/assets/restart/persistence/uninstall, testy launchera, zachowanie danych.
+
+Wynik 2026-10-28T14:58:29+00:00: instalator x64 offline 28 223 337 bajtów, SHA256 2b58ceff9f0558054c0231f8c7781520b3ed32765db4f4b5f78527d33e9b660a. scripts/build_windows_installer.py + packaging/windows/jarvis.iss, launcher i testy; dowód docs/evals/windows-installer-0104.json. PASS rzeczywista instalacja/reinstalacja/runtime/API/assets/restart/retencja danych/deinstalacja oraz Tk lifecycle/browser handoff/early close; pełna regresja847PASS/75skip258.56s,pipcheck/build. Kontrola wizualna NOT_RUN: narzędzie UI nie inicjalizuje się. Certyfikat podpisu instalatora niedostępny; plik niepodpisany. M4+ nie rozpoczęto, statusy45zadań bez zmian. Następne: instalacja i odbiór panelu przez właściciela, potem osobno konfiguracja modelu/PG.

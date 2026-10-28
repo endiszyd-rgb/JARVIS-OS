@@ -1,3 +1,9 @@
+# Windows delivery 0.10.4 — 2026-10-28
+
+- Samowystarczalny instalator x64, launcher lokalnego panelu i prywatny katalog danych.
+- Odrębny test instalacji/reinstalacji/runtime/API/assets/GUI lifecycle/deinstalacji.
+- Bez zmian API/migracji; M4 nie rozpoczęto.
+
 ## 0.10.4 — M3.5 i koniec M3, 2026-10-27
 
 - Owner-only zadania1–4etapowe odczytu z postępem/cancel, idempotency, limitami i wspólnym budżetem. Aktualna tożsamość/config i cancellation także przy ostatnimdispatch.

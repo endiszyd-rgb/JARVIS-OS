@@ -1,5 +1,15 @@
 # JARVIS OS · 0.10.4
 
+## Instalator Windows — obecna wersja M3
+
+[Pobierz instalator i SHA-256](https://github.com/endiszyd-rgb/JARVIS-OS/releases/tag/v0.10.4-windows.1). Samowystarczalny `JARVIS-OS-0.10.4-Setup-x64.exe`: Windows 10/11 x64, instalacja dla bieżącego użytkownika, Python3.12/zależności i zbudowany panel React w paczce. Nie wymaga osobnego Dockera, Node ani Pythona. Skrót **JARVIS OS** uruchamia lokalny serwer i otwiera `/control/` w przeglądarce. W oknie startowym kliknij **Kopiuj klucz dostępu**, następnie w panelu wybierz **Klucz właściciela** i wklej klucz.
+
+Dane i unikalny klucz są poza katalogiem programu; restart/aktualizacja/deinstalacja zachowują dane. Program nie startuje automatycznie z Windows. Zamknięcie okna startowego zatrzymuje serwer. [Instrukcja instalacji, konfiguracji, usuwania i budowania](docs/WINDOWS-INSTALLER.md). Instalator nie jest podpisany cyfrowo; do pobrania dołączona jest suma SHA-256.
+
+To dystrybucja ukończonego M3 na nowe polecenie właściciela, bez rozpoczęcia integracji M4 ani deklaracji ukończenia M8. Pamięć SQLite i model DEMO działają lokalnie; PostgreSQL/pgvector i rzeczywiste modele są osobną konfiguracją, nie częścią instalatora. Operator i urządzenia nie są aktywowane.
+
+Weryfikacja końcowej paczki: PASS instalacja/reinstalacja, rzeczywisty zainstalowany runtime/API/JS/CSS, restart i zachowanie bazy/klucza, Tk lifecycle (także natychmiastowe zamknięcie) oraz deinstalacja bez usuwania danych. Pełna regresja: **847 PASS / 75 skip (258.56 s)**; pip check i nowy build UI PASS. Testy konfiguracji:4 PASS. Szczegółowy dowód zainstalowanej paczki: [windows-installer-0104.json](docs/evals/windows-installer-0104.json). Sprawdzenie wizualne przez narzędzie Windows niedostępne (błąd inicjalizacji); test Tk weryfikuje cykl okna, przekazanie adresu przeglądarce i zatrzymanie.
+
 **Plan nadrzędny:** [JARVIS_MASTER_PLAN.txt](JARVIS_MASTER_PLAN.txt) i identyczny [dziennik MD](JARVIS_MASTER_PLAN.md) zawierają 45 zadań M0–M8 oraz bieżący postęp. Plan pobrano z GitHub (źródło a8b5ee8); historyczna kolejka R01–R07 pozostaje materiałem pomocniczym. Po każdym zadaniu oba pliki, README i kod trafiają do tego samego commitu.
 
 Bieżąca sesja planu:

@@ -1,0 +1,13 @@
+{
+  "passed": true,
+  "installer_sha256": "2b58ceff9f0558054c0231f8c7781520b3ed32765db4f4b5f78527d33e9b660a",
+  "installation": true,
+  "reinstall": true,
+  "installed_runtime_api_assets": true,
+  "restart_preserves_key_database": true,
+  "tk_window_browser_handoff_shutdown": true,
+  "uninstall_preserves_data": true,
+  "visual_inspection": "not_run_tool_unavailable",
+  "qa_artifacts": "C:\\Users\\NITROP~1\\AppData\\Local\\Temp\\jarvis-installer-qa-c857752q",
+  "real_model_or_hardware": false
+}
