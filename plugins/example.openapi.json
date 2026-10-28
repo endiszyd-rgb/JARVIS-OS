@@ -1,0 +1,1 @@
+{"id":"example_openapi","name":"Przykład OpenAPI GET","protocol":"openapi","description":"Po rejestracji skonfiguruj endpoint, schemat i lokalnie sprawdzone odczyty. Bez konfiguracji invoke zwraca 501."}

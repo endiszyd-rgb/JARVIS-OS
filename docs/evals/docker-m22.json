@@ -1,0 +1,27 @@
+{
+  "status": "PASS",
+  "checks": [
+    "control_ui_assets",
+    "compose",
+    "health",
+    "readiness",
+    "auth",
+    "memory_restart",
+    "body_limit",
+    "non_root",
+    "docker_health"
+  ],
+  "cleanup": "removed_project_volumes",
+  "integrations": "disabled",
+  "image": "jarvis-m22-core:local",
+  "image_id": "sha256:ab5e38e8a4b701457d43365790b0e647912fec857bc1887f3c4daf86e1f0279a",
+  "task": "M2.2",
+  "verified_at_utc": "2026-10-25T12:34:11+00:00",
+  "command": "python scripts/check_docker.py --image jarvis-m22-core:local --ca-bundle /etc/ssl/certs/ca-certificates.crt --docker-host unix:///var/run/docker.sock",
+  "not_run": [
+    "Windows11",
+    "WSL2",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

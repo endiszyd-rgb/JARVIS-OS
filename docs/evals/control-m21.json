@@ -1,0 +1,42 @@
+{
+  "check": "chromium_control_center",
+  "source": "actual_chromium_built_react_temporary_core_no_integrations",
+  "passed": true,
+  "checks": [
+    "bootstrap_login",
+    "account_login",
+    "wrong_password_cleanup",
+    "real_counts",
+    "keyboard_navigation",
+    "session_logout_revocation",
+    "external_revocation_401_cleanup",
+    "observer_scope",
+    "credentials_not_persisted",
+    "csp",
+    "mobile_menu",
+    "mobile_selection_focus"
+  ],
+  "mobile": {
+    "viewport": 390,
+    "document": 390
+  },
+  "api_requests": 15,
+  "screenshot": "control-desktop.png",
+  "mobileScreenshot": "control-mobile.png",
+  "task": "M2.1",
+  "verified_at_utc": "2026-10-24T21:58:42+00:00",
+  "backend_tests_passed": 662,
+  "backend_tests_skipped_without_postgres": 24,
+  "component_tests_passed": 10,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "not_run": [
+    "Windows11",
+    "WSL2",
+    "Safari_iPhone",
+    "Android",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

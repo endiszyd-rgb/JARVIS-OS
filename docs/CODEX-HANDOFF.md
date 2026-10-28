@@ -1,0 +1,13 @@
+# Przekazanie JARVIS OS 0.10.4
+
+Aktualizacja publikacji 28.10.2026: [raport synchronizacji](audits/GITHUB-SYNC-2026-10-28.md). Snapshot zweryfikowany, brak historii .git w dostawie; publikacja IN_PROGRESS, B5 niezamknięta. Poniższe wyniki M3 pochodzą z 27.10.2026.
+
+2026-10-27T08:15:42+00:00. **20/45 VERIFIED. M3.1–M3.5 zakończone; STOP przedM4 zgodnie z poleceniem właściciela.**
+
+Core0.10.4: jarvis/ai_tasks.py owner-private RAMTaskManager i main.py API POST/chat/tasks,GET/{id},POST/{id}/cancel.1–4jawneetapy przez istniejący ToolLoop/ToolGateway; currentauth/config/schema i cancellation przy ostatniejgranicy dispatch, provenance poprzednichodpowiedzi, wspólnyrezerwowanybudżetOpenAI przezwszystkieetapy. UUIDidempotency perkonto/15min,2active/32records/180s/128KiB/16KiBcontext, cleanupTTL/lifespan i bezpiecznemetadataaudit/error; brakwznowienia po restarcie/produkcji/zapisów. Taskvalidation422 bez echo/Unicode500.26nowychtests/test_ai_tasks.py, scripts/check_tool_chat.py --tasks i jobCI; docs/AI-TASKS/API/TOOLS/DECISIONS/README/start/status/raport/handoff/changelog/master/evals. M3 zakończone; zgodnie z poleceniem STOP przedM4, wszystkieM4TODO.
+
+PASS .venv/bin/python -m pytest -q:843/75skip128.17s; pipcheck/JSsyntax/diff/typecheck/build. PASS genuineTCP Core/Ollama/OpenAI/OpenAPI/MCP SDK:4kombinacjepo2etapy,26providerPOST/6HTTPread/6MCPread zsyntetycznymiodpowiedziami, idempotentreplaybezI/O, cancelpodczasHTTPprzeddispatch, privacy. Unit/API: cancelmodel/discovery/read i dostawcatłumiącycancel,role/revoke/capacity/TTL/timeout/shutdown/rozmiary/Unicode/config/budgetcałegozadania; stareM3.2bezregresji. PASS76realnePG/API/Chromium/0skip po integracjiM3.5, frontendUI149=M3.4 bezpowtórki; buildponowiony. NowyDockerbuild/Compose/assets/auth/restart/persistence/413/non-root/healthy/cleanup PASS. WstępneFAILimportenabled/oczekiwany409/Unicode naprawione; finalPASS. Realnainferencja/cloudaccount/Windows/sprzęt/GitHubCI NOT_RUN.
+
+Zadania są RAM-only w jednym workerze, bez wznowienia/replay po restarcie i bez osobnego GUI zadań. Anulowanie nie cofa wysłanych żądań ani kosztu. TTL900s oznacza odmowę dostępu i lazy cleanup przy kolejnym użyciu rejestru; bez ruchu RAM czyszczony przy shutdown. Szczegóły AI-TASKS.md. Pamięć/profile/panelM3.4 pozostają sprawdzone, PGfeature4/PGfoundation1/SQLite12. Nie edytuj migracji0001–0004.
+
+Najpierw odczytaj masterTXT/MD i AGENTS. M4 pozostajeTODO; nie wybieraj go automatycznie tylko dlatego, że walidator zależności wskazuje je jako technicznie możliwe. GitHubpush nadal niepotwierdzony/B5, pełna historia lokalna; produkcjaAutoLogika/Supabase bez zmian.

@@ -1,0 +1,77 @@
+{
+  "task": "M3.5",
+  "task_scenarios": [
+    {
+      "provider": "ollama",
+      "protocol": "loop_http",
+      "steps": 2,
+      "provider_posts": 4,
+      "replay": false
+    },
+    {
+      "provider": "ollama",
+      "protocol": "loop_mcp",
+      "steps": 2,
+      "provider_posts": 4,
+      "replay": false
+    },
+    {
+      "provider": "openai",
+      "protocol": "loop_http",
+      "steps": 2,
+      "provider_posts": 4,
+      "replay": false
+    },
+    {
+      "provider": "openai",
+      "protocol": "loop_mcp",
+      "steps": 2,
+      "provider_posts": 4,
+      "replay": false
+    }
+  ],
+  "task_cancel_before_dispatch": true,
+  "passed": true,
+  "checked_utc": "2026-10-28T09:14:09.643536+00:00",
+  "transport": "genuine_loopback_TCP_Core_OpenAI_Ollama_OpenAPI_MCP_SDK",
+  "scenarios": [
+    {
+      "provider": "ollama",
+      "plugin_protocol": "openapi",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "ollama",
+      "plugin_protocol": "mcp",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "openai",
+      "plugin_protocol": "openapi",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "openai",
+      "plugin_protocol": "mcp",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    }
+  ],
+  "provider_posts": 26,
+  "openapi_reads": 6,
+  "mcp_reads": 6,
+  "unselected_call_refused_before_batch_dispatch": true,
+  "audit_privacy": true,
+  "private_memory_attached": false,
+  "history_saved": false,
+  "real_inference": false,
+  "real_provider_account": false,
+  "production_modified": false
+}

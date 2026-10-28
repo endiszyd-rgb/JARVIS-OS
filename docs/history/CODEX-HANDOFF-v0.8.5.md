@@ -1,0 +1,11 @@
+# Przekazanie JARVIS OS0.8.5
+
+Najpierw przeczytaj cały JARVIS_MASTER_PLAN.txt, identyczny MD i AGENTS.md. To nadrzędna kolejka45zadań M0–M8. M0.1–M0.5 oraz M1.1–M1.2 są zweryfikowane, następne M1.3. Historyczne R01–R07 nie wyznaczają teraz kolejności. Każde zadanie zaczyna się IN_PROGRESS z planem/kryterium i kończy kodem, rzeczywistymi testami, oboma dziennikami, README i commitem. Nie zaliczaj urządzeń na podstawie symulatora.
+
+Core FastAPI0.8.5/SQLite11 ma kanoniczne /api/v1 i alias /api z jednego routera. Mounty pamięci/audio/transportu przyjmują prefix i współdzielą magazyny; ich domyślny /api pozostaje dla użycia bezpośredniego. BodyLimit uwzględnia oba prefiksy. Root /ready i oba API/ready sprawdzają tylko klucz i lokalną bazę; /health pozostaje żywotnością. RuntimeConfig maskuje klucz i waliduje path/timeout, readiness używa mode=ro (nie immutable ignorującego WAL), bez sieci. Baza/migracja schema11 bez zmian.
+
+Weryfikacja:353pytest, pip check, kontroleJS, Chromium syntetyczny głosu i transportu z390px PASS; bez realnej inferencji/sprzętu. M1.2 dodatkowo ma rzeczywisty Linuxbuild i izolowany Compose/auth/restart/bodylimit/non-root/healthy/cleanup PASS (docs/evals/docker-m12.json). Windows/WSL2 i zewnętrzne CI NOT_RUN. Szczegóły w docs/RAPORT.md i planie. Skrypt scripts/check_docker.py buduje/testuje izolowany Compose, bez integracji; odczytuje nowy dynamiczny port po restarcie. BuildKitCAsecret jest opcjonalny. M1.3 ma dodać rzeczywiste role/sesje/rate limits/CORS. React/TS/Postgres/Supabase JARVIS pozostają przed implementacją. Nie myl klucza/tokenów z kontami pracowników.
+
+Dotychczasowy głos jest ręcznym półdupleksem z review; telefonia laboratoryjna ma ręczny dispatch, trzy pełne frazy i żadnego operatora. AutoLogika ma tylko potwierdzone readonlyGET/snapshot. Źródła potwierdzono ponownie w M0.2,17hashy; produkcji ani Supabase nie uruchamiano. Dane osobiste, .env, bazy i modele poza Git. Nie wprowadzaj zmian upstream ani urządzeń bez osobnej zgody.
+
+Każdy commit zawiera README. Aktualizuj wszystkie snapshoty, a paczkę twórz scripts/package_handoff.py dopiero z czystego repo po commicie; stary manifest w repo jest historyczny. Zmiany lokalne bez push. Poprzedni kontekst: docs/history/CODEX-HANDOFF-v0.8.4.md.

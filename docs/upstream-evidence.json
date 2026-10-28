@@ -1,0 +1,66 @@
+[
+  {
+    "repository": "langgraph",
+    "commit": "3cd57c038ad827d05f80c6488adea9994156c58c",
+    "files_sha256": {
+      "README.md": "3a13e257af1216962d53d72414a7f44ac1fc5cea34d994bdff60ea2a3b045933",
+      "LICENSE": "d9bb52f2e3540d60ff50d8f0f5b6ba649b7fd346948c4c3d086c8afb120763c7"
+    }
+  },
+  {
+    "repository": "linux-voice-assistant",
+    "commit": "b49fd8dc6534111c12d08b18acbfd1135dc1b082",
+    "files_sha256": {
+      "README.md": "b8c2857a2aa6e5f023b904cccb5bf185819a9091a008bb7beadf3055c4dbd4cb",
+      "LICENSE.md": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "pyproject.toml": "558ced261f52a81e68ac400d022066ab642d42b7a5a541fafbe806a389476f99"
+    }
+  },
+  {
+    "repository": "mem0",
+    "commit": "2c81af3bbe27d9bccb09c772d583df9e9be72ee5",
+    "files_sha256": {
+      "README.md": "f72db3426438dbdf6879a2b50583fbee8e7e2dde5d01308c6295bcd09fd3db86",
+      "LICENSE": "0bbcbe931c353293a2fafce08326181dfeea0e568c566afd4ce8337a70f5e219",
+      "pyproject.toml": "d4bc078a05cc7b9d677bbf4d0b262cfc532495b5aadeded053ac84fd90b6e974"
+    }
+  },
+  {
+    "repository": "openwakeword",
+    "commit": "368c03716d1e92591906a84949bc477f3a834455",
+    "files_sha256": {
+      "README.md": "00190089228bb85e6caf6d11708f0f75931b53b375a33f3bebfa01ee97d02692",
+      "LICENSE": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "pyproject.toml": "58b3a84d91d3d2acdec5f049c33c6ef3b2f754c188a1f2ad9eb4ecd14d5b3177"
+    }
+  },
+  {
+    "repository": "piper",
+    "commit": "619f513580c04dff5ef9a680f6f3f6979ed94d2e",
+    "files_sha256": {
+      "README.md": "a73f576020071a1d58701a40026a451385ef4dad4c9ba0a2499544d988d06e84",
+      "COPYING": "0ae0485a5bd37a63e63603596417e4eb0e653334fa6c7f932ca3a0e85d4af227",
+      "pyproject.toml": "3d8c160ff055260d06c2606caa6e5c90cc46fb5f72c9d49e42c3b050dc24ab43"
+    }
+  },
+  {
+    "repository": "wyoming",
+    "commit": "08a0c258df83fea6e1643bcfe67e86243f01cf31",
+    "files_sha256": {
+      "README.md": "9da6feaa2d5f55e0f872c4410d57088bd81fb32f427e4bfd0323768d1615f888",
+      "LICENSE.md": "13746d509d74e55ea2265fbef204bb7cdbf84a8315b0207e988326cb54387028",
+      "pyproject.toml": "99e646dbc9a0d1dda05033b8332c277481f2e2b57a78bcdd2028ef899ce0540e",
+      "wyoming/event.py": "bb7955ac580116f44b0526bc17c2d1a4a55f5d67283798879cf6b65bc6711c7b",
+      "wyoming/audio.py": "2b749bf0e6822fd8a42fcd8dee938e18dc594ee70209aa6a5f074727500631ce"
+    }
+  },
+  {
+    "repository": "wyoming-faster-whisper",
+    "commit": "b03d4e40cf47e67969fe798b8149b62267db0711",
+    "files_sha256": {
+      "README.md": "b26e0c0ab8b007d689c73ec7fd0a0c626329be2c576ecc0f6dbd14f61aaf20b0",
+      "LICENSE.md": "3b9c1e5ad36ad4c8ba2b05671804a6726619f0483f6a9c0497f149e2ea1c242f",
+      "pyproject.toml": "a16cb6ba9b65c994363497ddcac3dcb22c7c9690acebaef7b8fb7a2b7b611f34"
+    }
+  }
+]

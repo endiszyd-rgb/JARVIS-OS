@@ -1,0 +1,13 @@
+# JARVIS OS0.8.6 — M1.3
+
+23.10.2026. M0.1–M0.5 i M1.1–M1.3 zweryfikowane:8/45. Oba pliki planu mają identyczny stan. Kolejne M1.4, PostgreSQL/RLS; cały Core nadal używa SQLite12.
+
+Dodano jarvis/identity.py: konta z PBKDF2-SHA256/600000 i losową solą, pięć ról, sesje TTL z SHA256 zamiast jawnych tokenów, rewizje kont i odwołanie sesji przy zmianie roli/wyłączeniu. Maksymalnie256kont i16aktywnych sesji/konto. security_api.py udostępnia logowanie/me/logout, właścicielskie tworzenie/listowanie/zmianę kont oraz listowanie/odwołanie sesji. Właściciele współdzielą dane instalacji; ograniczone role nie mają prywatnych rozmów ani pamięci. To nie jest wielodzierżawny system klientów. Bootstrapkey pozostaje wymagany.
+
+security_limits.py: zwalidowane limity API/login, wspólny budżet aliasów per rzeczywisty peer, ograniczona mapa klientów i jawny CORS. Uvicorn w Docker/start.ps1/README ma --no-proxy-headers. Audyt mutacji ma actor; odmowy401/403 zapisują wzorzec trasy bez URL/query/body/sekretów.429 nie jest osobno audytowane. Migracja11→12 ma backup i test zachowania danych oraz starych tokenów. Skonfigurowane integracje pozostają opt-in.
+
+Weryfikacja: .venv/bin/python -m pytest -q — PASS453 (60.37s), pip check PASS. W tym45testów tożsamości,43limitów/konfiguracji i12testów integracjiAPI/rzeczywistegoTCP. Sprawdzono prywatność, brak eskalacji roli, revoke/expiry/restart, brak ominięcia limitu nagłówkami proxy, CORS, aliasy i migrację. Pierwsze testy wskazywały nieistniejący GET/settings; poprawiono test na istniejący telephony/settings, finalPASS. Niezależny przegląd wykrył lookup tożsamości przed publicznym probe: stary nagłówek przy brakującej bazie tworzył pusty plik i500. Probe/UI oddzielono od tego lookup, dwa testy missing/corrupt i ponowiona pełna regresja453PASS oraz rebuildDockerPASS.
+
+Składnia7plikówJS i8kontrolowanych skryptów PASS. Rzeczywisty Chromium syntetyczny: transport13żądań,390px bez overflow; głos2tury/3STT/2TTS, wszystkie3tracki ended/3konteksty closed. Nowy rzeczywisty obraz0.8.6 i izolowany LinuxCompose: build, health/readiness, auth, restart/trwałość,413,nie-root,healthy,cleanup PASS; docs/evals/docker-m13.json. Nie uruchamiano realnych modeli, sprzętu, Windows/WSL2 ani zewnętrznegoCI.
+
+Dokumentacja: SECURITY-ACCESS,API,README,CHANGELOG,status,start i handoff. Bez SSO/resetu hasła/formularza kont w panelu; limity procesowe wymagają osobnego rozwiązania przy wielu workerach. Audyt SQLite nie jest niezmienialnym dziennikiem. Nie wdrożono jeszcze React/Postgres. AutoLogika/Supabase/operator/urządzenia bez zmian. Commity lokalne bez push. Poprzedni raport: history/RAPORT-v0.8.5.md.

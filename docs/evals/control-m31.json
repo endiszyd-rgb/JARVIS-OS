@@ -1,0 +1,43 @@
+{
+  "check": "chromium_llm_provider",
+  "passed": true,
+  "source": "temporary_core_genuine_loopback_synthetic_cloud_no_inference",
+  "checks": [
+    "configured_cloud_catalog",
+    "explicit_model_selection",
+    "cloud_context_notice",
+    "persisted_cloud_session_reply",
+    "preflight_reservation_usage",
+    "escaped_reply",
+    "cloud_default_settings_approval",
+    "privacy_csp_logout"
+  ],
+  "remote_requests": 1,
+  "mobile": {
+    "viewport": 390,
+    "document": 390
+  },
+  "screenshot": "llm-desktop.png",
+  "mobileScreenshot": "llm-mobile.png",
+  "real_inference": false,
+  "task": "M3.1",
+  "verified_at_utc": "2026-10-26T06:23:57+00:00",
+  "backend_tests_passed": 710,
+  "backend_tests_skipped_without_postgres": 24,
+  "component_tests_passed": 141,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "provider_tests": 30,
+  "cost_tests": 18,
+  "not_run": [
+    "paid_OpenAI_account",
+    "real_model_inference",
+    "Windows",
+    "WSL2",
+    "Safari",
+    "iPhone",
+    "Android",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

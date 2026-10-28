@@ -1,0 +1,33 @@
+{
+  "status": "PASS",
+  "checks": [
+    "compose",
+    "health",
+    "readiness",
+    "auth",
+    "memory_restart",
+    "body_limit",
+    "non_root",
+    "docker_health"
+  ],
+  "cleanup": "removed_project_volumes",
+  "integrations": "disabled",
+  "image": "jarvis-m12-core:local",
+  "image_id": "sha256:a834e664eca1b89fcc100ac5d85515c16ed6ecc0e873d0d48f6589cc9824b461",
+  "task": "M1.2",
+  "verified_at_utc": "2026-10-23T05:44:37+00:00",
+  "command": "python scripts/check_docker.py --image jarvis-m12-core:local --ca-bundle /etc/ssl/certs/ca-certificates.crt --docker-host unix:///var/run/docker.sock",
+  "host": "Linux managed cloud; Docker28.4/Compose2.40.3",
+  "not_run": [
+    "Windows11",
+    "WSL2",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ],
+  "notes": [
+    "Earlier helper NameError corrected.",
+    "Dynamic zero host port is re-read after restart; earlier stale-address timeout corrected.",
+    "No owner data or external integrations; temporary project containers and volumes removed."
+  ]
+}

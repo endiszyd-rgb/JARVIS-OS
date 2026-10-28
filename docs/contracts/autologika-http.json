@@ -1,0 +1,64 @@
+{
+  "source_commit": "681f7f5ecf5a1e365022a9ac1cb22b6ff443262c",
+  "source": "electron/main.cjs:createMobileServer/mobileAuthorized",
+  "authentication_header": "X-Autologika-Pin",
+  "caller_id_authenticates_owner": false,
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/health",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/login",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "jarvis_readonly_adapter": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/order/{id}",
+      "jarvis_readonly_adapter": true
+    },
+    {
+      "method": "GET",
+      "path": "/api/sync",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/order/{id}",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/order/{id}/notes",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "PUT",
+      "path": "/api/order/{id}/diagnostics",
+      "jarvis_readonly_adapter": false
+    },
+    {
+      "method": "POST",
+      "path": "/api/intake",
+      "jarvis_readonly_adapter": false
+    }
+  ],
+  "orders_list_limit": 100,
+  "orders_list_excluded_status": "WYDANE",
+  "detail_top_level_fields": [
+    "order",
+    "notes",
+    "diag",
+    "parts",
+    "payments"
+  ],
+  "live_verification": "NOT_RUN",
+  "production_changes": false
+}

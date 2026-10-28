@@ -1,0 +1,12 @@
+.env
+.venv
+data
+.git
+__pycache__
+.pytest_cache
+
+frontend/node_modules
+node_modules
+frontend/dist
+frontend/coverage
+frontend/*.tsbuildinfo

@@ -1,0 +1,45 @@
+{
+  "check": "chromium_plugin_manager",
+  "passed": true,
+  "source": "actual_chromium_temporary_core_genuine_loopback_http",
+  "checks": [
+    "no_automatic_discovery_or_invocation",
+    "configuration_revokes_activation",
+    "unsaved_configuration_blocks_discovery",
+    "explicit_enable_disable",
+    "openapi_catalog_is_not_connection_test",
+    "genuine_reviewed_get_with_environment_secret",
+    "escaped_tool_result",
+    "audit_privacy",
+    "login_hash_matches_dashboard",
+    "observer_owner_gate",
+    "logout_private_cleanup",
+    "credentials_not_persisted",
+    "csp"
+  ],
+  "remote_requests": 1,
+  "api_requests": 14,
+  "mobile": {
+    "viewport": 390,
+    "document": 390
+  },
+  "screenshot": "plugins-desktop.png",
+  "mobileScreenshot": "plugins-mobile.png",
+  "task": "M2.3",
+  "verified_at_utc": "2026-10-25T12:44:17+00:00",
+  "backend_tests_passed": 662,
+  "backend_tests_skipped_without_postgres": 24,
+  "component_tests_passed": 60,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "not_run": [
+    "Windows11",
+    "WSL2",
+    "Safari_iPhone",
+    "Android",
+    "owner_services",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

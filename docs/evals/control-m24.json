@@ -1,0 +1,106 @@
+{
+  "check": "chromium_modules",
+  "passed": true,
+  "source": "actual_chromium_temporary_core_synthetic_snapshot",
+  "checks": [
+    "nine_modules_navigation_mobile",
+    "explicit_remote_read_buttons",
+    "synthetic_snapshot_readonly",
+    "memory_crud_revision_history_confirmation",
+    "automation_proposal_separate_approval",
+    "scheduler_notification_with_fixture_due_time",
+    "telephony_policy_revision_dnd_preview_no_carrier",
+    "security_user_session_revocation",
+    "one_time_service_token_cleared",
+    "home_reader_scope",
+    "workshop_reader_five_domains",
+    "private_route_gates",
+    "credentials_not_persisted",
+    "csp"
+  ],
+  "fixture": {
+    "network_attempts": 0,
+    "source_unchanged": true,
+    "snapshot_unchanged": true,
+    "synthetic_snapshot": true
+  },
+  "mobile": [
+    {
+      "view": "AutoLogika",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Dom",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Urządzenia",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Automatyzacje",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Pamięć",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Telefonia",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Powiadomienia",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Bezpieczeństwo",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Logi",
+      "viewport": 390,
+      "document": 390
+    }
+  ],
+  "api_requests": 70,
+  "screenshots": [
+    "modules-memory-browser.png",
+    "modules-security-browser.png",
+    "modules-workshop-mobile.png",
+    "modules-home-mobile.png",
+    "modules-devices-mobile.png",
+    "modules-automations-mobile.png",
+    "modules-memory-mobile.png",
+    "modules-telephony-mobile.png",
+    "modules-notifications-mobile.png",
+    "modules-security-mobile.png",
+    "modules-logs-mobile.png"
+  ],
+  "task": "M2.4",
+  "verified_at_utc": "2026-10-26T03:22:07+00:00",
+  "component_tests_passed": 128,
+  "backend_tests_passed": 662,
+  "backend_tests_skipped_without_postgres": 24,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "not_run": [
+    "Windows",
+    "WSL2",
+    "Safari",
+    "iPhone",
+    "Android",
+    "owner_services",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

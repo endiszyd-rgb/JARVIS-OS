@@ -1,0 +1,23 @@
+{
+  "status": "PASS",
+  "checks": [
+    "control_ui_assets",
+    "compose",
+    "health",
+    "readiness",
+    "auth",
+    "memory_restart",
+    "body_limit",
+    "non_root",
+    "docker_health"
+  ],
+  "cleanup": "removed_project_volumes",
+  "integrations": "disabled",
+  "image": "jarvis-m33-api-core:local",
+  "image_id": "sha256:909f048c2dc6a0a205c8a933d4319715f10592a21dfad525416e98a0d0d45c47",
+  "task": "M3.3",
+  "stage": "API_checkpoint_IN_PROGRESS",
+  "checked_utc": "2026-10-26T07:13:32.154417+00:00",
+  "real_inference": false,
+  "windows": "NOT_RUN"
+}

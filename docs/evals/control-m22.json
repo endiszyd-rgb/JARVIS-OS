@@ -1,0 +1,74 @@
+{
+  "check": "chromium_conversation_settings_activity",
+  "passed": true,
+  "source": "actual_chromium_temporary_core_demo_no_models",
+  "checks": [
+    "persisted_demo_conversation",
+    "configured_model_selection",
+    "html_as_text",
+    "voice_history_readonly",
+    "settings_preview_separate_approval",
+    "settings_rejection",
+    "activity_filter_refresh",
+    "session_logout_revocation",
+    "private_view_401_cleanup",
+    "observer_owner_gate",
+    "credentials_not_persisted",
+    "csp"
+  ],
+  "mobile": [
+    {
+      "view": "Rozmowa",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Ustawienia",
+      "viewport": 390,
+      "document": 390
+    },
+    {
+      "view": "Historia działań",
+      "viewport": 390,
+      "document": 390
+    }
+  ],
+  "api_requests": 66,
+  "screenshot": "conversation-desktop.png",
+  "mobileScreenshot": "settings-mobile.png",
+  "conversationMobileScreenshot": "conversation-mobile.png",
+  "activityMobileScreenshot": "activity-mobile.png",
+  "settingsScreenshotState": {
+    "scrollY": 920,
+    "active": {
+      "tag": "BODY",
+      "id": "",
+      "className": ""
+    },
+    "skipLink": {
+      "focused": false,
+      "x": 16,
+      "y": -60,
+      "width": 147.265625,
+      "height": 40,
+      "position": "fixed",
+      "transform": "matrix(1, 0, 0, 1, 0, -72)"
+    }
+  },
+  "task": "M2.2",
+  "verified_at_utc": "2026-10-25T12:34:11+00:00",
+  "backend_tests_passed": 662,
+  "backend_tests_skipped_without_postgres": 24,
+  "component_tests_passed": 40,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "not_run": [
+    "Windows11",
+    "WSL2",
+    "Safari_iPhone",
+    "Android",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

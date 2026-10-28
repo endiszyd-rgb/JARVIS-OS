@@ -1,0 +1,1 @@
+{"openapi":"3.0.3","info":{"title":"JARVIS synthetic lab","version":"1.0"},"paths":{"/lab/temperature":{"get":{"operationId":"read_temperature","summary":"Read synthetic temperature","parameters":[],"responses":{"200":{"description":"Synthetic temperature"}}}}}}

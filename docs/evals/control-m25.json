@@ -1,0 +1,155 @@
+{
+  "check": "chromium_changes_accessibility",
+  "passed": true,
+  "source": "actual_chromium_temporary_core",
+  "checks": [
+    "settings_separate_approval",
+    "rollback_actual_settings",
+    "code_review_no_execution",
+    "plain_text",
+    "confirmation_focus",
+    "mobile_menu_keyboard_trap_escape_focus",
+    "private_route_gate",
+    "privacy_csp"
+  ],
+  "structure": [
+    {
+      "view": "Pulpit",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "System",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Rozmowa",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Pamięć",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Ustawienia",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Historia działań",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Pluginy",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "AutoLogika",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Dom",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Urządzenia",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Automatyzacje",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Telefonia",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Powiadomienia",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Zmiany i zgody",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Bezpieczeństwo",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    },
+    {
+      "view": "Logi",
+      "main": 1,
+      "h1": 1,
+      "duplicates": [],
+      "unlabelled": []
+    }
+  ],
+  "mobile": {
+    "viewport": 390,
+    "document": 390
+  },
+  "screenshot": "changes-desktop.png",
+  "mobileScreenshot": "changes-mobile.png",
+  "limitations": "Structural and keyboard checks; not a complete WCAG audit, screen reader or Safari test",
+  "task": "M2.5",
+  "verified_at_utc": "2026-10-26T05:56:11+00:00",
+  "component_tests_passed": 139,
+  "backend_tests_passed": 662,
+  "backend_tests_skipped_without_postgres": 24,
+  "typecheck": "PASS",
+  "production_build": "PASS",
+  "not_run": [
+    "complete_WCAG_audit",
+    "screen_reader",
+    "Safari",
+    "Windows",
+    "WSL2",
+    "iPhone",
+    "Android",
+    "real_models",
+    "hardware",
+    "GitHub_CI"
+  ]
+}

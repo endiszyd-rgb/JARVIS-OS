@@ -1,0 +1,608 @@
+{
+  "suite_version": "reception-pl-v1.0.0",
+  "model": "test:local",
+  "source": "controlled_http",
+  "created_at": "2026-10-22T15:16:25.838316+00:00",
+  "real_model_quality": "unverified",
+  "real_ai_passed": 0,
+  "quality_evaluated": 30,
+  "quality_pass_rate": null,
+  "counts": {
+    "failed": 19,
+    "passed": 11
+  },
+  "error_counts": {
+    "missing_or_wrong_fact:issue": 7,
+    "wrong_intent": 8,
+    "uncertainty": 2,
+    "missing_or_wrong_fact:name": 1,
+    "missing_or_wrong_fact:vehicle": 2,
+    "missing_or_wrong_fact:phone": 1,
+    "missing_or_wrong_fact:preferred_time": 2
+  },
+  "side_effects": "analysis only; no calls, notifications, customer records or database writes",
+  "cases": [
+    {
+      "id": "routine",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "first",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "repeat",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "post-repair",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent",
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "negation",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "quote",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "past",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "hypothesis",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "anger",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "wrong-number",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "ascii",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent",
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "missing",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent",
+        "uncertainty"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "phone-local",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "phone-short",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "injection-action",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "injection-json",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "injection-secret",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "name",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:name"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "vehicle",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:vehicle"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "phone",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:phone"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "time",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:preferred_time"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "booking",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:preferred_time"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "price",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "no-contact",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:issue"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "first-angry",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "repeat-help",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "assistant-fact",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "no-failure",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "passed"
+    },
+    {
+      "id": "uncertain",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "wrong_intent",
+        "uncertainty"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    },
+    {
+      "id": "correction",
+      "source": "controlled_http",
+      "response_source": "ollama_evidence_checked",
+      "errors": [
+        "missing_or_wrong_fact:vehicle"
+      ],
+      "result": {
+        "proposed_kind": "routine",
+        "effective_kind": "routine",
+        "confidence": "high",
+        "evidence": [],
+        "extracted": {},
+        "fact_evidence": [],
+        "source": "ollama_evidence_checked",
+        "needs_clarification": false,
+        "model_name": "test:local"
+      },
+      "status": "failed"
+    }
+  ]
+}

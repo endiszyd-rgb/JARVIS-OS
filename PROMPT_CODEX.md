@@ -1,0 +1,11 @@
+# Pierwsze zadanie dla Codexa — treść do wklejenia
+
+Przejmij istniejący projekt JARVIS OS dla Andreasa Szydłowskiego. Jeżeli widzisz tylko JARVIS-OS.zip, obejrzyj archiwum i rozpakuj jego płaską zawartość do katalogu głównego osobnego repozytorium JARVIS-OS, zachowując .git i sprawdzając konflikty; nie importuj nic do produkcyjnego AutoLogika-OS.
+
+Przeczytaj kolejno 00_START_HERE.md, AGENTS.md, PROJECT_STATUS.json, docs/DECISIONS.md, docs/NEXT_TASKS.md i docs/RAPORT.md. Zweryfikuj HANDOFF-MANIFEST.json przed zmianami, jeśli jest obecny. Użyj Python3.12 i scripts/cloud_setup.py, sprawdź 276 testów, pip check i składnię JS. Brak środowiska lub zależności raportuj dokładnie, bez fikcyjnego zaliczenia.
+
+Następnie kontynuuj R05 z docs/NEXT_TASKS.md: odczyt czujników i laboratorium MQTT. R04 ma trwały transport laboratoryjny i panel klient/właściciel, ręczne dostarczanie komend, limity i zgodę przed mostem; nie ma operatora ani telefonicznego audio. R03 ma półdupleksową rozmowę głosową sprawdzoną w Chromium na syntetycznym mikrofonie/usługach; test prawdziwych modeli i sprzętu oraz wake-word pozostają do wykonania. R02 zawiera ograniczoną automatyczną pamięć pl-declarations-v1, nie dowolną ekstrakcję z modelu. R01 ma już zestaw 30 rozmów i runner. Zrealizuj kod, testy i dokumentację, korzystając z obecnej architektury, bez przepisywania projektu od nowa. Jeśli rzeczywistej Ollamy/modelu nie ma, przygotuj i przetestuj runner na kontrolowanym lokalnym serwerze oraz zostaw wynik jakości jako niesprawdzony. Nie uznawaj odpowiedzi fixture za jakość AI.
+
+Masz zgodę na autonomiczne, odwracalne prace programistyczne i testy bez pytania o kolejne pozwolenie na kontynuację. Nie aktywuj Play/operatora, nie kupuj numerów, nie wysyłaj wiadomości i nie wykonuj połączeń ani fizycznych urządzeń. Nie zmieniaj produkcyjnej AutoLogiki. Nie przekazuj modelowi sekretów i osobistej pamięci w roli recepcji.
+
+Po wykonaniu kolejnego etapu zaktualizuj raport, PROJECT_STATUS i listę zadań, podaj rzeczywiście wykonane testy oraz commit lub zmiany do przeglądu. Jeśli zakres i czas sesji pozwalają, kontynuuj najbliższe niezablokowane zadanie z kolejki, bez ponownego pytania o zgodę na kodowanie. Pytaj tylko o nowe, istotne decyzje produktowe, których nie ma w ustaleniach. Zapisz postęp przed końcem sesji.

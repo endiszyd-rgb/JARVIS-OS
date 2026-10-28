@@ -1,0 +1,25 @@
+.automations-feature { display: grid; gap: 20px; min-width: 0; }
+.automations-feature .app-error { margin-bottom: 0; }
+.automations-notice { display: flex; align-items: flex-start; gap: 9px; margin: 0; padding: 14px 16px; border: 1px solid #3a5542; border-radius: 9px; background: #20372a; color: var(--good); font-size: 13px; line-height: 1.7; }
+.automations-notice svg { width: 17px; height: 17px; margin-top: 2px; }
+.automations-form { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(140px, .6fr); gap: 20px; }
+.automations-message { grid-column: 1 / -1; }
+.automations-form textarea { width: 100%; min-height: 120px; resize: vertical; padding: 12px 14px; border: 1px solid #344153; border-radius: 8px; background: #0f1620; color: var(--text); font: inherit; font-size: 14px; line-height: 1.7; }
+.automations-form .button { justify-self: start; }
+.automations-heading { display: flex; gap: 20px; align-items: flex-start; justify-content: space-between; }
+.automations-heading > div { min-width: 0; }
+.automations-heading .button { flex-shrink: 0; }
+.automations-caption { margin: 16px 0 0; color: var(--subtle); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.automations-preview { border-color: #506443; }
+.automations-preview-list, .automations-list dl { display: grid; gap: 14px; margin: 20px 0; }
+.automations-preview-list > div, .automations-list dl > div { display: grid; grid-template-columns: 130px minmax(0, 1fr); gap: 18px; }
+.automations-preview-list dt, .automations-list dt { color: var(--muted); font-size: 12px; line-height: 1.8; }
+.automations-preview-list dd, .automations-list dd { margin: 0; color: var(--text); font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; }
+.automations-actions { display: flex; flex-wrap: wrap; gap: 12px; }
+.automations-list { display: grid; gap: 14px; padding: 0; margin: 8px 0 20px; list-style: none; }
+.automations-list > li { border: 1px solid var(--border); border-radius: 9px; padding: 18px; min-width: 0; }
+.automations-list h3 { font-size: 15px; margin-bottom: 10px; overflow-wrap: anywhere; }
+.automations-list p { color: var(--muted); font-size: 13px; line-height: 1.8; white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 16px; }
+.automations-list dl { margin-bottom: 0; }
+.automations-tick { border-top: 1px solid var(--border); padding-top: 20px; }
+@media (max-width: 640px) { .automations-form { grid-template-columns: minmax(0, 1fr); } .automations-heading { display: block; } .automations-preview-list > div, .automations-list dl > div { grid-template-columns: minmax(0, 1fr); gap: 4px; } .automations-actions .button, .automations-form .button { width: 100%; } }

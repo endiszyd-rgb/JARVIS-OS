@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "checks": [
+    "postgres_startup",
+    "migrations",
+    "rls",
+    "restricted_runtime",
+    "no_skipped_tests",
+    "container_restart_persistence"
+  ],
+  "tests_passed": 25,
+  "tests_skipped": 0,
+  "postgres_version": "16.15 (Debian 16.15-1.pgdg12+2)",
+  "image": "postgres:16-bookworm",
+  "image_id": "sha256:392c708576858a9a583a1b937503a99df57ca5dae63890748f4d0f2fc848abc6",
+  "cleanup": "removed_isolated_container_and_volume",
+  "production": "not_accessed",
+  "task": "M1.4",
+  "verified_at_utc": "2026-10-24T07:47:42+00:00",
+  "command": "python scripts/check_postgres.py --docker-host unix:///var/run/docker.sock --skip-pull --output docs/evals/postgres-m14.json"
+}

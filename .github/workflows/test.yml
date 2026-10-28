@@ -1,0 +1,86 @@
+name: Core tests
+on: [push, pull_request]
+jobs:
+  test:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python scripts/check_master_plan.py
+      - run: python -m pip check
+      - run: python -m pytest -q
+      - run: python scripts/check_tool_chat.py --tasks
+      - run: python -m jarvis.reception_eval --validate-only
+      - run: node --check jarvis/app.js
+      - run: node --check jarvis/audio_client.js
+      - run: node --check jarvis/pcm_capture.js
+      - run: node --check jarvis/pcm_worklet.js
+      - run: node --check jarvis/audio_conversation.js
+      - run: node --check jarvis/voice_panel.js
+      - run: node --check jarvis/transport_panel.js
+      - run: node scripts/check_memory_ui.cjs
+      - run: node scripts/check_chat_memory_ui.cjs
+      - run: node scripts/check_audio_client.cjs
+      - run: node scripts/check_voice_ui.cjs
+      - run: node scripts/check_pcm_capture.cjs
+      - run: node scripts/check_audio_conversation.cjs
+      - run: node scripts/check_voice_panel.cjs
+      - run: node scripts/check_transport_panel.cjs
+
+  docker-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/check_docker.py --image jarvis-ci:local
+
+  postgres-rls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python scripts/check_postgres.py --output postgres-check.json
+
+  postgres-memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -r requirements-dev.txt
+      - run: python scripts/check_postgres.py --memory --output postgres-memory-check.json
+
+  control-center:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+        working-directory: frontend
+      - run: npm test
+        working-directory: frontend
+      - run: npm run build
+        working-directory: frontend

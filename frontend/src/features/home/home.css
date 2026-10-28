@@ -1,0 +1,13 @@
+.home-panel { min-width: 0; }
+.home-read-form { display: flex; align-items: end; gap: 16px; margin-bottom: 22px; }
+.home-read-form .form-field { flex: 1; max-width: 600px; }
+.home-read-form .button { flex-shrink: 0; margin-bottom: 27px; }
+.home-caption { color: var(--subtle); font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
+.home-empty { padding: 20px 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.home-states { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; padding: 0; margin: 20px 0 0; list-style: none; }
+.home-state { display: flex; justify-content: space-between; align-items: center; gap: 15px; min-width: 0; padding: 18px; border: 1px solid var(--border); border-radius: 9px; background: #131d28; }
+.home-state h3 { margin: 0; font-size: 14px; line-height: 1.7; overflow-wrap: anywhere; }
+.home-state .home-caption { margin: 5px 0 0; }
+.home-state-value { color: var(--accent); margin: 0; font-size: 22px; font-weight: 600; overflow-wrap: anywhere; }
+.home-state-value span { display: block; color: var(--muted); font-size: 12px; font-weight: 400; }
+@media (max-width: 800px) { .home-states { grid-template-columns: minmax(0,1fr); } .home-read-form { display: grid; } .home-read-form .button { margin: 0; justify-self: start; } }

@@ -1,0 +1,378 @@
+{
+  "format_version": 1,
+  "application_version": "0.10.4",
+  "handoff_revision": "0.10.4-handoff.1",
+  "snapshot_date": "2026-10-28",
+  "language": "pl",
+  "owner": "Andreas Szydłowski",
+  "first_read": "JARVIS_MASTER_PLAN.txt",
+  "next_task": null,
+  "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
+  "decisions_file": "docs/DECISIONS.md",
+  "database": {
+    "core_schema": 12,
+    "autologika_schema": 18,
+    "postgres_schema": 1,
+    "postgres_memory_feature_schema": 4
+  },
+  "verification": {
+    "pytest_passed": 843,
+    "python": "3.12",
+    "pip_check": "passed",
+    "js_syntax": "passed",
+    "dom_with_controlled_http": "voice_and_transport_controlled_tests",
+    "real_model_inference": "not_run",
+    "windows": "not_run",
+    "docker": "passed_linux_build_and_isolated_compose_smoke",
+    "hardware": "not_run",
+    "carrier": "not_connected",
+    "controlled_audio_resources": "12_lifecycle_10_pcm_18_pipeline_checks",
+    "browser": "M3.5_repeat_actual_Core_PG_profilechat_Chromium",
+    "voice_chain": "two_turns_generated_js_wav_real_local_protocols_no_inference",
+    "transport": "chromium_owner_caller_isolation_full_lab_flow_390px_no_carrier",
+    "transport_panel": "6_controlled_dom_api_checks",
+    "api_v1": "canonical_and_compatibility_routes_shared_auth_state_limits",
+    "readiness": "owner_key_and_readonly_local_schema12_no_optional_network",
+    "docker_report": "docs/evals/docker-m35.json",
+    "identity": "local_roles_revocable_sessions_peer_limits_cors_audit_verified",
+    "pytest_skipped_without_postgres": 75,
+    "postgres_tests_passed": 76,
+    "postgres_tests_skipped": 0,
+    "postgres_report": "docs/evals/postgres-m35.json",
+    "tool_registry": "41unit_37transport_6API_and_real_local_sdk_lab_passed",
+    "postgres": "76_real_PG_API_browser_passed_M3.5",
+    "react_components_passed": 149,
+    "react_typecheck": "passed_M3.5",
+    "react_build": "passed_M3.5",
+    "control_report": "docs/evals/postgres-m35.json",
+    "llm_cost_foundation": "18_cost_and30_adapter_tests_passed_connected_to_chat",
+    "cloud_provider": "implemented_controlled_protocol_passed_real_account_not_run",
+    "tool_chat_report": "docs/evals/tool-chat-m32.json",
+    "tool_chat": "opt_in_owner_API_bounded_loop_4_genuine_local_protocol_combinations_passed",
+    "react_components": "149_passed_M3.4",
+    "postgres_memory": "implemented_feature2_scoped_long_memory_private_short_context_explicit_AI_integration",
+    "postgres_profiles": "verified_scoped_versions_profilepin_revalidation_and_GUI",
+    "ai_tasks": "verified_explicit_multistep_readonly_RAM_tasks_cancel_currentauth_totalbudget",
+    "ai_tasks_report": "docs/evals/ai-tasks-m35.json"
+  },
+  "production_autologika": {
+    "url": "https://github.com/endiszyd-rgb/Autologika-OS",
+    "audited_commit": "681f7f5ecf5a1e365022a9ac1cb22b6ff443262c",
+    "permission": "read_only",
+    "verified_mobile_endpoints": [
+      "GET /api/orders",
+      "GET /api/order/{id}"
+    ]
+  },
+  "reception": {
+    "mode": "owner_only_lab",
+    "analysis": "Ollama structured output implemented; quality unverified",
+    "calls_placed": false,
+    "notifications_sent": false,
+    "autologika_written": false,
+    "code": [
+      "jarvis/reception.py",
+      "jarvis/reception_ai.py",
+      "jarvis/telephony.py",
+      "jarvis/telephony_transport.py",
+      "jarvis/telephony_adapter.py",
+      "jarvis/transport_panel.js"
+    ],
+    "tests": [
+      "tests/test_reception.py",
+      "tests/test_reception_ai.py",
+      "tests/test_telephony.py",
+      "tests/test_reception_atomic.py",
+      "tests/test_telephony_transport.py",
+      "tests/test_telephony_adapter.py",
+      "tests/test_transport_migration.py"
+    ]
+  },
+  "modules": [
+    {
+      "id": "core",
+      "name": "Core Python",
+      "status": "implemented",
+      "entry_point": "jarvis/main.py",
+      "available": [
+        "FastAPI/SQLite schema12",
+        "konta/role/sesje PBKDF2+SHA256",
+        "limity API/login, jawny CORS, audyt aktora, backup",
+        "opcjonalny PostgreSQL/RLS migration1 i APIrecords"
+      ],
+      "pending": [
+        "SSO/reset hasła/UIkont",
+        "przeniesienie pozostałego SQLite, produkcyjne wdrożenie"
+      ]
+    },
+    {
+      "id": "autologika",
+      "name": "AutoLogika OS",
+      "status": "partial",
+      "entry_point": "jarvis/workshop.py",
+      "available": [
+        "readonly API zleceń",
+        "snapshot8domen schema18"
+      ],
+      "pending": [
+        "realne dane",
+        "kontrolowany zapis/synchronizacja"
+      ]
+    },
+    {
+      "id": "conversation",
+      "name": "Rozmowa, głos i pamięć",
+      "status": "partial",
+      "entry_point": "jarvis/conversations.py",
+      "available": [
+        "sesje Ollama",
+        "ręczna pamięć/FTS/embeddingi",
+        "Wyoming na plikach",
+        "oddzielna polityka pamięci, źródła, korekty z historią, jawna retencja",
+        "ograniczona automatyczna pamięć pl-declarations-v1, atomowy zapis i źródła",
+        "sesje audio i ręczne laboratorium cyklu mikrofonu",
+        "ręczna rozmowa półdupleks: AudioWorklet/PCM/RMS→Wyoming STT→review→osobny czat voice→TTS, test Chromium syntetyczny",
+        "Wspólni dostawcy Ollama/OpenAI, opt-in/ceny/limitUSD przedtransportem i usage; protocoltests",
+        "Osobne ownerAPI/chat/tools: bounded read-only loop, currentauth/config/schema pin, whole-run cloudreservation i genuine localhostprotocols",
+        "Pamięć PG/pgvector i prywatne ownerAPI sesji/AIcontext: TTL/lease/revision/current-sources/RLS, bez SQLitehistory; real TCP protocols",
+        "M3.4: profile/revisions pinned to sessions and PostgreSQL memory GUI",
+        "M3.5: bounded RAM-only multi-step read tasks, cancellation and shared budget"
+      ],
+      "pending": [
+        "swobodna ekstrakcja pamięci z ewaluacją",
+        "wake-word/licencja modelu, głosowe barge-in, prywatne wyjście i satelity",
+        "realne modele, jakość w hałasie i sprzęt",
+        "UI tool-calling, trwałe zadania M3.5 i rzeczywiste konto/provider inference"
+      ]
+    },
+    {
+      "id": "whatsapp",
+      "name": "WhatsApp/Twilio",
+      "status": "partial",
+      "entry_point": "jarvis/whatsapp.py",
+      "available": [
+        "podpisany inbox, deduplikacja, szkice"
+      ],
+      "pending": [
+        "wysyłka",
+        "Business Calling/aktywacja"
+      ]
+    },
+    {
+      "id": "devices",
+      "name": "HA/ESP32/MQTT",
+      "status": "partial",
+      "entry_point": "jarvis/home.py",
+      "available": [
+        "HA readonly, allowlista",
+        "DEMO urządzeń"
+      ],
+      "pending": [
+        "realny MQTT/ESP32",
+        "sterowanie z uprawnieniami"
+      ]
+    },
+    {
+      "id": "automation",
+      "name": "n8n/automatyzacje",
+      "status": "partial",
+      "entry_point": "jarvis/worker.py",
+      "available": [
+        "lokalny scheduler",
+        "Compose/n8n szablon"
+      ],
+      "pending": [
+        "realny workflow/proaktywne kanały"
+      ]
+    },
+    {
+      "id": "plugins",
+      "name": "MCP/OpenAPI",
+      "status": "partial",
+      "entry_point": "jarvis/plugins.py",
+      "available": [
+        "MCP HTTP i OpenAPI GET",
+        "konfiguracja/wyłączanie/allowlisty",
+        "wspólny rejestr/schematy/polityka wykonania, limity i katalog bezI/O"
+      ],
+      "pending": [
+        "kontrolowane zapisy i szersze protokoły"
+      ]
+    },
+    {
+      "id": "changes",
+      "name": "Zmiany zachowania/kodu",
+      "status": "partial",
+      "entry_point": "jarvis/main.py",
+      "available": [
+        "ustawienia/automatyzacje z zatwierdzeniem",
+        "opis propozycji kodu"
+      ],
+      "pending": [
+        "patch/testy/sandbox/rollback kodu"
+      ]
+    },
+    {
+      "id": "control_center",
+      "name": "Control Center",
+      "status": "implemented_mvp",
+      "entry_point": "jarvis/app.js",
+      "available": [
+        "15 widoków web",
+        "ustawienia telefonii i laboratoria recepcji/transportu",
+        "prywatny panel właściciela i osobny kanał klienta, Chromium 390 px sprawdzony",
+        "React/TS /control/: pulpit/System, konta/key, mobile390px/keyboard",
+        "React rozmowy/sesje/modele, ustawienia z osobnym zatwierdzeniem i ostatnie100zdarzeń",
+        "React Plugin Manager: config/reviewedreads/enable-disable/explicit transport test",
+        "React:9widoków modułów, role home/workshop reader, lokalne zapisy z rewizjami i zgodami",
+        "Zmiany i zgody: decisions/rollback, sprawdzona struktura16widoków i keyboard/mobilefocus"
+      ],
+      "pending": [
+        "pełny WCAG/czytnik/Safari",
+        "PWA/telefony"
+      ]
+    },
+    {
+      "id": "clients",
+      "name": "Windows/iOS/Android",
+      "status": "prepared_not_verified",
+      "entry_point": "scripts/start.ps1",
+      "available": [
+        "skrypt Windows",
+        "web panel"
+      ],
+      "pending": [
+        "Windows, telefony, HTTPS"
+      ]
+    },
+    {
+      "id": "operations",
+      "name": "Operacje i bezpieczeństwo",
+      "status": "partial",
+      "entry_point": "jarvis/network.py",
+      "available": [
+        "role, audyt, kopie, DNS/IP pinning, health"
+      ],
+      "pending": [
+        "monitoring, retencja, odtwarzanie i aktualizacje"
+      ]
+    }
+  ],
+  "commands": {
+    "setup": "python3.12 scripts/cloud_setup.py",
+    "test_linux": ".venv/bin/python -m pytest -q",
+    "test_windows": ".venv/Scripts/python.exe -m pytest -q",
+    "js": "node --check jarvis/app.js",
+    "verify_delivery_before_edits": "python3 scripts/verify_handoff.py"
+  },
+  "secrets_included": false,
+  "external_repository_connected": true,
+  "cloud_environment_created": true,
+  "completed_tasks": {
+    "R01": {
+      "status": "implemented_quality_unverified",
+      "suite_version": "reception-pl-v1.0.0",
+      "synthetic_cases": 30,
+      "runner": "python -m jarvis.reception_eval",
+      "controlled_http_report": "docs/evals/controlled-http-v1.json"
+    },
+    "R02": {
+      "status": "implemented_bounded_declarations",
+      "extractor": "pl-declarations-v1",
+      "free_form_extraction": "not_implemented",
+      "docs": "docs/PAMIEC-AUTOMATYCZNA.md"
+    },
+    "R03": {
+      "status": "manual_half_duplex_implemented_synthetic_browser_verified",
+      "docs": "docs/ROZMOWA-GLOSOWA.md",
+      "wake_word": "not_implemented",
+      "voice_barge_in": "not_implemented",
+      "real_models_and_devices": "not_verified"
+    },
+    "R04": {
+      "status": "durable_transport_lab_and_panel_implemented",
+      "schema": 11,
+      "docs": "docs/TRANSPORT-TELEFONII.md",
+      "adapter": "pure_lab_no_network",
+      "real_carrier_audio": "not_implemented"
+    }
+  },
+  "current_task": {
+    "id": null,
+    "stage": "STOPPED_AFTER_M3",
+    "last_completed": "M3.5",
+    "journal": "JARVIS_MASTER_PLAN.md"
+  },
+  "local_commits_pushed": false,
+  "transport": {
+    "mode": "closed_text_lab",
+    "carrier_connected": false,
+    "calls_placed": false,
+    "notifications_sent": false,
+    "dispatch": "manual",
+    "deadline_refresh": "read_or_event_no_background_worker",
+    "server_clock": true,
+    "caller_token": "hashed_scoped_expiring",
+    "caller_projection": "strict_public_whitelist",
+    "semantic_ai": "not_connected",
+    "docs": "docs/TRANSPORT-TELEFONII.md"
+  },
+  "legacy_queue_task": {
+    "id": "R05",
+    "stage": "queued_readonly_sensor_lab",
+    "remaining": [
+      "kontrakt i mapowanie odczytów czujników",
+      "laboratorium MQTT ze świeżością danych i uprawnieniami",
+      "powiadomienia najpierw jako lokalna kolejka bez wysyłki"
+    ],
+    "physical_device_control": false
+  },
+  "master_plan": {
+    "source": "JARVIS_MASTER_PLAN.txt",
+    "journal": "JARVIS_MASTER_PLAN.md",
+    "verified": 20,
+    "done": 0,
+    "total": 45,
+    "updated_utc": "2026-10-28T14:16:39+00:00"
+  },
+  "publication": {
+    "requested": true,
+    "authorized_utc": "2026-10-26T07:19:08+00:00",
+    "repository": "endiszyd-rgb/JARVIS-OS",
+    "branch": "main",
+    "status": "in_progress_snapshot_import",
+    "source_checkpoint": "5aba06cf52334454d65522a8fd4161c1a0cd1403",
+    "remote_head_at_fetch": "a8b5ee80f2fe15301541bb671a6f2f7e552efbda",
+    "git_push": "not_attempted_this_session",
+    "gh_repository_access": "authenticated",
+    "github_connection_confirmed": true,
+    "requires_repeat_owner_approval": false,
+    "secrets_and_local_runtime_excluded": true,
+    "source_history_available": false,
+    "audit_report": "docs/audits/GITHUB-SYNC-2026-10-28.md"
+  },
+  "owner_scope": {
+    "through": "M3",
+    "stop_before": "M4",
+    "date": "2026-10-27",
+    "status": "completed_stopped_before_M4",
+    "next_requires_new_owner_instruction": true
+  },
+  "verification_source_date": "2026-10-27",
+  "publication_verification": {
+    "date": "2026-10-28",
+    "python": "3.12.16",
+    "platform": "Windows",
+    "backend_final": "passed",
+    "frontend_tests_passed": 149,
+    "typecheck_build": "passed",
+    "task_protocols": "passed",
+    "pip_check": "passed",
+    "js_checks": "passed",
+    "postgres_docker_browser": "not_rerun_locally",
+    "pytest_passed": 843,
+    "pytest_skipped": 75,
+    "pytest_failed": 0,
+    "pytest_seconds": 220.45
+  }
+}

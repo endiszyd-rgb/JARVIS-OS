@@ -1,0 +1,26 @@
+.activity-panel { min-width: 0; }
+.activity-toolbar { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; }
+.activity-toolbar > div { min-width: 0; }
+.activity-toolbar .button { flex: 0 0 auto; }
+.activity-toolbar .panel-description { max-width: 700px; margin-bottom: 20px; }
+.activity-filter { max-width: 580px; margin: 2px 0 22px; }
+.activity-filter label { display: inline-flex; align-items: center; gap: 8px; }
+.activity-filter label svg { width: 15px; height: 15px; }
+.activity-caption { color: var(--subtle); font-size: 12px; line-height: 1.8; overflow-wrap: anywhere; }
+.activity-empty { padding: 22px 0; margin-bottom: 0; color: var(--muted); font-size: 14px; line-height: 1.8; }
+.activity-events { padding: 0; margin: 20px 0 0; list-style: none; }
+.activity-event { min-width: 0; padding: 19px 0; border-top: 1px solid var(--border); }
+.activity-event-heading { display: flex; justify-content: space-between; align-items: flex-start; gap: 18px; margin-bottom: 12px; }
+.activity-event-heading strong { min-width: 0; color: var(--text); font-size: 13px; line-height: 1.7; font-weight: 600; overflow-wrap: anywhere; }
+.activity-event-heading time { flex: 0 0 auto; color: var(--subtle); font-size: 12px; line-height: 1.8; text-align: right; }
+.activity-details { min-width: 0; color: var(--muted); font-size: 12px; line-height: 1.8; }
+.activity-details summary { width: fit-content; min-height: 44px; padding: 11px 0; cursor: pointer; color: #b7c9da; }
+.activity-details summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 3px; }
+.activity-details pre { max-width: 100%; max-height: 24rem; padding: 16px; margin: 5px 0 0; border: 1px solid var(--border); border-radius: 8px; background: #0e151f; color: #c8d6e4; white-space: pre-wrap; overflow: auto; overflow-wrap: anywhere; font-size: 12px; line-height: 1.8; }
+@media (max-width: 650px) {
+  .activity-toolbar { flex-direction: column; gap: 0; margin-bottom: 21px; }
+  .activity-toolbar .button { min-height: 44px; }
+  .activity-event-heading { flex-direction: column; gap: 4px; }
+  .activity-event-heading time { text-align: left; }
+  .activity-details pre { padding: 12px; }
+}

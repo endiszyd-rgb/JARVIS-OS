@@ -1,0 +1,20 @@
+{
+  "status": "PASS",
+  "checks": [
+    "control_ui_assets",
+    "compose",
+    "health",
+    "readiness",
+    "auth",
+    "memory_restart",
+    "body_limit",
+    "non_root",
+    "docker_health"
+  ],
+  "cleanup": "removed_project_volumes",
+  "integrations": "disabled",
+  "image": "jarvis-m25-core:local",
+  "image_id": "sha256:ee4198c0ac2820559ca167edebb7d0e502e4513510079a9840ada86e79975950",
+  "task": "M2.5",
+  "verified_at_utc": "2026-10-26T05:56:11+00:00"
+}

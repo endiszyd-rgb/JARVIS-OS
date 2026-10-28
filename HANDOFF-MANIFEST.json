@@ -1,0 +1,1524 @@
+{
+  "format_version": 1,
+  "application_version": "0.10.4",
+  "handoff_revision": "0.10.4-handoff.1",
+  "source_commit": "5aba06cf52334454d65522a8fd4161c1a0cd1403",
+  "files": {
+    ".dockerignore": {
+      "size_bytes": 138,
+      "sha256": "d4eb36fd2e609dfad1e32fd70247c8eefc4ec8a9f19eaadc610e110197cc729c"
+    },
+    ".env.example": {
+      "size_bytes": 4158,
+      "sha256": "1d3ab26255572d0faa6c74085393ae1272f03097e59a659db1852c64768c2fca"
+    },
+    ".github/workflows/test.yml": {
+      "size_bytes": 2792,
+      "sha256": "8da47c43e9dbb38fa232e2b829dca076ea7835800a8204e2234dab69f1bd0a39"
+    },
+    ".gitignore": {
+      "size_bytes": 140,
+      "sha256": "a73c333411ae24382bb081fe998c5768f2b4900fde1b44a0af6e8c91a4af6837"
+    },
+    "00_START_HERE.md": {
+      "size_bytes": 4969,
+      "sha256": "982b1e071d339f70f5dfd95d18fea168082cf531ff8e51d897eaa977525ce0a5"
+    },
+    "AGENTS.md": {
+      "size_bytes": 5619,
+      "sha256": "aadf8c34ee02c402664f89bc056dbabe90a5e37852b94db1f5c8cfb1642dd500"
+    },
+    "CHANGELOG.md": {
+      "size_bytes": 15880,
+      "sha256": "0be66b9c5d31f81de79895b9ff83ff6eb4284b0d32ebca3fbb913d34513707c7"
+    },
+    "Dockerfile": {
+      "size_bytes": 1214,
+      "sha256": "dabb2d07e81d993bacedcaa234d4b20ff878860a4061da56a421c31700f94c5f"
+    },
+    "JARVIS_MASTER_DEPENDENCIES.json": {
+      "size_bytes": 5592,
+      "sha256": "9fbe67fc2c06cd3dc56a1e86761d95114502ce97490566bc9ac25a3608f28a69"
+    },
+    "JARVIS_MASTER_PLAN.md": {
+      "size_bytes": 85709,
+      "sha256": "732d2dc08af1d32a40b5445c1a1fd26852daff0aec91c9c49fb05120e93526a9"
+    },
+    "JARVIS_MASTER_PLAN.txt": {
+      "size_bytes": 85709,
+      "sha256": "732d2dc08af1d32a40b5445c1a1fd26852daff0aec91c9c49fb05120e93526a9"
+    },
+    "PROJECT_STATUS.json": {
+      "size_bytes": 12579,
+      "sha256": "10161d770784e3cc37af040031159cecd0afa1039071722eea5be422b2da58b9"
+    },
+    "PROMPT_CODEX.md": {
+      "size_bytes": 2390,
+      "sha256": "2cb8621c7867ba1e95edc30dfeade3662c12fa2ae5b89e9de6166af20d86a5d4"
+    },
+    "README.md": {
+      "size_bytes": 21586,
+      "sha256": "ee8bba118929e1ea3b3b497bc3570c91a8e6e4ad48e6367ae95115033b57d9d8"
+    },
+    "compose.yaml": {
+      "size_bytes": 4364,
+      "sha256": "9394ff6f95e364a990c87689d08b8ff52ad8e96151d76eb5dfee88991e1d6f43"
+    },
+    "data/.gitkeep": {
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "docs/AI-TASKS.md": {
+      "size_bytes": 5983,
+      "sha256": "0711b7129d771fdf48643acdd54d87c7a58b39bb992b8efb9d14a37912da56a5"
+    },
+    "docs/ANALIZA-RECEPCJI-v0.8.md": {
+      "size_bytes": 6620,
+      "sha256": "c348f7c0645c62342175ebb9b3bfef0f000cd93449d933b377daf05c302de7dd"
+    },
+    "docs/API.md": {
+      "size_bytes": 20117,
+      "sha256": "53e994b87bc9e48f8bf4dc18a00677afda031cceff37dfb67ab0a3c7249df6cf"
+    },
+    "docs/ARCHITEKTURA.md": {
+      "size_bytes": 10072,
+      "sha256": "253eb6e1242d56e4ed7d533a7f36d9311e62c2519b08bdef81d109984e7e17c0"
+    },
+    "docs/AUDYT_AUTOLOGIKA.md": {
+      "size_bytes": 6820,
+      "sha256": "f28303273d944d4bc45756742101bd328a2d7007655a0fb86eca027e60727d18"
+    },
+    "docs/CODEX-HANDOFF.md": {
+      "size_bytes": 2424,
+      "sha256": "d2cad94da4356a138caf5adf9b46c6b1c05b7a5c8d8a401b6541c70eaf0954fe"
+    },
+    "docs/CONTROL-CENTER.md": {
+      "size_bytes": 13162,
+      "sha256": "5028dca0773ae3cd0453d05a44d1a8c4e0af58791176c7163fb479e18ed8b261"
+    },
+    "docs/DECISIONS.md": {
+      "size_bytes": 7803,
+      "sha256": "d26fd3533b9eaea869ccb4c8fb9c34709e92ba0147fa511c3bb3d351283ec33f"
+    },
+    "docs/DOCKER-WINDOWS.md": {
+      "size_bytes": 5439,
+      "sha256": "678f2a38a8f5dee18cb6458add510b1540ab9f04ca10118b95e6f2344376afe4"
+    },
+    "docs/EWALUACJA-RECEPCJI.md": {
+      "size_bytes": 3339,
+      "sha256": "bc0585e65bba0a84abda5db724ef9391271318263eb1ceea8ac02cb6222d2a67"
+    },
+    "docs/GLOS-I-PAMIEC-v0.5.md": {
+      "size_bytes": 4041,
+      "sha256": "d73d54a118742e049a83d60433950e224d9fe6fff28328e3654c32dc4a685fb1"
+    },
+    "docs/LLM-PROVIDERS.md": {
+      "size_bytes": 5395,
+      "sha256": "d26e8eb018dd8a82a755d9e72d144ee43d701a552b65b1b2827dacb26acdc217"
+    },
+    "docs/MODULY-v0.3.md": {
+      "size_bytes": 7840,
+      "sha256": "adc13a043df38eb68d5eb1e5e1e6117aee08f5a26dbf98d522d5d0daa398e916"
+    },
+    "docs/NEXT_TASKS.md": {
+      "size_bytes": 8075,
+      "sha256": "7e13c55ca055102ae8b784dbdbcbf04d1f941201f3c8c438cc6d1f98f847876b"
+    },
+    "docs/OPEN-SOURCE.md": {
+      "size_bytes": 3634,
+      "sha256": "9b322ecd8a94282796772ed38b16532fe134f0e41ed3d90496b1237bb040a550"
+    },
+    "docs/OPERACJE.md": {
+      "size_bytes": 6156,
+      "sha256": "3a770d00cebaaf4305b24922833d73600d707c4b440e7a32e725a9c8a45fcc2f"
+    },
+    "docs/PAMIEC-AUTOMATYCZNA.md": {
+      "size_bytes": 5543,
+      "sha256": "58b32dab82c6d8ebe4ed2b43b8b379f4c666ddb0ecd61ec38a602870d8360fa6"
+    },
+    "docs/PAMIEC-POLITYKA.md": {
+      "size_bytes": 3346,
+      "sha256": "bff31ee184c8e9dfb1c875436477315aa939fb26a3e9bdbddf7585cdbc7f778d"
+    },
+    "docs/POSTGRES-CONTEXT.md": {
+      "size_bytes": 10719,
+      "sha256": "281d9eaccb73cd4fcc9215202186d1959843945fd260a2de9d594ae19dde74b2"
+    },
+    "docs/POSTGRES-MEMORY.md": {
+      "size_bytes": 9183,
+      "sha256": "b86f21adca798a7715dc6961349e9f8ca33e1be9be66b0c8f80531ffbaf805f3"
+    },
+    "docs/POSTGRES-PROFILES.md": {
+      "size_bytes": 6622,
+      "sha256": "cc3ec90bfe9b5403a045b31e37e6bce6b0b529bf5ed03e28cf5b27fb4e3e20ef"
+    },
+    "docs/POSTGRES.md": {
+      "size_bytes": 14289,
+      "sha256": "c8fdf90971e73db33d4f9b3bd5aa411b000b8d7d93941be2759c0a969bf1718a"
+    },
+    "docs/RAPORT-v0.4.md": {
+      "size_bytes": 6782,
+      "sha256": "0d51211bdfa9496464c37de6e2f4d0ad03458ee05b9422fa0f1084399b82f083"
+    },
+    "docs/RAPORT-v0.5.md": {
+      "size_bytes": 6292,
+      "sha256": "3dbb51678316c65b8a62d05da64954d492b6acf0e8fec235f6f4ec909b68cd04"
+    },
+    "docs/RAPORT-v0.6.md": {
+      "size_bytes": 2166,
+      "sha256": "17b6abc30d5caf3816dc591646f0cd0ac665521898ffc7afddee82713e85aa26"
+    },
+    "docs/RAPORT-v0.7.md": {
+      "size_bytes": 3010,
+      "sha256": "a515b4143e79731bfb3ce9a5340b64da29495f7e3f64c65ba65f88acb07a1dbd"
+    },
+    "docs/RAPORT.md": {
+      "size_bytes": 2430,
+      "sha256": "85eb0c0858c94a255c4a90ca606c5f4650e31da9445ed1082af31ab8fe0345fd"
+    },
+    "docs/RECEPCJA-v0.7.md": {
+      "size_bytes": 7437,
+      "sha256": "10bc4021df4395b0429ddbf125c095119cd3a927a9be23a54359e20ad44e648a"
+    },
+    "docs/ROZMOWA-GLOSOWA.md": {
+      "size_bytes": 7525,
+      "sha256": "29ddfe7406e90f78412816c43844a1794f8525b8baa1c90b4f505c2433c387d2"
+    },
+    "docs/ROZMOWY-I-WARSZTAT-v0.4.md": {
+      "size_bytes": 9493,
+      "sha256": "7d2f4093c0b4fe669c34fd2a2b4bcede6cdba7f96a65f8be2efb7f38010cb3dc"
+    },
+    "docs/SECURITY-ACCESS.md": {
+      "size_bytes": 16089,
+      "sha256": "a125cb4a9547612678eac2179ff85aa4354415140aeb9ca40bfa441fcd690cd1"
+    },
+    "docs/SESJE-AUDIO.md": {
+      "size_bytes": 5080,
+      "sha256": "a5b12ff0eab29ee932632b51b1ea2808f4d73f4efabee32a891c02c2addd3a45"
+    },
+    "docs/TELEFONIA-v0.6.md": {
+      "size_bytes": 5533,
+      "sha256": "21f3989d05b9d66e5c25433ce280175600e1888d0e27e96171f56edf6622ea10"
+    },
+    "docs/TEST-STRATEGY.md": {
+      "size_bytes": 3468,
+      "sha256": "f026a8bb2fea4df9d151d86530d8914d90aafe26fb0b792fa618b01d162a97e8"
+    },
+    "docs/TOOL-CALLING.md": {
+      "size_bytes": 8145,
+      "sha256": "318c4bb2b91cc32e0dc9a54e062bdda1bdb518e8af21de07d6debb108160a1f0"
+    },
+    "docs/TOOLS.md": {
+      "size_bytes": 11982,
+      "sha256": "40ff2cee1d3bf62d2957e4cef4ced06d6359fd3667a926745572f1052514e4e4"
+    },
+    "docs/TRANSPORT-TELEFONII.md": {
+      "size_bytes": 13666,
+      "sha256": "f6a6bb69d90185f582edcb4e0e5ca37161da87f934acbb0142417a8b7e109858"
+    },
+    "docs/WINDOWS-CHECKLIST.md": {
+      "size_bytes": 3160,
+      "sha256": "876023385d2529163ca2a04931376a526893b34fae2d6e48cadba8bc84449331"
+    },
+    "docs/adr/0010-master-plan-architecture.md": {
+      "size_bytes": 3996,
+      "sha256": "460a56ce86f5ffd86aa575917f105dfc3d401a24baa9e03b2f03980a2a8b0d5a"
+    },
+    "docs/audits/M0-1-CURRENT-STATE.md": {
+      "size_bytes": 15154,
+      "sha256": "d9166457c1a14ced72dc5e343fd9c68673765ac0e7acef618e25a3cdc4e5be80"
+    },
+    "docs/audits/M0-2-AUTOLOGIKA.md": {
+      "size_bytes": 9193,
+      "sha256": "3c5f731e7cece4e72b450513ebe4e9cc55d96ed87ff7a010d9bc24c83609b250"
+    },
+    "docs/audits/M0-2-evidence.json": {
+      "size_bytes": 16251,
+      "sha256": "3f2f9bcc0fe69c35cd16aee36d739fc92e9ee9b069d99e01f34668923c899faa"
+    },
+    "docs/autologika-evidence.json": {
+      "size_bytes": 11132,
+      "sha256": "362370f4dfe0275315d7e5467b7eb50f38dff42c3a39816766b67abf22589ad9"
+    },
+    "docs/contracts/AUTOLOGIKA.md": {
+      "size_bytes": 4926,
+      "sha256": "655cab5ef16ce5deeeac948b95525dc7c7c4528e0fb1734b07f3eb350df0024b"
+    },
+    "docs/contracts/autologika-http.json": {
+      "size_bytes": 1445,
+      "sha256": "ec0c6304ff5ffffc2805268b0d3928ffaa8fbd6fb975e03e0e836822d66fdd59"
+    },
+    "docs/evals/activity-mobile.png": {
+      "size_bytes": 53268,
+      "sha256": "fc0bbe913418ccb9e32a352ef9295054660027b992228f63b1a597ad03ed437b"
+    },
+    "docs/evals/ai-tasks-m35.json": {
+      "size_bytes": 1708,
+      "sha256": "66fcf7b10d2674b1cf36cd46332dc42cb51c9a4e4fd261b51956bd9cccd4315c"
+    },
+    "docs/evals/changes-desktop.png": {
+      "size_bytes": 123913,
+      "sha256": "3c77129fbaac7631f2972c3abf9c90730b06544aa32247e23b1d46a4a19e3d20"
+    },
+    "docs/evals/changes-mobile.png": {
+      "size_bytes": 69185,
+      "sha256": "b92d1c4ba4a9539d55777070ae2da0c2a119241ebc1edca76ab1c627ca4d1084"
+    },
+    "docs/evals/control-desktop.png": {
+      "size_bytes": 288814,
+      "sha256": "09e0ed948aadae6acd3fd2c8bf9e74a2489f9dfd62e84c4cc93eb2a5ad121c3c"
+    },
+    "docs/evals/control-m21.json": {
+      "size_bytes": 991,
+      "sha256": "a6970a4e1cad09259c14f837846a316587b2918e59b33561aa1a2277b92b1b43"
+    },
+    "docs/evals/control-m22.json": {
+      "size_bytes": 1721,
+      "sha256": "6950edd2592e70b4d6ac675f5f091fe8b78c87f666918aba586d34affa2b81cb"
+    },
+    "docs/evals/control-m23.json": {
+      "size_bytes": 1168,
+      "sha256": "791958b4982a10ddd70df8b2786bdce1cc38f191a24f92282fc79805faeaa5e1"
+    },
+    "docs/evals/control-m24.json": {
+      "size_bytes": 2408,
+      "sha256": "0a1f48dca0038fcfdf169206beec372f4fa700efdb87f0da01d4c8e758ed44ed"
+    },
+    "docs/evals/control-m25.json": {
+      "size_bytes": 2971,
+      "sha256": "95e8e79ec5b9de85f688901b4c1dd998b613dd50084ed4e2232b9fffa1520810"
+    },
+    "docs/evals/control-m31.json": {
+      "size_bytes": 1041,
+      "sha256": "675f06852aa217c74c32e86c019e5c912f6d74a8c6e50d3018693bca65adb91e"
+    },
+    "docs/evals/control-m34-desktop.png": {
+      "size_bytes": 185402,
+      "sha256": "892f677696618a940c33283d21529a397fc831b9f8fb121c5ce8572ff6a6db5e"
+    },
+    "docs/evals/control-m34-mobile.png": {
+      "size_bytes": 133704,
+      "sha256": "6f0e00a24e36e02621098ab0ab73e3dca7e45d528a090896df000569111a662f"
+    },
+    "docs/evals/control-mobile.png": {
+      "size_bytes": 174025,
+      "sha256": "d1d0a9a5168941ff9dab10b625978a59b5987fa789208e27eeaa72f98f64e7a6"
+    },
+    "docs/evals/controlled-http-v1.json": {
+      "size_bytes": 16457,
+      "sha256": "09b212ae22b9cb2d0d8231f8503c49c951bb14dd67391d54d27cface2a2c8464"
+    },
+    "docs/evals/controlled-http-v1.md": {
+      "size_bytes": 1573,
+      "sha256": "8c55041da81db29967dab1c809c7d312362ed4f3bb0692db62056e91670819a8"
+    },
+    "docs/evals/conversation-desktop.png": {
+      "size_bytes": 138637,
+      "sha256": "a1fe0492237d2959508082fdb09a83a90ae6e08ead001bd3ed2c4fe18f88bede"
+    },
+    "docs/evals/conversation-mobile.png": {
+      "size_bytes": 108378,
+      "sha256": "25ab01d2d024b275266457a90c18ea540f0a7bd7fa8a5239b2abdcd2037b9ff9"
+    },
+    "docs/evals/docker-m12.json": {
+      "size_bytes": 1018,
+      "sha256": "70d56067cce96ef3fd0f32627c3aa2220264b1ad271dd90b7accc883fea97381"
+    },
+    "docs/evals/docker-m13.json": {
+      "size_bytes": 764,
+      "sha256": "479cb6642b9f2a0acbe52e4137ceaf7d203a87ca2bd26fe80d6145a2414f8ee0"
+    },
+    "docs/evals/docker-m14.json": {
+      "size_bytes": 705,
+      "sha256": "9690b646426db48e230285ed01f9ddd7d79577171224534804e4dd8f52fb02da"
+    },
+    "docs/evals/docker-m15.json": {
+      "size_bytes": 705,
+      "sha256": "5678d72aa67e1109a5f6e7398120281738a9167e11445a659366e93ce0b0ff4b"
+    },
+    "docs/evals/docker-m21.json": {
+      "size_bytes": 711,
+      "sha256": "695e41f40aa947339f6a5ed242bf893f1da40acc841e5f1385cad3f715b8a433"
+    },
+    "docs/evals/docker-m22.json": {
+      "size_bytes": 711,
+      "sha256": "b23ed0a43527274ee530069a3484a766fb36ccee810e4196a615e6bac7c1d617"
+    },
+    "docs/evals/docker-m23.json": {
+      "size_bytes": 711,
+      "sha256": "bf4d02e5bdd27bf0d1d20580c739937bfcb0e74d93121766c0a13c752ba1b36c"
+    },
+    "docs/evals/docker-m24.json": {
+      "size_bytes": 464,
+      "sha256": "ebf7975800ac1cbef8959f8529dffdc68bd72b40e6d3c88bd4099dccc1ff71da"
+    },
+    "docs/evals/docker-m25.json": {
+      "size_bytes": 464,
+      "sha256": "e4c264aa321bab2a3c6696246a71f9f2194014e60466949e46aea5164426241e"
+    },
+    "docs/evals/docker-m31.json": {
+      "size_bytes": 464,
+      "sha256": "a4c84d853e43c0a4519efd0ba6a18935025d72ba412bd151cff6b96b1b3d0923"
+    },
+    "docs/evals/docker-m32.json": {
+      "size_bytes": 518,
+      "sha256": "9d4a149b9faed439d62562b742cb0451ed4cb0aaf070177577df4a0cf404be25"
+    },
+    "docs/evals/docker-m33-api.json": {
+      "size_bytes": 563,
+      "sha256": "fb18e5dc5a6a6e1fffa5c81acf2652a4d30fb9531ae960dabee57fafc171d391"
+    },
+    "docs/evals/docker-m33.json": {
+      "size_bytes": 511,
+      "sha256": "5e04c284f36e7b09e2163ab531b8c34443ccd0cad9f8f9cf6bb13b715d82c83f"
+    },
+    "docs/evals/docker-m34.json": {
+      "size_bytes": 511,
+      "sha256": "cc64f686edbf9a3b7512611864456476387e2da14cfa6ee4ee262fc68a7d384e"
+    },
+    "docs/evals/docker-m35.json": {
+      "size_bytes": 511,
+      "sha256": "71c90a2f7628afdb12a950b35bdabc06b8f8ff18dc27c0235dd56a1c9e574a1b"
+    },
+    "docs/evals/llm-desktop.png": {
+      "size_bytes": 152974,
+      "sha256": "5983818a981beb7561d9ae4b7b75c3a952db498cc0596a9a7daa0b7d30441126"
+    },
+    "docs/evals/llm-mobile.png": {
+      "size_bytes": 103190,
+      "sha256": "5ee0ee5f48c42b421495141501ac7ef4652ed40dd1a5fe9653d04895fe8f064b"
+    },
+    "docs/evals/modules-automations-mobile.png": {
+      "size_bytes": 82937,
+      "sha256": "c1db34d8b50482ba4787ad35bbf350da98596ced2affb8d123c4360d6ac35bb1"
+    },
+    "docs/evals/modules-devices-mobile.png": {
+      "size_bytes": 55115,
+      "sha256": "4a76aa5ad49ae64b6453a93e5c0940278a6fa0698869b9d25984104ec8a7f0eb"
+    },
+    "docs/evals/modules-home-mobile.png": {
+      "size_bytes": 48679,
+      "sha256": "08cc5560b6c460fe619f5ac141b3ea6bc7360f03366fcf1eb7201cbbd70c7b37"
+    },
+    "docs/evals/modules-logs-mobile.png": {
+      "size_bytes": 137843,
+      "sha256": "2de60676c551b48773d0969f4d56fce322f1c5faf7700c70febca949d09b7872"
+    },
+    "docs/evals/modules-memory-browser.png": {
+      "size_bytes": 183200,
+      "sha256": "bc4fe50da94f816fc3529743eb00d1d9c4184a0b766ab859e3ac79c3bb696f9c"
+    },
+    "docs/evals/modules-memory-mobile.png": {
+      "size_bytes": 106093,
+      "sha256": "58500c9237102ed175cdda5afd1bb0b78849721ad6484d46557a762bb24b9c92"
+    },
+    "docs/evals/modules-notifications-mobile.png": {
+      "size_bytes": 51455,
+      "sha256": "f17ca94f1532ad868f27d87383ff6778b5d236ec85430314321d6a0d483e41b1"
+    },
+    "docs/evals/modules-security-browser.png": {
+      "size_bytes": 255599,
+      "sha256": "dd2a7e70bb42d5c458b26336e51f69448ac21021f7f8ecd4c134167583e4e5ae"
+    },
+    "docs/evals/modules-security-mobile.png": {
+      "size_bytes": 137665,
+      "sha256": "57b375e37dba005eba5c52ec7c4560aa7f6951fd54162e59ed215d60f0079427"
+    },
+    "docs/evals/modules-telephony-mobile.png": {
+      "size_bytes": 182118,
+      "sha256": "46699593f26beff0f7ff5fabf4f794f86438102fd05fb60b8caba1a36e586e00"
+    },
+    "docs/evals/modules-workshop-mobile.png": {
+      "size_bytes": 73453,
+      "sha256": "24a650137be322756c2dc386bc8abd470f4294225c9897f91886b819f329a4e2"
+    },
+    "docs/evals/plugins-desktop.png": {
+      "size_bytes": 254926,
+      "sha256": "4a2bd3b1e9e824c851bdf3e08d0a5474a74e1de301c929d9ef0e0c544d48ea91"
+    },
+    "docs/evals/plugins-mobile.png": {
+      "size_bytes": 171200,
+      "sha256": "4519ac05adeea8bffd4d7c5763185be4076734c66ed37fb9d3f56d229fe50490"
+    },
+    "docs/evals/postgres-m14.json": {
+      "size_bytes": 701,
+      "sha256": "0ac02612985bbba68c91fcbd3bddba142f020c6b2a4ecf16dc8c19555879e241"
+    },
+    "docs/evals/postgres-m35.json": {
+      "size_bytes": 660,
+      "sha256": "d1fbbed92a4916f6f9171b710b6e1668f69a135020baa193879db06ea47df824"
+    },
+    "docs/evals/postgres-memory-m33-api.json": {
+      "size_bytes": 672,
+      "sha256": "72f2be4b43c4ffcfea6c8753ac17f434d8094c847e6aa402de6e3acb62a1e51f"
+    },
+    "docs/evals/postgres-memory-m33-foundation.json": {
+      "size_bytes": 634,
+      "sha256": "364f5c75c015620554f886d85fdc879fa1e33e2dafd1f510465732bf8071a276"
+    },
+    "docs/evals/postgres-memory-m33.json": {
+      "size_bytes": 917,
+      "sha256": "bf80f216d485c26deaa3c074e9cdeea245fae932b403be3b6d030172332e8964"
+    },
+    "docs/evals/postgres-profiles-m34-foundation.json": {
+      "size_bytes": 751,
+      "sha256": "acd03ef9a4a84d099120f694b8719c226d8fe627c94bcb9c247ab63b2958cfa1"
+    },
+    "docs/evals/postgres-profiles-m34.json": {
+      "size_bytes": 660,
+      "sha256": "0719ccbc0d8f4817f354c870a2e55e1d994d24fe0a7f8f8857646295f5e8831b"
+    },
+    "docs/evals/settings-mobile.png": {
+      "size_bytes": 73109,
+      "sha256": "64c260acb7c13ab409746ef10a3996f77d18b0335afb1839b0e3b9f56202f212"
+    },
+    "docs/evals/tool-chat-m32.json": {
+      "size_bytes": 1071,
+      "sha256": "d2e8998ecdbadacd0886668f9f5c486e5f83dc05725d2e8962f85de809d38c60"
+    },
+    "docs/history/CODEX-HANDOFF-v0.10.0.md": {
+      "size_bytes": 2614,
+      "sha256": "8ebc747b546b0cd263b08c7b64f99fadb7bb91529ece4b9ee3c3b63da909ec86"
+    },
+    "docs/history/CODEX-HANDOFF-v0.10.1.md": {
+      "size_bytes": 5393,
+      "sha256": "8c7e748c82c8b19b3673c5d0703b6aae2a75b4b6b29ac4e0a3f61e389f142d9a"
+    },
+    "docs/history/CODEX-HANDOFF-v0.10.2.md": {
+      "size_bytes": 4907,
+      "sha256": "4a9b2fffe7b33d5fb317d7f25605bfbe48b17bf5147ccc351aea8735f73d2921"
+    },
+    "docs/history/CODEX-HANDOFF-v0.10.3.md": {
+      "size_bytes": 1785,
+      "sha256": "08fafad92529c4ad9749ae7244b167652886d9148d1ba1571fa1ab04116d0279"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.2.md": {
+      "size_bytes": 10937,
+      "sha256": "a50c801e83d808fca91dcdc7fa3a19d248efde24d4473a06833fa11b1a241bc2"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.3.md": {
+      "size_bytes": 2277,
+      "sha256": "7b753c45e9ec59a6471a672ab7271f91925f37df653a91a21e242b2baba31b2d"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.4.md": {
+      "size_bytes": 3856,
+      "sha256": "9663cb2f06f066b45154e79d81ab7922b92bee101f3f5ab22c3e1bd41a09094d"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.5.md": {
+      "size_bytes": 2320,
+      "sha256": "638edf7ba80d6663c6f4088c7832af0f944404019c63df0559506cdcd43b0305"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.6.md": {
+      "size_bytes": 2126,
+      "sha256": "9d5b13ce021379aa49e5c15ab689d0ba0cf0f946771ce6564775d566d3ca641e"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.7.md": {
+      "size_bytes": 2235,
+      "sha256": "28a8ca8b00fb0ce1630676481efb814e3f56150e31ec06260c6d0ec9b068e012"
+    },
+    "docs/history/CODEX-HANDOFF-v0.8.8.md": {
+      "size_bytes": 1810,
+      "sha256": "36d044e18131765788429cfe833bce8c89617e0f57b07346d076de632eafe52c"
+    },
+    "docs/history/CODEX-HANDOFF-v0.9.0.md": {
+      "size_bytes": 2054,
+      "sha256": "d5b6d008f3ab8b1694465956db88062bd503b58c71f765a5f50bfbc5e70c15db"
+    },
+    "docs/history/CODEX-HANDOFF-v0.9.1.md": {
+      "size_bytes": 1941,
+      "sha256": "b21e66f05d1c4e2e584f6d84db209d6d2be3cae13c71f0b8b11fd896ae781b13"
+    },
+    "docs/history/CODEX-HANDOFF-v0.9.2.md": {
+      "size_bytes": 1914,
+      "sha256": "9e56e41c2314c6c739626fbefb1fba4e6aac61beacef8f4af1d5967d39cd0ed4"
+    },
+    "docs/history/CODEX-HANDOFF-v0.9.3.md": {
+      "size_bytes": 2834,
+      "sha256": "78eb52a63a0ed9a6005593147b403edd02494dffb10c2227c389fb1a7d88c8ee"
+    },
+    "docs/history/CODEX-HANDOFF-v0.9.4.md": {
+      "size_bytes": 2712,
+      "sha256": "43156e33bdef51b422db61a971e02793d577e02e0e84bb499f9e43f62a3e6ab3"
+    },
+    "docs/history/JARVIS_MASTER_PLAN-before-import.md": {
+      "size_bytes": 3033,
+      "sha256": "cd79a8de4f065ff2fca06f9339e8a0f418c031722159e7b2b615f553b21aa087"
+    },
+    "docs/history/RAPORT-v0.10.0.md": {
+      "size_bytes": 2341,
+      "sha256": "7d558e61618fd3ea5e72213be33840d5d13ddb8e354dc9c863db8301aae15896"
+    },
+    "docs/history/RAPORT-v0.10.1.md": {
+      "size_bytes": 5047,
+      "sha256": "28784d8c0cb00c5bad5e0d3e3353e43fe037817d332a8cc4d5a1a2390d7e0e56"
+    },
+    "docs/history/RAPORT-v0.10.2.md": {
+      "size_bytes": 4486,
+      "sha256": "286c5ee731cc1102bda0c7df66cdd0e9d1314966e1d9ebc34e08b4e10269c5b7"
+    },
+    "docs/history/RAPORT-v0.10.3.md": {
+      "size_bytes": 1782,
+      "sha256": "2d007f7b9f9c13cf5d27f8540da326a4bda9566898561b1aded32c5a0d427e30"
+    },
+    "docs/history/RAPORT-v0.2.md": {
+      "size_bytes": 7977,
+      "sha256": "b3a09461f03c43f40e914d71628acc03d96fc7ee134bc6b087eef0cbf2f30fec"
+    },
+    "docs/history/RAPORT-v0.3.md": {
+      "size_bytes": 6720,
+      "sha256": "485bcb01af41388fb8233f403609d0e7d0cb0f4808a61e85862ad8104bd7862c"
+    },
+    "docs/history/RAPORT-v0.8.2.md": {
+      "size_bytes": 7785,
+      "sha256": "e6b72768a29aa822e1ec173262908d39eb779af69fc61bcda8fcdc36ff02538f"
+    },
+    "docs/history/RAPORT-v0.8.3.md": {
+      "size_bytes": 2482,
+      "sha256": "fb4b1707f599906c4a8f81c2fb7fcbcc77c44350738289e6e52e94e216f629ed"
+    },
+    "docs/history/RAPORT-v0.8.4.md": {
+      "size_bytes": 4279,
+      "sha256": "98df5fb27107b475aee72cd10ec2225902c0236e69e9226482b2a658d9ba33e4"
+    },
+    "docs/history/RAPORT-v0.8.5.md": {
+      "size_bytes": 3057,
+      "sha256": "a6ab96545a659394ce2aae26df0a7ace578fc7c6cc1636e9d11c66672525403e"
+    },
+    "docs/history/RAPORT-v0.8.6.md": {
+      "size_bytes": 2724,
+      "sha256": "5f61d2184a5d412f7470dbd67a6490a4aa17c7e7b72afe6510734956193daf7b"
+    },
+    "docs/history/RAPORT-v0.8.7.md": {
+      "size_bytes": 2936,
+      "sha256": "4061c9302abd82217be0cf6d23b7d3e7729c0ad54802a8b90097506e75e1be22"
+    },
+    "docs/history/RAPORT-v0.8.8.md": {
+      "size_bytes": 2460,
+      "sha256": "99fc2b40f676de9dc0d14714c344ebf43c6d0a5edb5698d34710ffe6dcaf1120"
+    },
+    "docs/history/RAPORT-v0.9.0.md": {
+      "size_bytes": 2592,
+      "sha256": "8c2d376f2c2cab725dbca4ad2fe2f960210dc3677c1264f9d7887a140ef73f27"
+    },
+    "docs/history/RAPORT-v0.9.1.md": {
+      "size_bytes": 1938,
+      "sha256": "35d8bf2a7ea5770e4cd9bd63a2c4fd5c4269b417e5d4f863980de6f83d4a59ac"
+    },
+    "docs/history/RAPORT-v0.9.2.md": {
+      "size_bytes": 1728,
+      "sha256": "3ffed3a3386f3a09c5c217482d02c4eddafca0f661d9cfcec021057aeeec91e5"
+    },
+    "docs/history/RAPORT-v0.9.3.md": {
+      "size_bytes": 2567,
+      "sha256": "42cd56595718d32a2d52d8439a0d05785b6404c773c95e136c47a859a128111a"
+    },
+    "docs/history/RAPORT-v0.9.4.md": {
+      "size_bytes": 2440,
+      "sha256": "0b37c0b7eeed8c91e02a2bcf731593569d7093d14cec28e10af641834971c3fc"
+    },
+    "docs/upstream-evidence.json": {
+      "size_bytes": 2848,
+      "sha256": "3ce51d0008da4e9b7c9d0b6d59042e84feb766145cae86bf51a5ca6bcf1d9889"
+    },
+    "evals/reception-pl-v1.json": {
+      "size_bytes": 14664,
+      "sha256": "1ff43f2160d9be2a5ba2f2f5a1426e26eeb3abe1058693bb2bd3d8c720c8dddd"
+    },
+    "examples/lab.mcp.config.json": {
+      "size_bytes": 102,
+      "sha256": "87ff663b7700858a74deafb401cdf6e7e2f85bdc385e1abf5abbf971b22ea975"
+    },
+    "examples/lab.openapi.config.json": {
+      "size_bytes": 216,
+      "sha256": "fe1559f64d504368e522e3ecdf6895244ddd21bee0f29f1a97c5a80d3987a647"
+    },
+    "examples/lab.openapi.json": {
+      "size_bytes": 263,
+      "sha256": "c8cf5274f46244955da4cdf1d2b5e54b37892f377dccef2a29e8e53ea7d25cd6"
+    },
+    "examples/lab_server.py": {
+      "size_bytes": 955,
+      "sha256": "4c3fa2afdea2cf9cf568c74637aa180950abe676abdd94fd03125443ff0af0f9"
+    },
+    "examples/n8n-tick.workflow.json": {
+      "size_bytes": 853,
+      "sha256": "7baf0bf48951d3379bbb324565e2862dea4213480fea29f529f19326633d60a9"
+    },
+    "examples/workshop_fixture.py": {
+      "size_bytes": 4246,
+      "sha256": "f465c049e8835ce725e4a3bd132e20255cac3c09d9b60ef9eb313a485ceab9e1"
+    },
+    "frontend/index.html": {
+      "size_bytes": 440,
+      "sha256": "365a7a35846632215e46c2770c327b619210570b84168e75c57c1df555272a90"
+    },
+    "frontend/package-lock.json": {
+      "size_bytes": 80477,
+      "sha256": "b1f94c438eda0dbd7644bb7e0a3d289c8da6c415585b35022031041e2770d152"
+    },
+    "frontend/package.json": {
+      "size_bytes": 712,
+      "sha256": "886e8ecd2e6f42f569953d977144d3c06ce72f368475f3326638ada9275a2448"
+    },
+    "frontend/src/App.test.tsx": {
+      "size_bytes": 15275,
+      "sha256": "549e9d9629d7810622d11f0810d2da8e427ea009bb34435879d041e6881f4704"
+    },
+    "frontend/src/App.tsx": {
+      "size_bytes": 27105,
+      "sha256": "0fdbe665264db0f1a7973e984107cc480b4417b8527414e0d92ad253bff3fa14"
+    },
+    "frontend/src/api.test.ts": {
+      "size_bytes": 1901,
+      "sha256": "06bf74c50e5e5dfabfeee92fe3f2dfe0fb61de7668c81108651fc9897a0aa9fa"
+    },
+    "frontend/src/api.ts": {
+      "size_bytes": 6561,
+      "sha256": "728e35652bb11e71aebb23b2ccd08ac4fe9dfd5304b87d2652d8eeee035aa1a5"
+    },
+    "frontend/src/features/activity/ActivityPanel.test.tsx": {
+      "size_bytes": 7262,
+      "sha256": "1ede0eb918f646effbf003725b573bba12e5ffb89b627f4c0bfd4a975f77918f"
+    },
+    "frontend/src/features/activity/ActivityPanel.tsx": {
+      "size_bytes": 5951,
+      "sha256": "57a7a4b5385da839fb3d4b45ef11de7a209584636402c2b7adeefe90067edeaf"
+    },
+    "frontend/src/features/activity/activity.css": {
+      "size_bytes": 2209,
+      "sha256": "efb681f884602cfa433e7a96b0a8b7c177de9030bdf9cb4e108c798a727a5532"
+    },
+    "frontend/src/features/activity/api.ts": {
+      "size_bytes": 933,
+      "sha256": "e3804017569f7e0a5d648bb503008e60b881297e87d7f0a4adff7829ef55cd5a"
+    },
+    "frontend/src/features/automations/AutomationsPanel.test.tsx": {
+      "size_bytes": 7924,
+      "sha256": "0b497e90bb35623732cd58db9d642cc33ed90d9d32171661895d16e513f704cb"
+    },
+    "frontend/src/features/automations/AutomationsPanel.tsx": {
+      "size_bytes": 9824,
+      "sha256": "11a625280f65da2862fcdbb119668e2ae596d3311b34d550b014b02211149dda"
+    },
+    "frontend/src/features/automations/api.ts": {
+      "size_bytes": 3405,
+      "sha256": "def79e91dfc604e6b73b22c87acd9510a63a7abba843a836f563c5e5347878a7"
+    },
+    "frontend/src/features/automations/automations.css": {
+      "size_bytes": 2699,
+      "sha256": "62be748fd601ab2ea5ab104ef33e0e852032bf74ebfa2ccf256512755eef8827"
+    },
+    "frontend/src/features/changes/ChangesPanel.test.tsx": {
+      "size_bytes": 4666,
+      "sha256": "28b693abc02cdd4e7a79995d2bc664f084ccf9448fdda751552771f325174ea7"
+    },
+    "frontend/src/features/changes/ChangesPanel.tsx": {
+      "size_bytes": 9745,
+      "sha256": "9f151e954d49f90059389e0c0282ea1004f4d5a0f4db69372f835606ca375ec6"
+    },
+    "frontend/src/features/changes/api.test.ts": {
+      "size_bytes": 2172,
+      "sha256": "b83ad24831234505fd513680b5b3dcb4f9ed54893a7a09dd7cd03782553db51e"
+    },
+    "frontend/src/features/changes/api.ts": {
+      "size_bytes": 2186,
+      "sha256": "cb79b6a7fb56bf9fcfae228613f980d71a70624e677a6e42aebd5dc5cec06d5b"
+    },
+    "frontend/src/features/changes/changes.css": {
+      "size_bytes": 971,
+      "sha256": "47b130e6f87dbefff496405097ec03aa47235b1ded22dce35d6f00c2b5e941f9"
+    },
+    "frontend/src/features/chat/ChatPanel.test.tsx": {
+      "size_bytes": 14296,
+      "sha256": "47cd81967b6358aa1b8ded5563d33c98079e9582489d1d0745ccd2728ca74af5"
+    },
+    "frontend/src/features/chat/ChatPanel.tsx": {
+      "size_bytes": 16421,
+      "sha256": "3a275ded06ab8b5a854cad2529674ea20de6bad64af2e7a1c23415e06985a6e4"
+    },
+    "frontend/src/features/chat/api.ts": {
+      "size_bytes": 4927,
+      "sha256": "cf10b82f97a4eb82b3f95859d9bc0364d43ee9c0c278f6b92f9c8de64d177a13"
+    },
+    "frontend/src/features/chat/chat.css": {
+      "size_bytes": 4153,
+      "sha256": "9e6506b6de2771eec83f789490f234bfca20b01f24c972abef0ce4e5e668f329"
+    },
+    "frontend/src/features/chat/types.ts": {
+      "size_bytes": 783,
+      "sha256": "bca3d0bf964f65afd79073d4d21d27b2a41c1ff3a0ab0e4bcf78d73af32b6891"
+    },
+    "frontend/src/features/devices/DevicesPanel.test.tsx": {
+      "size_bytes": 3870,
+      "sha256": "e8bcac06ce0a8c72a3fabf366cea65c9d071d8db87e93b9a781c2e22b3e768c4"
+    },
+    "frontend/src/features/devices/DevicesPanel.tsx": {
+      "size_bytes": 2893,
+      "sha256": "128dd6c2f10f591ea63e2b17d493c5ecbf5d15f8f1a62f72908fbca288c3706b"
+    },
+    "frontend/src/features/devices/devices.css": {
+      "size_bytes": 947,
+      "sha256": "89996c33cdd5a96d063559d0a6189d65efb52f05a66611fb9ecb3b5476b9fe11"
+    },
+    "frontend/src/features/home/HomePanel.test.tsx": {
+      "size_bytes": 6287,
+      "sha256": "10c81165effbdb11f1cf3b106dbed204d57fac9b9324e87ca679f1f4ca9a1d66"
+    },
+    "frontend/src/features/home/HomePanel.tsx": {
+      "size_bytes": 3244,
+      "sha256": "a4c15d64e8d903d4d93eaf53ec292687b9802351dbea0f78db6f03a221360496"
+    },
+    "frontend/src/features/home/api.ts": {
+      "size_bytes": 2565,
+      "sha256": "1195b946319760eda4334d16af59699ace34a4c38e799dcebc7f135befd8d66e"
+    },
+    "frontend/src/features/home/home.css": {
+      "size_bytes": 1296,
+      "sha256": "3b28d9417e8c5ce9c0a42768ae0b951973f61232a64254621dbcb0e710bd06ae"
+    },
+    "frontend/src/features/home/useRead.ts": {
+      "size_bytes": 2223,
+      "sha256": "e9adcea0d174471f02acfe2d58b04b159f754a26a146acab156be0690bb99e07"
+    },
+    "frontend/src/features/memory/MemoryPanel.test.tsx": {
+      "size_bytes": 14377,
+      "sha256": "6f4af73d2cfca8cc74fc3d1768e371db049d0f82a56dad6e9352cb7f36c6a7ee"
+    },
+    "frontend/src/features/memory/MemoryPanel.tsx": {
+      "size_bytes": 17721,
+      "sha256": "921efb5c163f8dbf91aa9b67dfef139bc8398afdcf9f92c0b8ff15a4e78cf4f5"
+    },
+    "frontend/src/features/memory/PostgresMemoryPanel.test.tsx": {
+      "size_bytes": 8795,
+      "sha256": "611726790b4885c3e80f749a5860b17a630a5925c7a98dd954e2bbea3bff6c4b"
+    },
+    "frontend/src/features/memory/PostgresMemoryPanel.tsx": {
+      "size_bytes": 13782,
+      "sha256": "d4776f0e6abc7c49ded87f56653dc9392ccefdbbce3acd899046514bdc9f561a"
+    },
+    "frontend/src/features/memory/api.ts": {
+      "size_bytes": 6012,
+      "sha256": "b2414531c8664f0336be851a587dee11a05b9fdf2dd6e16245014a5ed434d942"
+    },
+    "frontend/src/features/memory/memory.css": {
+      "size_bytes": 2756,
+      "sha256": "24390e6846ac36a8ce3dd81295c99b93628c1e0563b5cb4574bb78a60e26f3ee"
+    },
+    "frontend/src/features/memory/postgresApi.ts": {
+      "size_bytes": 3765,
+      "sha256": "a5ff93786eb795e0607e84ea4b6051a9b884da54935a0e530d0fa5bbb03b3641"
+    },
+    "frontend/src/features/notifications/NotificationsPanel.test.tsx": {
+      "size_bytes": 4616,
+      "sha256": "e73287ce6183fd0ce444c68bd93727354745ceee94079de10f6b5448d3b0ffd7"
+    },
+    "frontend/src/features/notifications/NotificationsPanel.tsx": {
+      "size_bytes": 4652,
+      "sha256": "fe4eacdc720c8e00621011742d3833af5b1b099fb088ec152dc33a6c345266d0"
+    },
+    "frontend/src/features/notifications/api.ts": {
+      "size_bytes": 850,
+      "sha256": "0b188c6e80dbeb744a900a0b6b00974892f45304b6cc49f400e5fabbd55c19ba"
+    },
+    "frontend/src/features/notifications/notifications.css": {
+      "size_bytes": 1173,
+      "sha256": "33f14726b6fffea362bcd04af076ba30b0fffb3a0d71957b146dfb5874291cd6"
+    },
+    "frontend/src/features/plugins/PluginPanel.test.tsx": {
+      "size_bytes": 16354,
+      "sha256": "76431deaa9359bfea615337b7ccb0bc766a7c92cac6b7e4e82967c704df2db9a"
+    },
+    "frontend/src/features/plugins/PluginPanel.tsx": {
+      "size_bytes": 20047,
+      "sha256": "587c19b8d7b8611b9814eeff912ea008cfa4ca7a75790ccda193fc0d8013c29f"
+    },
+    "frontend/src/features/plugins/api.test.ts": {
+      "size_bytes": 1238,
+      "sha256": "83e8f58ac11d6a0db77c110ba24086ac9c68627affdaba9e1bf69faebea64e7f"
+    },
+    "frontend/src/features/plugins/api.ts": {
+      "size_bytes": 6315,
+      "sha256": "9ac193593829e3898f2f25f89410c5709566ee0ca6055768aecd4fe7f2044d3a"
+    },
+    "frontend/src/features/plugins/plugins.css": {
+      "size_bytes": 3721,
+      "sha256": "2416ff061d20e85a6e8efde9e60bc6cc962e0cb16b59224972efd4e3b2e89f0a"
+    },
+    "frontend/src/features/security/SecurityPanel.test.tsx": {
+      "size_bytes": 14491,
+      "sha256": "e129a769cd8fc271732c675e972f69c649f3b6645f480188a85e83d159c11b7e"
+    },
+    "frontend/src/features/security/SecurityPanel.tsx": {
+      "size_bytes": 17235,
+      "sha256": "a8ef7299614147083e627ffd1097db2778f4f4216396c698b27fdddea72ad49a"
+    },
+    "frontend/src/features/security/api.ts": {
+      "size_bytes": 4759,
+      "sha256": "d8f41f9a21abc95dfd0eb0da6d64d658bae476b774676f8757d20699ed484a6c"
+    },
+    "frontend/src/features/security/security.css": {
+      "size_bytes": 3471,
+      "sha256": "9bab128dd9b54bb7352c3b914920be60c39af975d5eb2efd5f86aed830bb4158"
+    },
+    "frontend/src/features/settings/SettingsPanel.test.tsx": {
+      "size_bytes": 10566,
+      "sha256": "01467c4e5239728bda1802a1931841507dc1fe75c82388d9da72475bfae5afa7"
+    },
+    "frontend/src/features/settings/SettingsPanel.tsx": {
+      "size_bytes": 10598,
+      "sha256": "96c870f84d63c25875dc9ec820c3a88c6ebd918d3cdd5265532c81e3e2eba5a6"
+    },
+    "frontend/src/features/settings/api.ts": {
+      "size_bytes": 3531,
+      "sha256": "d0f1ab6128153f408dc37ef1099066d8c4b8328667aa4aa566335d39fc69edf5"
+    },
+    "frontend/src/features/settings/settings.css": {
+      "size_bytes": 3090,
+      "sha256": "8929a2887d8a10b5c025dbea55d3bc6522cd33fe9a7e0fa6467e12d7245609b5"
+    },
+    "frontend/src/features/telephony/TelephonyPanel.test.tsx": {
+      "size_bytes": 10641,
+      "sha256": "4001990d2b3fc1bc1070bb674f26c53c66937d6c60ab9466b6ace49547df81cc"
+    },
+    "frontend/src/features/telephony/TelephonyPanel.tsx": {
+      "size_bytes": 12882,
+      "sha256": "07f4241be51c7a9ef1f31d79db6fbb1e5e2823d0e24d717566cabf967e598a73"
+    },
+    "frontend/src/features/telephony/api.ts": {
+      "size_bytes": 8750,
+      "sha256": "6b7fa07b7929fadeecdb6c0cb44e614d06a3e91e471fe3e9f5a5756674f385af"
+    },
+    "frontend/src/features/telephony/telephony.css": {
+      "size_bytes": 2410,
+      "sha256": "58cc7ba8e8ae7deb375a30cfdf044c75f5dba33608e305de5f358153b10bf8ee"
+    },
+    "frontend/src/features/workshop/WorkshopPanel.test.tsx": {
+      "size_bytes": 10949,
+      "sha256": "720465c24d88883f1321fe99f35bd4d5fbac9fc95aa4233daacc6dd39ec28a60"
+    },
+    "frontend/src/features/workshop/WorkshopPanel.tsx": {
+      "size_bytes": 11462,
+      "sha256": "d9f3e194ea5edffea82f9b4aa7ce6f17efe729558d904c59c6b6ac3617241f11"
+    },
+    "frontend/src/features/workshop/api.ts": {
+      "size_bytes": 4418,
+      "sha256": "9648bb17ce010176ef51a526c4d381b0e6989d36f4a7605fff31f3e277d3a139"
+    },
+    "frontend/src/features/workshop/workshop.css": {
+      "size_bytes": 3295,
+      "sha256": "933bdae0f323cd622567caacd355eb978000ef4b7a1be2262f9a9dcff65664be"
+    },
+    "frontend/src/main.tsx": {
+      "size_bytes": 213,
+      "sha256": "1b7dfef3f422f438201ea785c2ec703c95e33794ef134601313bf3c7a455f0b2"
+    },
+    "frontend/src/styles.css": {
+      "size_bytes": 24458,
+      "sha256": "ba96bceb862e5956e196c9ca246d9ce711c0ba3b1f4494d06916c9652d168531"
+    },
+    "frontend/src/test-setup.ts": {
+      "size_bytes": 153,
+      "sha256": "86d2dd4ab95bba86f522744497f43a3d0b64f990ee1fd0c2feaa04f49d378289"
+    },
+    "frontend/src/types.ts": {
+      "size_bytes": 1262,
+      "sha256": "6978a5627ac855f019f6231b5cf173d6e4a79a788a53ba5efe399902883e4070"
+    },
+    "frontend/tsconfig.json": {
+      "size_bytes": 504,
+      "sha256": "01a9a50fecdf0ea39b9fb961665cfca5e995879ffe9f2acdcf3000833c13c2d7"
+    },
+    "frontend/vite.config.ts": {
+      "size_bytes": 427,
+      "sha256": "28246030c1bdfd38fe519a9c9cf10497d20902f56818f2e40c700a85a920059d"
+    },
+    "jarvis/__init__.py": {
+      "size_bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "jarvis/ai_tasks.py": {
+      "size_bytes": 7371,
+      "sha256": "a9841bcf7fe25a377ce394f55a91fc530df44df086dc1cc8877f91edefc9d686"
+    },
+    "jarvis/app.js": {
+      "size_bytes": 35986,
+      "sha256": "b30a82f6211f4b75e71215332ec98cc9b71e27d644750fc2bf47abd7cda33dc7"
+    },
+    "jarvis/audio_client.js": {
+      "size_bytes": 9015,
+      "sha256": "232c60063cf25b44c9e94840320d1a56e324f1e5c8a616297f4794cfac7e0fc5"
+    },
+    "jarvis/audio_conversation.js": {
+      "size_bytes": 11596,
+      "sha256": "12d9d0a0ca647b99ec2a84b037daa14c8bfdd0437e389ab35bb37e7560722c8a"
+    },
+    "jarvis/audio_sessions.py": {
+      "size_bytes": 8811,
+      "sha256": "2b2682b449340e703cf51010d650b82397190ebf5d6079b440081a13720e1d63"
+    },
+    "jarvis/autologika.py": {
+      "size_bytes": 2368,
+      "sha256": "fc5f0a959b7b130cb5d27aa2e4be5de0ed2993138f1f9bf2b3eb85b8747f859e"
+    },
+    "jarvis/body_limit.py": {
+      "size_bytes": 1429,
+      "sha256": "7a448127274cc0bc2a5a2c4d9e46170494b14c87b551777debe863d1a5a031cc"
+    },
+    "jarvis/control_ui.py": {
+      "size_bytes": 1142,
+      "sha256": "7942254337b165e795d44b71f362989f32a3ee38a4532567aa247ba8453df885"
+    },
+    "jarvis/conversations.py": {
+      "size_bytes": 7892,
+      "sha256": "a72518209f85c1ab44e5095577625bf63af9ea9706f036b94a1f5dbe2ec161b5"
+    },
+    "jarvis/home.py": {
+      "size_bytes": 1614,
+      "sha256": "d3a60ef84691b35ebe2f4501b34680364833105c4c275fab005c628633be29f6"
+    },
+    "jarvis/identity.py": {
+      "size_bytes": 10817,
+      "sha256": "22b7f74a3361ba83ee0bb86f010f05e3287d31ffa3e2140e34d96fdb01ac677a"
+    },
+    "jarvis/index.html": {
+      "size_bytes": 2340,
+      "sha256": "9543d2535205b70da98631de9f13af18ae6d31c4a56d2d7a17d4e0dd6361d678"
+    },
+    "jarvis/llm.py": {
+      "size_bytes": 2497,
+      "sha256": "8296627a890e6a32afa05e4360fc8433454cd5a18f7a0587cee41c8f14c8d818"
+    },
+    "jarvis/llm_providers.py": {
+      "size_bytes": 8820,
+      "sha256": "ba8c54d713e34185aea0439474fbd10679fc1b6309109bed8431cd5ddfed6f59"
+    },
+    "jarvis/main.py": {
+      "size_bytes": 58808,
+      "sha256": "141e0cffaa99c281fd7008c4980aeb8182115bdbe9c1ae1b44446abe15c01866"
+    },
+    "jarvis/memory_auto.py": {
+      "size_bytes": 8660,
+      "sha256": "144698117a3aa17821e9419641dabb06612f256d8096991def888f514edd16fa"
+    },
+    "jarvis/memory_policy.py": {
+      "size_bytes": 6919,
+      "sha256": "64539e8c2a77689ae76ef9826bca34c75339af677151372d600cbf5946ae6363"
+    },
+    "jarvis/network.py": {
+      "size_bytes": 4491,
+      "sha256": "a11a8013982400cf31e40dad485dee5e50cf9ff58361ef07cca29c8505163636"
+    },
+    "jarvis/pcm_capture.js": {
+      "size_bytes": 9727,
+      "sha256": "63aa712cc8edb521a8ea933d64aa38a9cb323bcada40ddb3337c0e71772f2050"
+    },
+    "jarvis/pcm_worklet.js": {
+      "size_bytes": 1672,
+      "sha256": "58219692acbc0d5ab4032c73bd46d0c86eac015600b6b06d759ae9e7a9b4af43"
+    },
+    "jarvis/plugins.py": {
+      "size_bytes": 14342,
+      "sha256": "0955f7f0c9f57afbf6f007789c1b20ccda10a5b8e300af51a3f244881e521cd1"
+    },
+    "jarvis/postgres_api.py": {
+      "size_bytes": 2921,
+      "sha256": "e0f05d4eea4b51127b3d6cf57455155f8bd76b4fb77c25943e8827043dcb5305"
+    },
+    "jarvis/postgres_context.py": {
+      "size_bytes": 12989,
+      "sha256": "fd731feb29538a0101e207d029d81688cf725dc49ae489ff67f1e8f3172c074c"
+    },
+    "jarvis/postgres_context_api.py": {
+      "size_bytes": 7631,
+      "sha256": "09ee45ffa18210b964ea5078ef143d780655111da419dee05870de8491b5b878"
+    },
+    "jarvis/postgres_memory.py": {
+      "size_bytes": 9079,
+      "sha256": "5b845f9ddcf433dca90f4ed2b4a7a2283b3d7af916feb49eb6aeb90be998f9af"
+    },
+    "jarvis/postgres_memory_api.py": {
+      "size_bytes": 4655,
+      "sha256": "497dfe249e226aa183b6913488701add4a0a6262c0dcde5f7e8c532597f13eb0"
+    },
+    "jarvis/postgres_migrations.py": {
+      "size_bytes": 7723,
+      "sha256": "34d7065ec11bb7b2cd4e12663ad9b93e1bdd060eb65fc13b1aeaa31fd7482210"
+    },
+    "jarvis/postgres_profiles.py": {
+      "size_bytes": 4316,
+      "sha256": "2c428ac1b99a9c20f2ea6e23423f6e7654f69ec7c8fc6d483abe60f0e7ff9f68"
+    },
+    "jarvis/postgres_profiles_api.py": {
+      "size_bytes": 2479,
+      "sha256": "e5d1c3ab16fc30e0182f13661384e5a81ecaa221cee192809fd5d99bf8bb8b6a"
+    },
+    "jarvis/postgres_store.py": {
+      "size_bytes": 13694,
+      "sha256": "8865035520ccff301473efd1e97668a47811d1de74e386e44970cb0f78879d0f"
+    },
+    "jarvis/recall.py": {
+      "size_bytes": 7998,
+      "sha256": "f020ad86875323c31e04117ba382a0d98f09f82f13a05c9f4e17d92a8fdd94e9"
+    },
+    "jarvis/reception.py": {
+      "size_bytes": 13236,
+      "sha256": "63ff79e29550588ae6886a4cdb97d7c62da339c66e97f2c8fd3638cf8b69ed06"
+    },
+    "jarvis/reception_ai.py": {
+      "size_bytes": 7250,
+      "sha256": "daee7cb16aa6faf22814577fba178c391063fd2b4546ec370236758e53236b6c"
+    },
+    "jarvis/reception_eval.py": {
+      "size_bytes": 6763,
+      "sha256": "c117978d122893f0535f78496b5ada4892ef70f2505d9f596b2858ea6a67cb94"
+    },
+    "jarvis/runtime_config.py": {
+      "size_bytes": 3479,
+      "sha256": "e118f631df8f21534050ba4ab5ae350f52f6980d4f8219bccc7e8e2b82045f26"
+    },
+    "jarvis/security_api.py": {
+      "size_bytes": 3699,
+      "sha256": "a96e0be7148b54d7b0bacc287144e9898867545eea34d0e1334ac60000b6e41c"
+    },
+    "jarvis/security_limits.py": {
+      "size_bytes": 6034,
+      "sha256": "ea7bd1838d68a235ef59264c9bd70ca245633cd9d7ca4f0aaf55c87665edd5cb"
+    },
+    "jarvis/style.css": {
+      "size_bytes": 3209,
+      "sha256": "2080559d803409e7505446817676f553697bf8d8bb54f208209a3e020b28e2b6"
+    },
+    "jarvis/telephony.py": {
+      "size_bytes": 4405,
+      "sha256": "2cc85dc0acc2349cc66a20e5a5fc5655dbacc6fd98fac806998e73c601ee7df9"
+    },
+    "jarvis/telephony_adapter.py": {
+      "size_bytes": 2183,
+      "sha256": "bbf720e494b3db170f8bf96c18a0151281f10c1f34b1b84ed4707de4dc3636b9"
+    },
+    "jarvis/telephony_transport.py": {
+      "size_bytes": 21594,
+      "sha256": "abccfa0807ba031947c4f39a307dfa672b543379667121e1402fe9d9cd559f3e"
+    },
+    "jarvis/tool_llm.py": {
+      "size_bytes": 6493,
+      "sha256": "d99faa43ab261bdcd02a1a2092258ffcd8b16fd2da89961fb36db58435277b78"
+    },
+    "jarvis/tool_loop.py": {
+      "size_bytes": 6374,
+      "sha256": "634aa0299d1c8ffa6b7b2c963194dd9b90bb430b1106d8a77fb2631af7ae0d4a"
+    },
+    "jarvis/tool_plan.py": {
+      "size_bytes": 2877,
+      "sha256": "11fd6f4229c471e15182815c0050c72b3e22b469feca88242a57c8c97eb5e3b8"
+    },
+    "jarvis/tool_registry.py": {
+      "size_bytes": 15580,
+      "sha256": "9489063e83e201a7cb8c51c2bedad32533da2a1f909ef1a16abdf5cce0ab4750"
+    },
+    "jarvis/transport_panel.js": {
+      "size_bytes": 12955,
+      "sha256": "5939197115e9f5f6dcb5839dfc62f7aabbff954f60d1b1a6400977f2a75e64ac"
+    },
+    "jarvis/voice.py": {
+      "size_bytes": 7145,
+      "sha256": "dd3950a5762fea33d03769640904f272de509a8863f8cec046ed89e2150df74d"
+    },
+    "jarvis/voice_panel.js": {
+      "size_bytes": 9535,
+      "sha256": "68aa4d752cf2bfad5c33902d3de1c76f8d6ff7c70a830574575ee46453261ffa"
+    },
+    "jarvis/whatsapp.py": {
+      "size_bytes": 2269,
+      "sha256": "30c6416bb7afb009438a63b77f2912738a4e86331dc0e59fa64dcd7a2278734d"
+    },
+    "jarvis/worker.py": {
+      "size_bytes": 676,
+      "sha256": "027ab5d9a93d4d19c42c13bd4f9bf4ef4b1b6d1b17c5ad9f9cf812726fbe986a"
+    },
+    "jarvis/workshop.py": {
+      "size_bytes": 11634,
+      "sha256": "46e81f53fc2d093636fb2c62795a7cb790bb91ae6e90de5a81f814a569dae379"
+    },
+    "migrations/postgres/0001_foundation.sql": {
+      "size_bytes": 8655,
+      "sha256": "62926c238128324e1a79d745ad4082f1b204c5d1185fa884f6b614d86a279d9e"
+    },
+    "migrations/postgres_memory/0001_memory.sql": {
+      "size_bytes": 6693,
+      "sha256": "dbeb85e4aa2fce17da2b7fac62acef96696a20d6199a2163baed0712b1e1f677"
+    },
+    "migrations/postgres_memory/0002_context.sql": {
+      "size_bytes": 5529,
+      "sha256": "14356201083f263a25af08013bf4c5dd913d3516430744cf57a3b2184226ddcf"
+    },
+    "migrations/postgres_memory/0003_versions_profiles.sql": {
+      "size_bytes": 8358,
+      "sha256": "37ebb20eb9bb58bd803300e483bb2aae2cd601688fa4c47461d0efd943dd3d09"
+    },
+    "migrations/postgres_memory/0004_session_profiles.sql": {
+      "size_bytes": 1093,
+      "sha256": "54a0c30fb3e7bca47c83aeab3f918cd0714c8f675a5b6b84746d983f35f0abb6"
+    },
+    "plugins/example.openapi.json": {
+      "size_bytes": 205,
+      "sha256": "0b0156b2f191a2dfd9fad6bae8b76ac3758b1e570bf8f528f12501f187bb9643"
+    },
+    "requirements-dev.txt": {
+      "size_bytes": 34,
+      "sha256": "4163bb2f842cc0633fc3e4204d5b4bc873a18cb5c9b06b762718ce9cdd624b5d"
+    },
+    "requirements.lock": {
+      "size_bytes": 903,
+      "sha256": "47d690abba247bf397b33f6965720b94ff513781c3a2ea4cc875bb6f51783606"
+    },
+    "requirements.txt": {
+      "size_bytes": 254,
+      "sha256": "dd5cb017c8fbee8e6d6450b760090985358946ad518439226bdd1449dbf04bb0"
+    },
+    "scripts/browser_control_fixture.py": {
+      "size_bytes": 2703,
+      "sha256": "7f4ae3022e9310713c202e28318368361a8cb01ecff906cb101c6aef7c6dcceb"
+    },
+    "scripts/browser_llm_fixture.py": {
+      "size_bytes": 5144,
+      "sha256": "3401d6ab102ac00e9fe8cabc153f37cb470258d632d8e4d93c8c8f35c469f5e9"
+    },
+    "scripts/browser_modules_fixture.py": {
+      "size_bytes": 4729,
+      "sha256": "003cf3e98fe63633f92400a45090fff380c1e3e326425063f2a32b4b8ebe70d4"
+    },
+    "scripts/browser_plugins_fixture.py": {
+      "size_bytes": 5190,
+      "sha256": "f24723c89e8ed1c9db5b2a083952a4c816a4a095b23bfd7a99bf22a872fb309c"
+    },
+    "scripts/browser_voice_fixture.py": {
+      "size_bytes": 6874,
+      "sha256": "9cf507a3738ebf4575598b3319d7379eb7d0d710265e31e0ed15b4e134c6ecbb"
+    },
+    "scripts/check_audio_client.cjs": {
+      "size_bytes": 9690,
+      "sha256": "208373cf241a5e0179ac5b6531f69ef417d09faaf0eedc1c9024243af20cdd33"
+    },
+    "scripts/check_audio_conversation.cjs": {
+      "size_bytes": 15388,
+      "sha256": "85d90f9f58a6bb15296949c6e69e9a8ce3798b4b40de5d5ab2e20408a58ec90c"
+    },
+    "scripts/check_changes_browser.cjs": {
+      "size_bytes": 11616,
+      "sha256": "5c3dfb1f72846aee7efe14dd6f72af2663daa593f209d61eeca639bfd11befa2"
+    },
+    "scripts/check_chat_memory_ui.cjs": {
+      "size_bytes": 2428,
+      "sha256": "fac186e07e8d9ff4bc38f86b31bb32aaf54f6325215a3bfb42654287c5d2261d"
+    },
+    "scripts/check_control_browser.cjs": {
+      "size_bytes": 12392,
+      "sha256": "0518a9d3b85a3f92b604da69696ac7e58705ca8a66908dc35bf532003b3f787c"
+    },
+    "scripts/check_conversation_browser.cjs": {
+      "size_bytes": 16093,
+      "sha256": "7107839323bfc6d5ef2d9fd3df2a35a25dd9a5a44905530e2d4ff78ee6ff62c6"
+    },
+    "scripts/check_docker.py": {
+      "size_bytes": 10680,
+      "sha256": "f0fe1bb26d6a06ea177fde3a5f8af88e9b3698565b2b09ec91b37efd60ac7d98"
+    },
+    "scripts/check_llm_browser.cjs": {
+      "size_bytes": 10369,
+      "sha256": "5a5d9dcdffbd1a02510b89b6a649e0b899d5ae69abf3575e5a7b349c83abae18"
+    },
+    "scripts/check_master_plan.py": {
+      "size_bytes": 6679,
+      "sha256": "465622bcfffe687cd8fc39dcbdcb0edc3f3676420beacaccb7af2c30fa147dca"
+    },
+    "scripts/check_memory_ui.cjs": {
+      "size_bytes": 3317,
+      "sha256": "41e98d7c102581467eb77b119a5c7608ef5549e3b0f5fae97230a75d4885a6d0"
+    },
+    "scripts/check_modules_browser.cjs": {
+      "size_bytes": 23312,
+      "sha256": "664c11ccca7d981de30fdcf684b2324731c3d3ef1553c89482c0a7aa34681bd8"
+    },
+    "scripts/check_pcm_capture.cjs": {
+      "size_bytes": 10641,
+      "sha256": "57a18856310309257b207e465c29e0c4da9695fc8ec4ee8befaacff5dedf760b"
+    },
+    "scripts/check_plugins_browser.cjs": {
+      "size_bytes": 14547,
+      "sha256": "bf91072e0d7ca15142107f74252643dd69de6e67f429be92e8b993d60d0e6c4a"
+    },
+    "scripts/check_postgres.py": {
+      "size_bytes": 13652,
+      "sha256": "e9d7d85d6b9f35b2ee1d7671cdc4075bb92ae60449d8130360d2d65f54c95fc0"
+    },
+    "scripts/check_postgres_memory_browser.cjs": {
+      "size_bytes": 6108,
+      "sha256": "e65afcc628fa4da382520f5a1f6fb91bbb9ab4c1ba4c63a79c8c66ff828c0779"
+    },
+    "scripts/check_tool_chat.py": {
+      "size_bytes": 13969,
+      "sha256": "2dac08ae360e6e14f05f683908c5c6a058fcb2679b8ededb23ce19ac07ed8e4a"
+    },
+    "scripts/check_transport_browser.cjs": {
+      "size_bytes": 13444,
+      "sha256": "823edf3ac658745b37a9f7003c81f5c8efbe3f7a5e23c74e2bf413607df6b273"
+    },
+    "scripts/check_transport_panel.cjs": {
+      "size_bytes": 12276,
+      "sha256": "06d0e8dc82e06898a7bea624f711d850796b83e302ff110650a506ce808539a4"
+    },
+    "scripts/check_voice_browser.cjs": {
+      "size_bytes": 7243,
+      "sha256": "369e2993d888c3f9190d4c28ad6f9a105a727e7c3600436414a6e0de16742ab4"
+    },
+    "scripts/check_voice_panel.cjs": {
+      "size_bytes": 4515,
+      "sha256": "1a01f94712d0a62b3a51ef10c5eac711bf38f480f4d0b3c3a64bd809248c0495"
+    },
+    "scripts/check_voice_ui.cjs": {
+      "size_bytes": 2594,
+      "sha256": "bfe2595656f7dcc33eed6854c905e32110d248b38cc766028ceb7ab8665bb325"
+    },
+    "scripts/cloud_setup.py": {
+      "size_bytes": 2445,
+      "sha256": "296982dc3227ca89c0e2a440b0ed14d211a1b4e23ffc7eecca7887c920807b0d"
+    },
+    "scripts/import_autologika.py": {
+      "size_bytes": 688,
+      "sha256": "383bfd1a70abbcc76f68f8e4a132fadc83a2fe6981faf696f1b984d25238467b"
+    },
+    "scripts/migrate_postgres.py": {
+      "size_bytes": 1350,
+      "sha256": "381a620f9b8927a32413409da28042187395bdc5885ec146889320e5a2da1c9f"
+    },
+    "scripts/package_handoff.py": {
+      "size_bytes": 2520,
+      "sha256": "aca25b5df3981bb5c671e38ff0540e49384193b6556b5214db8f636de4cc7be1"
+    },
+    "scripts/start.ps1": {
+      "size_bytes": 1001,
+      "sha256": "f8df5a4e749402473e070ea9af91cb97430c0a753851a888028d58ce2feb00b6"
+    },
+    "scripts/verify_handoff.py": {
+      "size_bytes": 2041,
+      "sha256": "be44d1108c5d7e5e53c6ce2bcc024d80949195da293a690915afa737209523a6"
+    },
+    "tests/test_ai_tasks.py": {
+      "size_bytes": 11338,
+      "sha256": "dd71917a4c01f16c7574ef5d4219492e5ef25149b5d14862cf5ffa19bbfa4027"
+    },
+    "tests/test_api_versioning.py": {
+      "size_bytes": 10885,
+      "sha256": "3a5da14b141567da29df100f78d0e57601733e220bdb4ba106ca27eb9df051cf"
+    },
+    "tests/test_audio_sessions.py": {
+      "size_bytes": 9576,
+      "sha256": "fe13e3c1aaea8ada84c4762f44a2a91e9a92ca1ae1d545e8ff855bbfa4d95290"
+    },
+    "tests/test_autologika.py": {
+      "size_bytes": 1668,
+      "sha256": "2f52bc9f96665f2811524598bae05f5288175f97ff4d134942f5bf8011bf58a3"
+    },
+    "tests/test_control_ui.py": {
+      "size_bytes": 2685,
+      "sha256": "4690f7a390205f5658b926906b9448688810140fe486d1406264a980636133a8"
+    },
+    "tests/test_conversations.py": {
+      "size_bytes": 7854,
+      "sha256": "9ba49e359153607e0c7d33a5e7eb35573507b30c61facdce76745bbe15f4a182"
+    },
+    "tests/test_core.py": {
+      "size_bytes": 8621,
+      "sha256": "4d59ddb8f39dca6b5ca17c862adb6601d5b20bbfc5cf66c5a05043b33c73d3ec"
+    },
+    "tests/test_identity.py": {
+      "size_bytes": 12997,
+      "sha256": "87c97dc81b6b98468f6a8cfe45a639c9f1dd274da9776ee94329737b9cf20c04"
+    },
+    "tests/test_lab_e2e.py": {
+      "size_bytes": 2459,
+      "sha256": "940717ac0a25b5aa5c5f8e0a04fb8eb490b8e6daf5652cffdfd5990aa3539951"
+    },
+    "tests/test_llm_cost.py": {
+      "size_bytes": 1588,
+      "sha256": "6620f7a93634225434691dd57fa13f132cabde6f78a331a05d596a13f0b0304f"
+    },
+    "tests/test_llm_providers.py": {
+      "size_bytes": 8810,
+      "sha256": "0fbdb05667f5ec38e1bb27f2b0c9dcba2b9d2bd12779128ce16e5e95b5c4aa9d"
+    },
+    "tests/test_master_plan.py": {
+      "size_bytes": 7448,
+      "sha256": "df7da7591f09d890adda334e2c8d74e1ef63759e6c2c14ee5e1adf5facdd2328"
+    },
+    "tests/test_memory_atomic.py": {
+      "size_bytes": 7015,
+      "sha256": "b3b48ccc9bb2cf308051a8525e98eebaba94059ca3ad5ef7785ed3be54c4474f"
+    },
+    "tests/test_memory_auto.py": {
+      "size_bytes": 10548,
+      "sha256": "e78b1dabccaa7afec6c87a3cfcd881aeb94242531106ef1d7f06eb8fb67c3514"
+    },
+    "tests/test_memory_policy.py": {
+      "size_bytes": 5943,
+      "sha256": "afcd6e925044197dd87381585227a28b2acaf6a279f54f93c2ae8e0ca6703ec8"
+    },
+    "tests/test_modules.py": {
+      "size_bytes": 14079,
+      "sha256": "5fab0c1bc4637989aebf85fe4e81537151e4619d8f5ad9caca121f2009681750"
+    },
+    "tests/test_network_query.py": {
+      "size_bytes": 2217,
+      "sha256": "4026f8368eb29f3bc8eff632169bf16aa81f176c795147863692fffbfdb96010"
+    },
+    "tests/test_postgres_api.py": {
+      "size_bytes": 5567,
+      "sha256": "b3fa0f1114a51c60420e1bae7c9be7bfcabc79e5dad835b1eb2bf59c99e98973"
+    },
+    "tests/test_postgres_config.py": {
+      "size_bytes": 17997,
+      "sha256": "d3306e672c5cfbba2083f6d5f646a45e68196266712c1bb13bdd8ee0f0b64c5b"
+    },
+    "tests/test_postgres_context.py": {
+      "size_bytes": 2553,
+      "sha256": "747fcba95f50c45bae1bf7ad7f6af5eff5db1d80e40e7218f57dd63af0d18851"
+    },
+    "tests/test_postgres_context_integration.py": {
+      "size_bytes": 26287,
+      "sha256": "e4eb2f853acce9c0279597751b3a3179e1d007081e3df39a6c88ce914284fe2d"
+    },
+    "tests/test_postgres_integration.py": {
+      "size_bytes": 21516,
+      "sha256": "ef641e2391f05d0194c17630166047bf48de6dc7d8dedf62f3009813b6e8fefe"
+    },
+    "tests/test_postgres_memory.py": {
+      "size_bytes": 1336,
+      "sha256": "94b2bbd2252ba91d80e58b37458fc85470b5d3e95cef64440703ecd61fd11864"
+    },
+    "tests/test_postgres_memory_api.py": {
+      "size_bytes": 3580,
+      "sha256": "1c76a9eb3fa8c5b5929c7a95d324433ebd890173b1d24fbfd974a3a5573be2c7"
+    },
+    "tests/test_postgres_memory_browser.py": {
+      "size_bytes": 2199,
+      "sha256": "504ab7478334cbdeaa4c3a0f14b8ab5d83e5141cd7c8589b9f4000f62c4b383c"
+    },
+    "tests/test_postgres_memory_integration.py": {
+      "size_bytes": 15620,
+      "sha256": "582f66358091d178e73725e60addb8bf4f5cf3f4977a4a22b0a6e28ba65a78c6"
+    },
+    "tests/test_postgres_profiles_api.py": {
+      "size_bytes": 1090,
+      "sha256": "ef29e36ee99f8b388811aa645bf851cb0a9796c4b7006c9dd652847b3fe29968"
+    },
+    "tests/test_postgres_profiles_integration.py": {
+      "size_bytes": 10313,
+      "sha256": "a10e0954d2458bcb8e8a1cd460ac21c954f48daecdaed0ba962df9abbe3d751d"
+    },
+    "tests/test_reception.py": {
+      "size_bytes": 9506,
+      "sha256": "fd793297fb2ae343c277001435fa2b575d5c3f88a72fe985ff2632b4081c0879"
+    },
+    "tests/test_reception_ai.py": {
+      "size_bytes": 8487,
+      "sha256": "0a7f97b42b6117949ea5d592a5419a30877ab2193e7657d51f669767c535590d"
+    },
+    "tests/test_reception_atomic.py": {
+      "size_bytes": 5493,
+      "sha256": "67f89af8a2c0d33b83b94267af2d97f19bd3cbed359e3a3b37356f100d814ba0"
+    },
+    "tests/test_reception_eval.py": {
+      "size_bytes": 5612,
+      "sha256": "e9f88d400ecb410f859852d9dd22f2bc6aab97e7d3b61ec3e94c10063e776601"
+    },
+    "tests/test_runtime_config.py": {
+      "size_bytes": 7920,
+      "sha256": "61d1665c4a2d3aa4cb17ed8cd2bceb4ecbf685d12be8a17563d89da25c4f3dd2"
+    },
+    "tests/test_security_api.py": {
+      "size_bytes": 9342,
+      "sha256": "c648737e261e04d292c35bba3be9fae49383ae8af3ebb130f8a4243eb2a0e3e5"
+    },
+    "tests/test_security_limits.py": {
+      "size_bytes": 7585,
+      "sha256": "2fd60e607b42617d8a8d4afa90649eb38b6cdfb5e3149d6f0432fdc5ac63f5a4"
+    },
+    "tests/test_security_server.py": {
+      "size_bytes": 2613,
+      "sha256": "2726db47da7bff491fa4956a3b8020ee2ec2dc9eba42af5bd67e9f12e6baeddd"
+    },
+    "tests/test_telephony.py": {
+      "size_bytes": 6265,
+      "sha256": "0cc4ee5cc990f8819c3d48365f6afffdb9e59eff9a01a7f392c435c0c57e64fb"
+    },
+    "tests/test_telephony_adapter.py": {
+      "size_bytes": 2277,
+      "sha256": "44042b14df0e163d862f9b060e8daf5f7a75d7df685276550b8500bc3e835a2e"
+    },
+    "tests/test_telephony_transport.py": {
+      "size_bytes": 23692,
+      "sha256": "c34254123967f57fde2eec28e222338c325c0eec34a6cdbb605cc60a0f37c7ea"
+    },
+    "tests/test_tool_api.py": {
+      "size_bytes": 7360,
+      "sha256": "9eb813f80ff5200bfaaec588a581f44c94ae50c080ef71fdada441abd0804d4e"
+    },
+    "tests/test_tool_chat.py": {
+      "size_bytes": 18381,
+      "sha256": "ba139d4a865217c1d090df459de03c66bab81f72df3e4ebcc475d574d18af1ea"
+    },
+    "tests/test_tool_plan.py": {
+      "size_bytes": 1747,
+      "sha256": "f81da49e974c92cc6b7bb6f6084867bfe3e56375f98db45a8ec40eb11e8b9a46"
+    },
+    "tests/test_tool_registry.py": {
+      "size_bytes": 15599,
+      "sha256": "c52df1fd80e31d4c4cd925c8c4b7e912e3ca27d304851b6374b8acfc210b925d"
+    },
+    "tests/test_tool_transport_schemas.py": {
+      "size_bytes": 14775,
+      "sha256": "b17c86b3bfc1aa33e46471355448ddb2733315a44e2d9068c5d4bc8eafabd786"
+    },
+    "tests/test_transport_migration.py": {
+      "size_bytes": 2202,
+      "sha256": "bda263baef00af80efa4b206076bd178f28369c6f3575c4178e67313c2ffc7f9"
+    },
+    "tests/test_voice_chain.py": {
+      "size_bytes": 6822,
+      "sha256": "3ad654ec41d9250112efb9dcfc5f8b85a78c87c0ca213e0a8604020404a302a8"
+    },
+    "tests/test_voice_chat.py": {
+      "size_bytes": 8387,
+      "sha256": "1f8042ad43af1e82dcd59b5e8e5c2658b3aac909f70612e3f34b4af9efd5050d"
+    },
+    "tests/test_voice_migration.py": {
+      "size_bytes": 2790,
+      "sha256": "0095679cb3df5d3cd26ffbf60b61d60c32b0d8136319a5e0c69ebeac642228d1"
+    },
+    "tests/test_voice_recall.py": {
+      "size_bytes": 5594,
+      "sha256": "d0ec0032f6423fcaafecca2fd3c644959a02927dd7c462bc5cb4c2ea69a831de"
+    },
+    "tests/test_workshop.py": {
+      "size_bytes": 6278,
+      "sha256": "0e71a3b064c27e999362db4f1e39e5198581719709c226508a637d75b491ee64"
+    },
+    "third_party/lucide-react-LICENSE.txt": {
+      "size_bytes": 3208,
+      "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+    },
+    "third_party/react-LICENSE.txt": {
+      "size_bytes": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    "third_party/react-dom-LICENSE.txt": {
+      "size_bytes": 1088,
+      "sha256": "da6d3703ed11cbe42bd212c725957c98da23cbff1998c05fa4b3d976d1a58e93"
+    },
+    "third_party/wyoming-LICENSE.md": {
+      "size_bytes": 1071,
+      "sha256": "13746d509d74e55ea2265fbef204bb7cdbf84a8315b0207e988326cb54387028"
+    }
+  }
+}

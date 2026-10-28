@@ -1,0 +1,319 @@
+{
+  "format_version": 1,
+  "note": "Zależności implementacyjne doprecyzowane wM0.5; nie zmieniają45zadań. Kolejność M0–M8, pomijaj jedynie faktyczne blokady; external_gate opisuje realną aktywację, nie zakaz tworzenia kodu/mocków.",
+  "tasks": {
+    "M0.1": {
+      "requires": [],
+      "external_gate": null
+    },
+    "M0.2": {
+      "requires": [
+        "M0.1"
+      ],
+      "external_gate": null
+    },
+    "M0.3": {
+      "requires": [
+        "M0.2"
+      ],
+      "external_gate": null
+    },
+    "M0.4": {
+      "requires": [
+        "M0.3"
+      ],
+      "external_gate": null
+    },
+    "M0.5": {
+      "requires": [
+        "M0.4"
+      ],
+      "external_gate": null
+    },
+    "M1.1": {
+      "requires": [
+        "M0.5"
+      ],
+      "external_gate": null
+    },
+    "M1.2": {
+      "requires": [
+        "M1.1"
+      ],
+      "external_gate": null
+    },
+    "M1.3": {
+      "requires": [
+        "M1.1"
+      ],
+      "external_gate": null
+    },
+    "M1.4": {
+      "requires": [
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M1.5": {
+      "requires": [
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M2.1": {
+      "requires": [
+        "M1.1",
+        "M0.4"
+      ],
+      "external_gate": null
+    },
+    "M2.2": {
+      "requires": [
+        "M2.1",
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M2.3": {
+      "requires": [
+        "M2.1",
+        "M1.5"
+      ],
+      "external_gate": null
+    },
+    "M2.4": {
+      "requires": [
+        "M2.1"
+      ],
+      "external_gate": null
+    },
+    "M2.5": {
+      "requires": [
+        "M2.2",
+        "M2.3",
+        "M2.4"
+      ],
+      "external_gate": null
+    },
+    "M3.1": {
+      "requires": [
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M3.2": {
+      "requires": [
+        "M3.1",
+        "M1.5"
+      ],
+      "external_gate": null
+    },
+    "M3.3": {
+      "requires": [
+        "M1.4"
+      ],
+      "external_gate": null
+    },
+    "M3.4": {
+      "requires": [
+        "M3.3",
+        "M2.2"
+      ],
+      "external_gate": null
+    },
+    "M3.5": {
+      "requires": [
+        "M3.2",
+        "M3.4"
+      ],
+      "external_gate": null
+    },
+    "M4.1": {
+      "requires": [
+        "M0.3",
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M4.2": {
+      "requires": [
+        "M4.1"
+      ],
+      "external_gate": null
+    },
+    "M4.3": {
+      "requires": [
+        "M4.2"
+      ],
+      "external_gate": null
+    },
+    "M4.4": {
+      "requires": [
+        "M4.1",
+        "M1.3"
+      ],
+      "external_gate": "Realny zapis/upstream wymaga osobnej autoryzacji i potwierdzonego kontraktu; kod/mock można przygotować lokalnie."
+    },
+    "M4.5": {
+      "requires": [
+        "M4.2",
+        "M4.3",
+        "M4.4",
+        "M1.4"
+      ],
+      "external_gate": null
+    },
+    "M5.1": {
+      "requires": [
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M5.2": {
+      "requires": [
+        "M1.2",
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M5.3": {
+      "requires": [
+        "M5.1",
+        "M6.1"
+      ],
+      "external_gate": null
+    },
+    "M5.4": {
+      "requires": [
+        "M1.3",
+        "M2.5"
+      ],
+      "external_gate": null
+    },
+    "M5.5": {
+      "requires": [
+        "M5.4",
+        "M5.2"
+      ],
+      "external_gate": "Inspekcja konkretnej centrali i zabezpieczeń oraz osobna zgoda; brak zdalnego otwarcia w testach."
+    },
+    "M6.1": {
+      "requires": [
+        "M1.2",
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M6.2": {
+      "requires": [
+        "M6.1",
+        "M4.2",
+        "M4.3"
+      ],
+      "external_gate": null
+    },
+    "M6.3": {
+      "requires": [
+        "M6.1",
+        "M5.1",
+        "M5.2",
+        "M7.5"
+      ],
+      "external_gate": null
+    },
+    "M6.4": {
+      "requires": [
+        "M1.3",
+        "M2.5"
+      ],
+      "external_gate": null
+    },
+    "M6.5": {
+      "requires": [
+        "M6.4",
+        "M1.5"
+      ],
+      "external_gate": null
+    },
+    "M7.1": {
+      "requires": [
+        "M0.5"
+      ],
+      "external_gate": null
+    },
+    "M7.2": {
+      "requires": [
+        "M7.1",
+        "M1.3"
+      ],
+      "external_gate": null
+    },
+    "M7.3": {
+      "requires": [
+        "M7.2",
+        "M3.1"
+      ],
+      "external_gate": null
+    },
+    "M7.4": {
+      "requires": [
+        "M7.1",
+        "M7.2",
+        "M7.3"
+      ],
+      "external_gate": "Kwalifikowane konto, aktualna dokumentacja/zgody i osobna aktywacja operatora; bez płatnych rozmów w testach."
+    },
+    "M7.5": {
+      "requires": [
+        "M1.3",
+        "M4.1",
+        "M7.2"
+      ],
+      "external_gate": null
+    },
+    "M8.1": {
+      "requires": [
+        "M2.5",
+        "M0.2"
+      ],
+      "external_gate": null
+    },
+    "M8.2": {
+      "requires": [
+        "M1.3",
+        "M1.2"
+      ],
+      "external_gate": null
+    },
+    "M8.3": {
+      "requires": [
+        "M1.4",
+        "M1.2"
+      ],
+      "external_gate": null
+    },
+    "M8.4": {
+      "requires": [
+        "M1.5",
+        "M2.5",
+        "M3.5",
+        "M4.5",
+        "M5.4",
+        "M6.4",
+        "M7.5",
+        "M8.3"
+      ],
+      "external_gate": null
+    },
+    "M8.5": {
+      "requires": [
+        "M1.2",
+        "M8.1",
+        "M8.2",
+        "M8.3",
+        "M8.4"
+      ],
+      "external_gate": "Rzeczywisty odbiór Windows/telefonów wymaga urządzeń właściciela; dokumentację i testy cloud można przygotować wcześniej."
+    }
+  }
+}

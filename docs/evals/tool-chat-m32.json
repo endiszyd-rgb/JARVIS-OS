@@ -1,0 +1,46 @@
+{
+  "task": "M3.2",
+  "passed": true,
+  "checked_utc": "2026-10-26T06:45:12.680692+00:00",
+  "transport": "genuine_loopback_TCP_Core_OpenAI_Ollama_OpenAPI_MCP_SDK",
+  "scenarios": [
+    {
+      "provider": "ollama",
+      "plugin_protocol": "openapi",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "ollama",
+      "plugin_protocol": "mcp",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "openai",
+      "plugin_protocol": "openapi",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    },
+    {
+      "provider": "openai",
+      "plugin_protocol": "mcp",
+      "provider_turns": 2,
+      "tool_calls": 1,
+      "passed": true
+    }
+  ],
+  "provider_posts": 9,
+  "openapi_reads": 2,
+  "mcp_reads": 2,
+  "unselected_call_refused_before_batch_dispatch": true,
+  "audit_privacy": true,
+  "private_memory_attached": false,
+  "history_saved": false,
+  "real_inference": false,
+  "real_provider_account": false,
+  "production_modified": false
+}

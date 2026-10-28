@@ -1,0 +1,490 @@
+{
+  "task": "M0.2",
+  "audited_at_utc": "2026-10-22T19:38:21.561501+00:00",
+  "repository": "https://github.com/endiszyd-rgb/Autologika-OS",
+  "commit": "681f7f5ecf5a1e365022a9ac1cb22b6ff443262c",
+  "method": "Read-only detached checkout and static source inspection; no upstream application, install scripts, tests, SQL or production requests executed.",
+  "source_worktree_clean": true,
+  "legacy_evidence": "docs/autologika-evidence.json",
+  "legacy_hashes_verified": 8,
+  "legacy_hashes_matched": 8,
+  "files": [
+    {
+      "path": "package.json",
+      "sha256": "23d2430548915eaee6261b765420a986c7778d82c07531d04acc2d1d82af729e",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/package.json",
+      "legacy_sha256": "23d2430548915eaee6261b765420a986c7778d82c07531d04acc2d1d82af729e",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/main.cjs",
+      "sha256": "3dc8a88ca1bef73511a69c598363ff37b3fa0234f1d3a90bcc07fdd23087ae92",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/main.cjs",
+      "legacy_sha256": "3dc8a88ca1bef73511a69c598363ff37b3fa0234f1d3a90bcc07fdd23087ae92",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/preload.cjs",
+      "sha256": "43dd6d7a1a9e9b68737077cf43a9808b23fa9668e60c73e1b35053044079564c",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/preload.cjs",
+      "legacy_sha256": "43dd6d7a1a9e9b68737077cf43a9808b23fa9668e60c73e1b35053044079564c",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/db.cjs",
+      "sha256": "02b3b710aea5bcf3eecc21b1d506c3554ec5d2f6688b78f3e6eb56e80e253bb2",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/db.cjs",
+      "legacy_sha256": "02b3b710aea5bcf3eecc21b1d506c3554ec5d2f6688b78f3e6eb56e80e253bb2",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/cloud-sync.cjs",
+      "sha256": "e600d0cffdda94c2cd12850bad09cd43b389ff40f17d8c7a4f28ef8a313924c4",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/cloud-sync.cjs",
+      "legacy_sha256": "e600d0cffdda94c2cd12850bad09cd43b389ff40f17d8c7a4f28ef8a313924c4",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/appointments.cjs",
+      "sha256": "ba70f0ffa7974505eda071855be5a07690d3a8ed558624b6440245fbb7d21f56",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/appointments.cjs",
+      "legacy_sha256": "ba70f0ffa7974505eda071855be5a07690d3a8ed558624b6440245fbb7d21f56",
+      "legacy_match": true
+    },
+    {
+      "path": "electron/order-financials.cjs",
+      "sha256": "b3eff1302246c26758889752ed73ea5f2fa8dbe1ba1e14535d92e15b8f68e148",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/electron/order-financials.cjs",
+      "legacy_sha256": "b3eff1302246c26758889752ed73ea5f2fa8dbe1ba1e14535d92e15b8f68e148",
+      "legacy_match": true
+    },
+    {
+      "path": "cloud_schema_supabase.sql",
+      "sha256": "e18817b48df776b5d7331cd0524f2aa4f592cbc13e6075eb9141f3cee20363cf",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/cloud_schema_supabase.sql",
+      "legacy_sha256": "e18817b48df776b5d7331cd0524f2aa4f592cbc13e6075eb9141f3cee20363cf",
+      "legacy_match": true
+    },
+    {
+      "path": "supabase/config.toml",
+      "sha256": "cba9d37ffc538960d629f053c4d0211fd571e6c3d5553060a18f1c1156e3094f",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/supabase/config.toml"
+    },
+    {
+      "path": "supabase/migrations/20260925_remote_approval_2.sql",
+      "sha256": "0656c7a859ce2a55c1311c53f982bb174c1c0879f4f0c33293c909eecab05f05",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/supabase/migrations/20260925_remote_approval_2.sql"
+    },
+    {
+      "path": "supabase/functions/approval/index.ts",
+      "sha256": "8c5efcb977a9d935a9dbd55d3dc5f692919b3f5910bfde25cedc4038caabe50d",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/supabase/functions/approval/index.ts"
+    },
+    {
+      "path": "supabase/functions/approval/model.mjs",
+      "sha256": "5075f3c44443217753d5a73d11a80a2895573af0da111debf3e0f857aa45aa17",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/supabase/functions/approval/model.mjs"
+    },
+    {
+      "path": "tests/database-migration.test.cjs",
+      "sha256": "640a6b6f8770d5f5635d0600665117a22b3a53cc694a1c91d1b97247528640b2",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/tests/database-migration.test.cjs"
+    },
+    {
+      "path": "tests/cloud-sync.test.cjs",
+      "sha256": "79e39765794b7d039ca0a9ec72e6ae04a20d0e67e2a1be5fdfe4325f5aca6a7f",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/tests/cloud-sync.test.cjs"
+    },
+    {
+      "path": "tests/remote-approval-security.test.cjs",
+      "sha256": "0228561fc343ce4a145a1dda1de0a2b948cdb03fa607d2bf55391825a0702591",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/tests/remote-approval-security.test.cjs"
+    },
+    {
+      "path": "scripts/existing-db-v18-smoke.cjs",
+      "sha256": "e061988f7d1c5344f2eedc1aa3dbdcd48bcc734ca42108842d2ab1983e816321",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/scripts/existing-db-v18-smoke.cjs"
+    },
+    {
+      "path": ".github/workflows/release.yml",
+      "sha256": "28032329118ad2c86d8ba6b0d03f4ff30071fc1f7b12dc543b962045800a8be2",
+      "url": "https://github.com/endiszyd-rgb/Autologika-OS/blob/681f7f5ecf5a1e365022a9ac1cb22b6ff443262c/.github/workflows/release.yml"
+    }
+  ],
+  "source_inventory": {
+    "sqlite_schema_version": 18,
+    "unique_create_table_names": [
+      "app_settings",
+      "appointment_resources",
+      "appointments",
+      "approval_archive_vehicles",
+      "approvals",
+      "attachments",
+      "barcode_lookup_cache",
+      "closeout_checks",
+      "communications",
+      "customers",
+      "delivery_document_imports",
+      "diagnostics",
+      "dvi_access_tokens",
+      "dvi_decisions",
+      "dvi_inspections",
+      "dvi_items",
+      "dvi_media",
+      "employees",
+      "inventory_parts",
+      "job_part_orders",
+      "knowledge_cases",
+      "message_templates",
+      "order_events",
+      "order_items",
+      "order_notes",
+      "order_qc",
+      "order_repair_operations",
+      "orders",
+      "payments",
+      "purchase_order_items",
+      "purchase_orders",
+      "quote_items",
+      "quotes",
+      "reminders",
+      "repair_estimate_snapshot_items",
+      "repair_estimate_snapshots",
+      "repair_part_events",
+      "repair_parts",
+      "resource_unavailability",
+      "sales_refs",
+      "schedule_conflict_overrides",
+      "service_reminders_v2",
+      "signatures",
+      "suppliers",
+      "sync_meta",
+      "sync_queue",
+      "technical_data_entries",
+      "technical_manual_hotspots",
+      "technical_manual_pages",
+      "technical_manual_sources",
+      "technical_manual_steps",
+      "vehicle_findings",
+      "vehicles",
+      "work_logs",
+      "work_procedure_runs",
+      "work_resources",
+      "work_templates"
+    ],
+    "unique_create_table_count": 57,
+    "ipc_handle_declarations": 262,
+    "declared_test_file_count": 52,
+    "declared_test_files": [
+      "tests/appointments.test.cjs",
+      "tests/approval-link-state.test.mjs",
+      "tests/attention-center.test.mjs",
+      "tests/barcode-cache.test.cjs",
+      "tests/closeout-automation.test.cjs",
+      "tests/cloud-sync.test.cjs",
+      "tests/customer-profile.test.cjs",
+      "tests/database-health.test.cjs",
+      "tests/database-migration.test.cjs",
+      "tests/debtors.test.cjs",
+      "tests/delivery-document.test.cjs",
+      "tests/diagnostic-assistant.test.mjs",
+      "tests/entity-deletion.test.cjs",
+      "tests/financial-entry.test.cjs",
+      "tests/inventory-record.test.cjs",
+      "tests/inventory-usage.test.cjs",
+      "tests/job-part-workflow.test.cjs",
+      "tests/local-ai.test.cjs",
+      "tests/manual-source-scraper.test.cjs",
+      "tests/order-creation.test.cjs",
+      "tests/order-financials.test.cjs",
+      "tests/order-lifecycle.test.cjs",
+      "tests/order-list-model.test.mjs",
+      "tests/order-process.test.mjs",
+      "tests/order-readiness.test.cjs",
+      "tests/part-catalog.test.cjs",
+      "tests/protocol-document.test.cjs",
+      "tests/qc-workflow.test.mjs",
+      "tests/quick-intake-model.test.mjs",
+      "tests/quote-approval.test.cjs",
+      "tests/record-editing.test.cjs",
+      "tests/registration-decoder.test.cjs",
+      "tests/release-notes.test.cjs",
+      "tests/remote-approval-edge.test.mjs",
+      "tests/remote-approval-security.test.cjs",
+      "tests/remote-approval-status.test.cjs",
+      "tests/remote-approval-sync.test.cjs",
+      "tests/remote-approval-v2.test.cjs",
+      "tests/repair-operations.test.cjs",
+      "tests/schedule-model.test.mjs",
+      "tests/service-forecast.test.cjs",
+      "tests/service-reminders.test.cjs",
+      "tests/update-repository.test.cjs",
+      "tests/vehicle-health.test.cjs",
+      "tests/vehicle-history.test.cjs",
+      "tests/vehicle-part-match.test.mjs",
+      "tests/voice-entry.test.mjs",
+      "tests/work-catalog.test.mjs",
+      "tests/work-time.test.cjs",
+      "tests/workshop-metrics.test.mjs",
+      "tests/workshop-settings.test.cjs",
+      "tests/zebra-scanner.test.mjs"
+    ],
+    "supabase_migrations": [
+      "supabase/migrations/20260925_remote_approval_2.sql"
+    ]
+  },
+  "findings": [
+    {
+      "topic": "structure",
+      "source": "package.json",
+      "lines": [
+        3,
+        7,
+        8,
+        29,
+        32,
+        43,
+        45
+      ],
+      "fact": "Electron 34 / React 18 / Vite 6 / better-sqlite3 11; main is electron/main.cjs."
+    },
+    {
+      "topic": "desktop_bridge",
+      "source": "electron/main.cjs",
+      "lines": [
+        51,
+        619,
+        1078
+      ],
+      "fact": "contextIsolation enabled; nodeIntegration disabled; business operations use ipcMain handlers."
+    },
+    {
+      "topic": "preload",
+      "source": "electron/preload.cjs",
+      "lines": [
+        1,
+        3,
+        6,
+        7,
+        10,
+        25
+      ],
+      "fact": "contextBridge autologika wraps IPC; not a general remote HTTP API."
+    },
+    {
+      "topic": "local_migrations",
+      "source": "electron/db.cjs",
+      "lines": [
+        9,
+        10,
+        11,
+        18,
+        44,
+        48,
+        77,
+        154,
+        158
+      ],
+      "fact": "SQLite schema 18; app userData/autologika.db; backup before upgrade, versioned transactions and PRAGMA user_version."
+    },
+    {
+      "topic": "mobile_auth",
+      "source": "electron/main.cjs",
+      "lines": [
+        315,
+        317,
+        344,
+        360,
+        362,
+        366,
+        367,
+        419
+      ],
+      "fact": "Optional plain HTTP mobile server, default port 8787, shared X-Autologika-Pin; login returns ok, no session token; bind 0.0.0.0."
+    },
+    {
+      "topic": "mobile_routes",
+      "source": "electron/main.cjs",
+      "lines": [
+        364,
+        365,
+        366,
+        368,
+        369,
+        370,
+        371,
+        372,
+        373,
+        382,
+        389,
+        394,
+        401,
+        417
+      ],
+      "fact": "Only confirmed mobile routes are page, health, login, orders list, sync time, order detail/update, notes, diagnostics and intake; other paths return 404."
+    },
+    {
+      "topic": "cloud_sync",
+      "source": "electron/cloud-sync.cjs",
+      "lines": [
+        15,
+        19,
+        31,
+        35,
+        76,
+        88,
+        118,
+        128
+      ],
+      "fact": "Owner/password and refresh-token auth; generic sync_records payloads with workshop/entity/cloud identifiers and relationship remapping."
+    },
+    {
+      "topic": "cloud_rls",
+      "source": "cloud_schema_supabase.sql",
+      "lines": [
+        4,
+        14,
+        19,
+        26,
+        27,
+        28,
+        29,
+        32,
+        38
+      ],
+      "fact": "sync_records RLS for authenticated owner workshop_id=auth.uid(); private order-files bucket scoped by path owner."
+    },
+    {
+      "topic": "approval_migration",
+      "source": "supabase/migrations/20260925_remote_approval_2.sql",
+      "lines": [
+        7,
+        20,
+        63,
+        64,
+        69,
+        70,
+        99,
+        103,
+        137,
+        138,
+        140,
+        142
+      ],
+      "fact": "Approval links/events RLS; atomic SECURITY DEFINER decision RPC execute only service_role; private evidence bucket owner reads."
+    },
+    {
+      "topic": "approval_edge_auth",
+      "source": "supabase/config.toml",
+      "lines": [
+        1,
+        2
+      ],
+      "fact": "approval verify_jwt=false; separate public token-based approval function, not an owner business API."
+    },
+    {
+      "topic": "approval_edge_controls",
+      "source": "supabase/functions/approval/index.ts",
+      "lines": [
+        14,
+        22,
+        26,
+        27,
+        29,
+        33,
+        44,
+        45,
+        50,
+        51,
+        52,
+        64
+      ],
+      "fact": "Fixed web origin, validated token, server service-role client, expiry, public projection, consent/signature/integrity and atomic decision RPC."
+    },
+    {
+      "topic": "models",
+      "source": "electron/db.cjs",
+      "lines": [
+        318,
+        328,
+        337,
+        639,
+        644,
+        651,
+        662,
+        675,
+        709,
+        801,
+        855,
+        926
+      ],
+      "fact": "Relational local domain tables include schedule/resources, customer/vehicle/order, diagnostics/items/parts/payments and QC."
+    },
+    {
+      "topic": "financial_model",
+      "source": "electron/order-financials.cjs",
+      "lines": [
+        1,
+        2,
+        3
+      ],
+      "fact": "Total uses final_price override or labor/parts/other/diagnosis less discount; costs are parts_cost plus other_cost."
+    },
+    {
+      "topic": "declared_tests",
+      "source": "package.json",
+      "lines": [
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16
+      ],
+      "fact": "Node tests, UI connection audit and separate Electron smoke scripts declared. NOT_RUN in this audit."
+    },
+    {
+      "topic": "migration_tests",
+      "source": "tests/database-migration.test.cjs",
+      "lines": [
+        3,
+        4,
+        6,
+        16,
+        17,
+        31,
+        44
+      ],
+      "fact": "In-memory node:sqlite migration/idempotency cases declared; source evidence only."
+    },
+    {
+      "topic": "security_tests",
+      "source": "tests/remote-approval-security.test.cjs",
+      "lines": [
+        5,
+        17,
+        27,
+        33,
+        42
+      ],
+      "fact": "Static source assertions about approval RLS, private storage, service-role RPC and edge controls; not live PostgreSQL/RLS proof."
+    }
+  ],
+  "unconfirmed_or_missing_interfaces": [
+    "No generic HTTP routes for appointments, resources, customers, vehicles, reports, finance analytics, notifications or QC in the inspected mobile server.",
+    "No JARVIS-specific remote API, read-only scoped mobile credential or OpenAPI contract found in inspected interfaces.",
+    "No production deployment/schema state, credentials, connectivity or live RLS isolation verified."
+  ],
+  "verification": {
+    "pinned_checkout": "PASS",
+    "sha256_legacy_8": "PASS",
+    "additional_source_hashes": "PASS",
+    "static_source_inspection": "PASS",
+    "upstream_tests": "NOT_RUN",
+    "production_requests": "NOT_RUN",
+    "production_changes": "NONE",
+    "sql_execution": "NOT_RUN"
+  }
+}

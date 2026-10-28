@@ -1,0 +1,10 @@
+.devices-panel { min-width: 0; }
+.devices-toolbar { display: flex; justify-content: space-between; align-items: start; gap: 25px; }
+.devices-toolbar .button { flex-shrink: 0; }
+.devices-caption { color: var(--subtle); font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
+.devices-capabilities { margin: 25px 0; }
+.devices-capabilities > div { display: flex; justify-content: space-between; align-items: center; gap: 18px; padding: 17px 0; border-bottom: 1px solid var(--border); }
+.devices-capabilities dt { color: #d6e1ed; font-size: 14px; line-height: 1.7; }
+.devices-capabilities dd { margin: 0; text-align: right; }
+.devices-links { display: flex; flex-wrap: wrap; gap: 10px 25px; }
+@media (max-width: 700px) { .devices-toolbar { display: block; } .devices-toolbar .button { margin-bottom: 18px; } .devices-capabilities > div { align-items: start; flex-direction: column; gap: 10px; } .devices-capabilities dd { text-align: left; } }
