@@ -2,7 +2,7 @@
   "format_version": 1,
   "application_version": "0.10.4",
   "handoff_revision": "0.10.4-handoff.1",
-  "snapshot_date": "2026-10-28",
+  "snapshot_date": "2026-10-29",
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
@@ -392,5 +392,13 @@
     "signed": false,
     "visual_inspection": "not_run_tool_unavailable",
     "m4_started": false
+  },
+  "hud_delivery": {
+    "status": "ui_verified_installer_built_payload_smoke_passed",
+    "ui_tests": 149,
+    "browser": "Chrome desktop and 390px; keyboard radar; reduced motion; auth and roles PASS",
+    "core_version": "0.10.4",
+    "package_version": "0.10.4.2",
+    "installer_installation": "not_run_existing_user_installation"
   }
 }

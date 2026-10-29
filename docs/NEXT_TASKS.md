@@ -61,3 +61,5 @@ Retencja rozmów recepcji i analiz, odtwarzanie backupów na osobnej bazie, moni
 ## Wspólne warunki zamknięcia etapu
 
 Kod działa na danych syntetycznych; brak regresji, prawdziwe sprawdzenia opisane; docs/RAPORT.md i PROJECT_STATUS.json zaktualizowane. Zachowaj pełen zakres11obszarów, konta i sprzęt jako jawne zależności. Zapisz zmiany do przeglądu/commitu. Kontynuuj najbliższe niezablokowane zadanie w ramach czasu sesji, zamiast pytać o zgodę na dalsze kodowanie.
+
+2026-10-29: ocena interfejsu HUD przez właściciela. M4+ nadal wymaga osobnego polecenia.

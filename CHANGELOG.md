@@ -200,3 +200,11 @@
 ## 0.2.0
 
 Pierwszy Core i panel, audyt AutoLogiki, rzeczywisty adapter GET zleceń, DEMO integracji, pamięć/Ollama, propozycje i rollback, scheduler, backup oraz 36 testów. Raport historyczny: docs/history/RAPORT-v0.2.md.
+
+## JARVIS HUD — 2026-10-29
+
+Nowy cyjanowy interfejs: pulpit z animowanym rdzeniem prowadzącym do Systemu, telemetria z API, skrót rozmowy dla właściciela, motyw logowania i paneli. Animacje wyłączają się przy prefers-reduced-motion. Role i dotychczasowe funkcje zachowane; M4 nie rozpoczęto.
+
+Wykonano: 149 testów UI PASS, TypeScript/build PASS, node --check jarvis/app.js PASS. Rzeczywisty Chrome + izolowany Core: logowanie, role, wylogowanie/unieważnienie, brak sekretów w storage/URL, CSP, klawiatura, radar i reduced-motion PASS; 390px bez overflow. Obejrzano zrzuty desktop/mobile. Backend bez zmian, pełnej regresji backendu nie powtarzano.
+
+Instalator HUD: wydanie v0.10.4-windows.2, wersja pakietu 0.10.4.2 (Core nadal 0.10.4). Niepodpisany; modele i integracje nie są aktywowane.

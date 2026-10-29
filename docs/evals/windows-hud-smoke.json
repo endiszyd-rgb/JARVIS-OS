@@ -1,0 +1,8 @@
+{
+  "passed": true,
+  "host": "127.0.0.1",
+  "runtime": "3.12.16",
+  "control_ui": true,
+  "authenticated_api": true,
+  "data_directory": "C:\\Users\\Nitropoint\\AppData\\Local\\Temp\\jarvis-hud-qa-20261029"
+}

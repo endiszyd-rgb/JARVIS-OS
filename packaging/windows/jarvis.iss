@@ -7,7 +7,7 @@
 [Setup]
 AppId={{E66D7E5E-9928-4B46-B062-EF50F7B84341}
 AppName=JARVIS OS
-AppVersion=0.10.4
+AppVersion=0.10.4.2
 AppPublisher=JARVIS OS
 DefaultDirName={localappdata}\Programs\JARVIS OS
 DefaultGroupName=JARVIS OS
@@ -16,7 +16,7 @@ ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 MinVersion=10.0
 OutputDir={#OutputDir}
-OutputBaseFilename=JARVIS-OS-0.10.4-Setup-x64
+OutputBaseFilename=JARVIS-OS-0.10.4-HUD-Setup-x64
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

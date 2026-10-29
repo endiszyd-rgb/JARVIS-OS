@@ -111,13 +111,34 @@ function StatusRow({ title, description, badge, tone = '' }: { title: string; de
   return <li className="status-row"><div><strong>{title}</strong><p className="row-meta">{description}</p></div><span className={'badge ' + tone}>{badge}</span></li>
 }
 
-function Dashboard({ snapshot }: { snapshot: Snapshot }) {
+function CoreRadar({ ready }: { ready: boolean }) {
+  return <a className="core-radar" href="#/system" aria-label="Otwórz stan rdzenia JARVIS">
+    <svg viewBox="0 0 300 300" aria-hidden="true">
+      <circle className="radar-guide" cx="150" cy="150" r="140" />
+      <circle className="radar-ticks" cx="150" cy="150" r="130" />
+      <circle className="radar-orbit" cx="150" cy="150" r="114" />
+      <circle className="radar-guide" cx="150" cy="150" r="94" />
+      <path className="radar-cross" d="M150 0v40 M150 260v40 M0 150h40 M260 150h40" />
+      <circle className="radar-inner" cx="150" cy="150" r="80" />
+    </svg>
+    <span className="radar-center"><Cpu aria-hidden="true" /><strong>J.A.R.V.I.S.</strong><span>{ready ? 'CORE GOTOWY' : 'WYMAGA UWAGI'}</span><small>Stan systemu ↗</small></span>
+  </a>
+}
+
+function Dashboard({ snapshot, role }: { snapshot: Snapshot; role: Role }) {
   const status = snapshot.status
   const ready = snapshot.ready.status === 'ready'
   return <>
-    <section className="overview-panel" aria-labelledby="overview-title">
-      <div className="overview-copy"><p className="overview-label"><Activity aria-hidden="true" />Stan Twojej instalacji</p><h2 id="overview-title">Witaj, {status.settings.name}.</h2><p>{ready ? 'Core jest gotowy.' : 'Core wymaga uwagi.'} Masz podgląd zapisanych danych i ustawień. Dostępność modeli, usług zewnętrznych i urządzeń wymaga osobnego sprawdzenia.</p></div>
-      <div className="overview-visual" aria-hidden="true"><span className="core-symbol"><Cpu /></span><span className="core-status">{ready ? 'Core gotowy' : 'Wymaga uwagi'}</span></div>
+    <section className="overview-panel hud-overview" aria-labelledby="overview-title">
+      <div className="overview-copy"><p className="overview-label"><Activity aria-hidden="true" />CENTRUM DOWODZENIA / 01</p><h2 id="overview-title">Witaj,<br /><span>{status.settings.name}.</span></h2><p>Twój asystent. Twoje decyzje.<br />Stan instalacji i zapisane dane w jednym miejscu.</p>
+      {role === 'owner' && <a className="button primary hud-chat" href="#/chat">Rozpocznij rozmowę <ArrowUpRight aria-hidden="true" /></a>}</div>
+      <CoreRadar ready={ready} />
+      <div className="hud-readouts"><p className="eyebrow">TELEMETRIA CORE</p><dl>
+        <div><dt>Gotowość</dt><dd>{ready ? 'GOTOWY' : 'WYMAGA UWAGI'}</dd></div>
+        <div><dt>Lokalna baza</dt><dd>{snapshot.ready.checks.database ? 'DOSTĘPNA' : 'NIEDOSTĘPNA'}</dd></div>
+        <div><dt>Wybrany model</dt><dd>{status.settings.model.toUpperCase()}</dd></div>
+        <div><dt>Wersja Core</dt><dd>{snapshot.health.version}</dd></div>
+      </dl><p className="hud-disclaimer">Modele i integracje wymagają osobnego sprawdzenia.</p></div>
     </section>
     <section className="stats-grid" aria-label="Zapisane dane">
       <Metric label="Integracje" value={status.counts.plugins} icon={<Plug />} caption="Zarejestrowane pluginy" />
@@ -300,7 +321,7 @@ export default function App() {
           view === 'notifications' ? <NotificationsPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'changes' ? <ChangesPanel credential={session.credential} onUnauthorized={privateUnauthorized} onStatusChanged={() => { void refresh() }} /> :
           view === 'security' ? <SecurityPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
-          snapshot ? view === 'dashboard' ? <Dashboard snapshot={snapshot} /> : <System session={session} snapshot={snapshot} /> : <section className="loading-state" aria-live="polite">{busyRefresh ? <><RefreshCw className="spin" aria-hidden="true" /><p>Odczytywanie danych instalacji…</p></> : <><CircleAlert aria-hidden="true" /><p>Dane są chwilowo niedostępne. Możesz spróbować ponownie.</p></>}</section>}
+          snapshot ? view === 'dashboard' ? <Dashboard snapshot={snapshot} role={session.identity.role} /> : <System session={session} snapshot={snapshot} /> : <section className="loading-state" aria-live="polite">{busyRefresh ? <><RefreshCw className="spin" aria-hidden="true" /><p>Odczytywanie danych instalacji…</p></> : <><CircleAlert aria-hidden="true" /><p>Dane są chwilowo niedostępne. Możesz spróbować ponownie.</p></>}</section>}
         {(view === 'dashboard' || view === 'system') && <p className="footer-note"><Check aria-hidden="true" />Liczniki obejmują wszystkie zapisane rekordy. Odczyt Core nie potwierdza dostępności opcjonalnych usług ani sprzętu.</p>}
       </main>
     </div>

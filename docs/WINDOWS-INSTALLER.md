@@ -1,6 +1,6 @@
 # JARVIS OS 0.10.4 — instalacja Windows
 
-1. Uruchom `JARVIS-OS-0.10.4-Setup-x64.exe` na Windows 10/11 x64.
+1. Uruchom `JARVIS-OS-0.10.4-HUD-Setup-x64.exe` na Windows 10/11 x64.
 2. Zainstaluj dla swojego użytkownika. Python, biblioteki i gotowy panel są w paczce; nie instaluj osobno Node, Docker ani Pythona.
 3. Uruchom skrót **JARVIS OS**. Otworzy się małe okno startowe oraz panel w domyślnej przeglądarce.
 4. Kliknij **Kopiuj klucz dostępu**, w panelu wybierz **Klucz właściciela**, wklej klucz i zaloguj się.

@@ -48,3 +48,6 @@ Continue only through the end of M3. Complete M3.4 and M3.5 where verifiable, th
 ## Owner delivery scope — 2026-10-28
 
 The owner explicitly requested a Windows installer to install and view the existing interface. Package and verify the current M3 release as a separate delivery task. This does not authorize M4 integrations or declare the whole M8 stage complete.
+
+## Owner UI scope — 2026-10-29
+The owner authorized a JARVIS-style interface and refreshed installer. Preserve existing functionality and role checks; this does not start M4.

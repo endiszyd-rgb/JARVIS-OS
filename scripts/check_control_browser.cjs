@@ -89,6 +89,11 @@ async function cleanup(){
  const legacy=page.getByRole('link',{name:'Dotychczasowy panel',exact:true});
  assert.equal(new URL(await legacy.getAttribute('href'),info.url).pathname,'/');
  await page.getByRole('link',{name:'Pulpit',exact:true}).click();await dashboard();
+ const radar=page.getByRole('link',{name:'Otwórz stan rdzenia JARVIS',exact:true});
+ assert.equal(await page.locator('.radar-orbit').evaluate(node=>getComputedStyle(node).animationName),'none');
+ await radar.focus();await page.keyboard.press('Enter');
+ await page.getByRole('heading',{name:'System',exact:true,level:1}).waitFor();
+ await page.getByRole('link',{name:'Pulpit',exact:true}).click();await dashboard();
  const desktop=process.env.JARVIS_CONTROL_SCREENSHOT||path.resolve(root,'../JARVIS-OS-control-browser.png');
  await page.screenshot({path:desktop,fullPage:true});
  await page.setViewportSize({width:390,height:844});

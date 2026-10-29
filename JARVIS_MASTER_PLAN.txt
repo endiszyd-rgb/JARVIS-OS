@@ -25,7 +25,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 - Data ostatniej aktualizacji: 2026-10-28T14:58:29+00:00
 - Bieżący etap: M3 — ukończony; STOP przed M4
-- Aktualne zadanie: dostawa instalatora Windows VERIFIED; M3 ukończone, M4 nie rozpoczęto
+- Aktualne zadanie: HUD VERIFIED; instalator skompilowany i smoke PASS; instalacja nowej paczki NOT_RUN; M4 nie rozpoczęto
 - Zadania VERIFIED: 20 / 45
 - Zadania DONE: 0 / 45
 - Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
@@ -542,3 +542,13 @@ Wynik publikacji 2026-10-28T14:20:39+00:00: źródła 8cf20683525bdaeb20192e604d
 Nowe polecenie właściciela: dostarczyć instalator i możliwość obejrzenia obecnego interfejsu. Osobne zadanie dystrybucji 0.10.4; nie rozpoczyna M4 i nie oznacza całego M8 jako ukończonego. Plan: samowystarczalny runtime Python3.12 + dependencies + frontend/dist, launcher localhost, prywatny katalog danych/klucz, skróty i deinstalator. Kryteria: kompilacja instalatora, izolowana instalacja/uruchomienie/API/assets/restart/persistence/uninstall, testy launchera, zachowanie danych.
 
 Wynik 2026-10-28T14:58:29+00:00: instalator x64 offline 28 223 337 bajtów, SHA256 2b58ceff9f0558054c0231f8c7781520b3ed32765db4f4b5f78527d33e9b660a. scripts/build_windows_installer.py + packaging/windows/jarvis.iss, launcher i testy; dowód docs/evals/windows-installer-0104.json. PASS rzeczywista instalacja/reinstalacja/runtime/API/assets/restart/retencja danych/deinstalacja oraz Tk lifecycle/browser handoff/early close; pełna regresja847PASS/75skip258.56s,pipcheck/build. Kontrola wizualna NOT_RUN: narzędzie UI nie inicjalizuje się. Certyfikat podpisu instalatora niedostępny; plik niepodpisany. M4+ nie rozpoczęto, statusy45zadań bez zmian. Następne: instalacja i odbiór panelu przez właściciela, potem osobno konfiguracja modelu/PG.
+
+## Interfejs JARVIS HUD — 2026-10-29 UTC
+- Status: VERIFIED (interfejs); dostawa instalatora DONE
+- Zlecenie właściciela: styl JARVIS i nowy instalator. Zakres poza numeracją M0–M8; M4 pozostaje nierozpoczęte.
+- Plan: cyjanowy HUD, interaktywny rdzeń, responsywność i ograniczenie animacji. Zachowanie autoryzacji oraz istniejących funkcji.
+- Akceptacja: testy UI, build, rzeczywisty Chromium desktop/mobile i instalator.
+
+- UI:149 PASS, typecheck/build/JS PASS; Chrome desktop i390px, radar/reduced-motion/auth/role PASS. Zrzuty docs/evals/control-hud-*.png.
+
+Kontrola paczki HUD: kompilacja Inno Setup PASS; dołączony Python/Core/API/assets na izolowanych danych PASS (docs/evals/windows-hud-smoke.json); 4 testy launchera PASS. Instalacja/reinstalacja/deinstalacja nowego EXE NOT_RUN: wykryto istniejącą instalację użytkownika. Poprzednie testy instalacji nie są wynikiem nowej paczki. SHA256: e0d996551441e5b397dd147bc6f4353c75152affdff07271e5e86b9d737f4686.

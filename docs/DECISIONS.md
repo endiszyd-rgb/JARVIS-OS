@@ -58,3 +58,5 @@ Wieloetapowe zadania są jawnym API read-only na istniejącej pętli, nie nowym 
 ## 2026-10-28 — instalator bieżącego M3
 
 Właściciel zlecił instalator do lokalnego obejrzenia interfejsu. Pakujemy obecne M3 jako osobne zadanie dystrybucji, bez M4 i bez zmiany statusów M8. Per-user/offline runtime, localhost-only, osobny katalog danych, lokalny losowy klucz, brak automatycznego uruchamiania i brak aktywacji integracji. Deinstalacja zachowuje dane. Panel pozostaje aplikacją web w domyślnej przeglądarce, launcher zarządza lokalnym procesem.
+
+2026-10-29: HUD jako warstwa React/CSS istniejącego panelu, bez zastępowania autoryzacji. Radar jest nawigacją do stanu Core, nie symulacją skanowania sprzętu. Pakiet Windows 0.10.4.2 zachowuje AppId i dane.

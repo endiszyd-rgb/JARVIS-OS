@@ -13,3 +13,13 @@ PASS .venv/bin/python -m pytest -q:843/75skip128.17s; pipcheck/JSsyntax/diff/typ
 Zadania są RAM-only w jednym workerze, bez wznowienia/replay po restarcie i bez osobnego GUI zadań. Anulowanie nie cofa wysłanych żądań ani kosztu. TTL900s oznacza odmowę dostępu i lazy cleanup przy kolejnym użyciu rejestru; bez ruchu RAM czyszczony przy shutdown. Szczegóły AI-TASKS.md. Pamięć/profile/panelM3.4 pozostają sprawdzone, PGfeature4/PGfoundation1/SQLite12. Nie edytuj migracji0001–0004.
 
 Najpierw odczytaj masterTXT/MD i AGENTS. M4 pozostajeTODO; nie wybieraj go automatycznie tylko dlatego, że walidator zależności wskazuje je jako technicznie możliwe. GitHubpush potwierdzony 28.10, B5 CLOSED; brakująca historia źródłowego ZIP nie została odzyskana; produkcjaAutoLogika/Supabase bez zmian.
+
+## JARVIS HUD — 2026-10-29
+
+Nowy cyjanowy interfejs: pulpit z animowanym rdzeniem prowadzącym do Systemu, telemetria z API, skrót rozmowy dla właściciela, motyw logowania i paneli. Animacje wyłączają się przy prefers-reduced-motion. Role i dotychczasowe funkcje zachowane; M4 nie rozpoczęto.
+
+Wykonano: 149 testów UI PASS, TypeScript/build PASS, node --check jarvis/app.js PASS. Rzeczywisty Chrome + izolowany Core: logowanie, role, wylogowanie/unieważnienie, brak sekretów w storage/URL, CSP, klawiatura, radar i reduced-motion PASS; 390px bez overflow. Obejrzano zrzuty desktop/mobile. Backend bez zmian, pełnej regresji backendu nie powtarzano.
+
+Instalator HUD: wydanie v0.10.4-windows.2, wersja pakietu 0.10.4.2 (Core nadal 0.10.4). Niepodpisany; modele i integracje nie są aktywowane.
+
+Kontrola paczki HUD: kompilacja Inno Setup PASS; dołączony Python/Core/API/assets na izolowanych danych PASS (docs/evals/windows-hud-smoke.json); 4 testy launchera PASS. Instalacja/reinstalacja/deinstalacja nowego EXE NOT_RUN: wykryto istniejącą instalację użytkownika. Poprzednie testy instalacji nie są wynikiem nowej paczki. SHA256: e0d996551441e5b397dd147bc6f4353c75152affdff07271e5e86b9d737f4686.
