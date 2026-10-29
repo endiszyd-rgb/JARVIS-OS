@@ -552,3 +552,12 @@ Wynik 2026-10-28T14:58:29+00:00: instalator x64 offline 28 223 337 bajtów, SHA2
 - UI:149 PASS, typecheck/build/JS PASS; Chrome desktop i390px, radar/reduced-motion/auth/role PASS. Zrzuty docs/evals/control-hud-*.png.
 
 Kontrola paczki HUD: kompilacja Inno Setup PASS; dołączony Python/Core/API/assets na izolowanych danych PASS (docs/evals/windows-hud-smoke.json); 4 testy launchera PASS. Instalacja/reinstalacja/deinstalacja nowego EXE NOT_RUN: wykryto istniejącą instalację użytkownika. Poprzednie testy instalacji nie są wynikiem nowej paczki. SHA256: e0d996551441e5b397dd147bc6f4353c75152affdff07271e5e86b9d737f4686.
+
+## Spójność HUD i rozmowa — 2026-10-29 UTC
+- Status: VERIFIED (UI); instalator DONE
+- Plan: ujednolicić zaznaczenie nawigacji i czatu; sprawdzić rzeczywistą rozmowę DEMO na desktop/mobile i wydać poprawiony instalator. M4 bez zmian.
+- Akceptacja: build, test przeglądarkowy rozmowy, brak overflow, smoke paczki.
+
+- Wynik: spójna nawigacja/czat; rzeczywisty Chrome DEMO desktop/390px PASS, TypeScript/build/JS/plan PASS. Pełnych testów UI i backendu nie powtarzano (zmiana CSS). M4 bez zmian.
+
+Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izolowanych danych PASS (docs/evals/windows-hud3-smoke.json). Instalacja nowego EXE NOT_RUN — istniejąca instalacja użytkownika. SHA256: fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442.

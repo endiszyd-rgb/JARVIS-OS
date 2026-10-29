@@ -1,11 +1,11 @@
-﻿:root { --background:#060d14; --sidebar:#080f18; --surface:#0c1722; --surface-raised:#102331; --border:#203c4b; --text:#e5f5fb; --muted:#9cb8c7; --subtle:#8ca9b9; --accent:#66e6ff; --accent-ink:#04212c; --good:#73e4cd; }
+:root { --background:#060d14; --sidebar:#080f18; --surface:#0c1722; --surface-raised:#102331; --border:#203c4b; --text:#e5f5fb; --muted:#9cb8c7; --subtle:#8ca9b9; --accent:#66e6ff; --accent-ink:#04212c; --good:#73e4cd; }
 body { background:var(--background); }
 .main-wrap { background:radial-gradient(ellipse at 60% 15%,#10314055,transparent 65%),linear-gradient(#62dcff03 1px,transparent 1px),linear-gradient(90deg,#62dcff03 1px,transparent 1px); background-size:auto,36px 36px,36px 36px; }
 .sidebar { background:linear-gradient(180deg,#0b1721,#070e16); border-right-color:#23404d; }
 .brand-mark { color:#83edff; background:#103141; border:1px solid #4692a5; border-radius:9px; box-shadow:0 0 24px #39dfff16; }
 .brand-copy strong { letter-spacing:2.5px; }
 .brand-copy > span,.eyebrow { color:#80b7c9; letter-spacing:2px; }
-.nav-link.active { background:linear-gradient(90deg,#133a49,#10222e); color:#85edff; border-color:#30596a; box-shadow:inset 3px 0 #65e4ff; }
+.nav-link.active, .nav-link[aria-current="page"] { background:linear-gradient(90deg,#133a49,#10222e); color:#85edff; border-color:#30596a; box-shadow:inset 3px 0 #65e4ff; }
 .nav-link:hover { background:#102a38; }
 .topbar { background:#080f18e8; border-color:#203440; }
 .connection-pill { background:#102b31; border-color:#28575d; color:#8be9e0; }
@@ -53,3 +53,14 @@ body { background:var(--background); }
 @media(max-width:560px) { .hud-overview { display:flex; flex-direction:column; gap:16px; padding:24px; } .core-radar { width:260px; max-width:100%; align-self:center; } .hud-readouts dl { grid-template-columns:repeat(2,1fr); } .hud-overview .overview-copy h2 { font-size:34px; } .hud-chat { width:100%; justify-content:center; } }
 @media(prefers-reduced-motion:reduce) { .radar-orbit,.radar-inner { animation:none; } }
 @media(forced-colors:active) { .core-radar { color:LinkText; } .hud-overview { border:1px solid CanvasText; } }
+
+/* Conversation surfaces share the HUD palette; warning/error states keep their semantics. */
+.chat-session-button { background:#0b1c28; border-color:#294552; }
+.chat-session-button[aria-current="true"] { background:#133747; border-color:#60bfd5; box-shadow:inset 3px 0 #79e6fa; }
+.chat-message { background:#101f2c; border-color:#284654; }
+.chat-message.user { background:#11313d; border-color:#39738a; }
+.chat-message.assistant { border-left:2px solid #65d7ed; }
+.chat-new input,.chat-model select,.chat-compose textarea,.settings-form select { background:#09151f; border-color:#345868; }
+.chat-thread-heading { padding-bottom:16px; border-bottom:1px solid var(--border); }
+.chat-compose textarea:focus { border-color:var(--accent); }
+.settings-preview { border-color:#4a8da2; }

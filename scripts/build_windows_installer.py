@@ -43,7 +43,7 @@ def main():
             raise SystemExit('Unexpected private/runtime payload: ' + str(path))
     subprocess.run([str(args.compiler), '/DPayloadDir=' + str(stage), '/DOutputDir=' + str(output),
                     str(ROOT / 'packaging' / 'windows' / 'jarvis.iss')], check=True, cwd=ROOT)
-    exe = output / 'JARVIS-OS-0.10.4-HUD-Setup-x64.exe'
+    exe = output / 'JARVIS-OS-0.10.4-HUD3-Setup-x64.exe'
     digest = hashlib.sha256(exe.read_bytes()).hexdigest()
     (output / (exe.name + '.sha256')).write_text(digest + '  ' + exe.name + '\n', encoding='ascii')
     print(json.dumps({'installer': str(exe), 'sha256': digest, 'bytes': exe.stat().st_size}))

@@ -23,3 +23,13 @@ Wykonano: 149 testów UI PASS, TypeScript/build PASS, node --check jarvis/app.js
 Instalator HUD: wydanie v0.10.4-windows.2, wersja pakietu 0.10.4.2 (Core nadal 0.10.4). Niepodpisany; modele i integracje nie są aktywowane.
 
 Kontrola paczki HUD: kompilacja Inno Setup PASS; dołączony Python/Core/API/assets na izolowanych danych PASS (docs/evals/windows-hud-smoke.json); 4 testy launchera PASS. Instalacja/reinstalacja/deinstalacja nowego EXE NOT_RUN: wykryto istniejącą instalację użytkownika. Poprzednie testy instalacji nie są wynikiem nowej paczki. SHA256: e0d996551441e5b397dd147bc6f4353c75152affdff07271e5e86b9d737f4686.
+
+## HUD 3 — spójny panel rozmów (2026-10-29)
+
+Poprawiono cyjanowe zaznaczenie aktywnej trasy (aria-current), wybranej rozmowy, wiadomości i pól formularza. Zachowano kolory ostrzeżeń i błędów. Rozszerzono scripts/check_control_browser.cjs o rzeczywiste utworzenie sesji DEMO, wysłanie wiadomości i odczyt odpowiedzi oraz układ czatu przy 390px.
+
+Wykonano: TypeScript/build PASS; node --check jarvis/app.js i check_control_browser.cjs PASS; Chrome z tymczasowym Core PASS (25 żądań API, auth/role/CSP/klawiatura/radar/reduced-motion/rozmowa/390px). Obejrzano docs/evals/control-hud-chat.png i control-hud-chat-mobile.png. Zmiana CSS nie zmienia backendu; 149 testów UI z poprzedniej dostawy nie powtarzano. M4 nie rozpoczęto.
+
+Pakiet Windows 0.10.4.3 (Core 0.10.4): v0.10.4-windows.3. Instalacja na istniejącej kopii użytkownika NOT_RUN; dane i rejestracja pozostają nietknięte.
+
+Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izolowanych danych PASS (docs/evals/windows-hud3-smoke.json). Instalacja nowego EXE NOT_RUN — istniejąca instalacja użytkownika. SHA256: fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442.

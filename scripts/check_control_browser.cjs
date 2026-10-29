@@ -96,6 +96,20 @@ async function cleanup(){
  await page.getByRole('link',{name:'Pulpit',exact:true}).click();await dashboard();
  const desktop=process.env.JARVIS_CONTROL_SCREENSHOT||path.resolve(root,'../JARVIS-OS-control-browser.png');
  await page.screenshot({path:desktop,fullPage:true});
+ // Exercise a complete local DEMO conversation, including real saved messages.
+ await page.getByRole('link',{name:'Rozpocznij rozmowę',exact:true}).click();
+ await page.getByLabel('Tytuł nowej rozmowy',{exact:true}).fill('HUD browser DEMO');
+ await page.getByRole('button',{name:'Nowa rozmowa',exact:true}).click();
+ await page.getByLabel('Wiadomość',{exact:true}).fill('Test interfejsu HUD');
+ await page.getByRole('button',{name:'Wyślij wiadomość',exact:true}).click();
+ await page.locator('.chat-message.assistant').waitFor();
+ assert.equal(await page.locator('.chat-message.user').count(),1);
+ await page.screenshot({path:path.resolve(root,'docs/evals/control-hud-chat.png'),fullPage:true});
+ await page.setViewportSize({width:390,height:844});
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Chat must fit mobile viewport');
+ await page.screenshot({path:path.resolve(root,'docs/evals/control-hud-chat-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});
+ await page.getByRole('link',{name:'Pulpit',exact:true}).click();await dashboard();
  await page.setViewportSize({width:390,height:844});
  const openMenu=page.getByRole('button',{name:'Otwórz menu',exact:true});await openMenu.focus();await page.keyboard.press('Enter');
  const closeMenu=page.getByRole('button',{name:'Zamknij menu',exact:true});assert.equal(await closeMenu.getAttribute('aria-expanded'),'true');
@@ -132,7 +146,7 @@ async function cleanup(){
  assert.ok(await page.evaluate(()=>[...document.styleSheets].some(sheet=>sheet.href?.includes('/control/assets/')&&sheet.cssRules.length>0)),'Check uses a loaded production stylesheet');
  assert.ok(requests.some(item=>item.path.startsWith('/control/assets/')&&item.path.endsWith('.js')),'Check uses real built React JavaScript');
  assert.ok(requests.every(item=>{let url=item.url;try{url=decodeURIComponent(url);}catch(_){}return !secretValues.some(secret=>url.includes(secret));}),'Credentials must stay out of request URLs, including queries');
- console.log(JSON.stringify({check:'chromium_control_center',source:'actual_chromium_built_react_temporary_core_no_integrations',passed:true,checks:['bootstrap_login','account_login','wrong_password_cleanup','real_counts','keyboard_navigation','session_logout_revocation','external_revocation_401_cleanup','observer_scope','credentials_not_persisted','csp','mobile_menu'],mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshot:desktop,mobileScreenshot}));
+ console.log(JSON.stringify({check:'chromium_control_center',source:'actual_chromium_built_react_temporary_core_no_integrations',passed:true,checks:['bootstrap_login','account_login','wrong_password_cleanup','real_counts','keyboard_navigation','session_logout_revocation','external_revocation_401_cleanup','observer_scope','credentials_not_persisted','csp','mobile_menu','hud_radar_reduced_motion','demo_chat','mobile_chat'],mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshot:desktop,mobileScreenshot}));
  await cleanup();
 })().catch(async error=>{
  console.error(sanitized(error.stack||String(error)));

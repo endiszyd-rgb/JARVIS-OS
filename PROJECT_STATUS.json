@@ -394,11 +394,12 @@
     "m4_started": false
   },
   "hud_delivery": {
-    "status": "ui_verified_installer_built_payload_smoke_passed",
-    "ui_tests": 149,
-    "browser": "Chrome desktop and 390px; keyboard radar; reduced motion; auth and roles PASS",
+    "status": "chat_ui_verified_installer_built_payload_smoke_passed",
+    "ui_tests": "149 prior release; not repeated for CSS-only refinement",
+    "browser": "Chrome desktop/390px auth, roles, keyboard, reduced motion and actual DEMO conversation PASS",
     "core_version": "0.10.4",
-    "package_version": "0.10.4.2",
-    "installer_installation": "not_run_existing_user_installation"
+    "package_version": "0.10.4.3",
+    "installer_installation": "not_run_existing_user_installation",
+    "installer_sha256": "fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442"
   }
 }
