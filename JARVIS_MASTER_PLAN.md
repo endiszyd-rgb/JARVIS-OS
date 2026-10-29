@@ -23,16 +23,16 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-10-28T14:58:29+00:00
-- Bieżący etap: M3 — ukończony; STOP przed M4
-- Aktualne zadanie: HUD VERIFIED; instalator skompilowany i smoke PASS; instalacja nowej paczki NOT_RUN; M4 nie rozpoczęto
-- Zadania VERIFIED: 20 / 45
+- Data ostatniej aktualizacji: 2026-10-29
+- Bieżący etap: M4 — adapter AutoLogika
+- Aktualne zadanie: M4.1 VERIFIED; następne M4.2
+- Zadania VERIFIED: 21 / 45
 - Zadania DONE: 0 / 45
 - Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
 - Testy: 28.10 Windows PASS843pytest/75skip220.45s,149UI/typecheck/build, task HTTP/MCP, pip/JS/plan. PG76/Chromium/Docker to historyczne wyniki 27.10, bez powtórki lokalnie.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: zainstalować JARVIS OS i ocenić panel lokalny. Integracje M4+ wymagają osobnego polecenia; nie rozpoczęto ich w ramach instalatora.
+- Następny krok: M4.2 po zweryfikowaniu M4.1; kontynuacja M4+ autoryzowana 2026-10-29.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -252,12 +252,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 ### M4 — AutoLogika OS
 
 #### M4.1 — Adapter wyłącznie do rzeczywiście znalezionych endpointów/operacji; mock przy braku dostępu.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** VERIFIED
+- **Rozpoczęto / aktualizacja UTC:** 2026-10-29
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** potwierdzić dwie trasy GET, bounded HTTP/JSON i schemat, jawne capabilities i testy syntetyczne bez produkcji.
+- **Wykonano / dowody (pliki, commit):** jarvis/autologika.py/main.py: bounded GET, envelope/order-id validation i capabilities bez I/O. tests/test_autologika.py; docs/audits/M4-AUTOLOGIKA-SOURCE.md.
+- **Testy (komenda, wynik):** PASS pytest861/75skip/240.21s; kontrakt+snapshot36PASS, pipcheckPASS. Produkcja NOT_RUN.
+- **Blokady / dalsze kroki:** M4.2; rzeczywiste połączenie nadal niewłączone.
 
 #### M4.2 — Odczyt terminarza, pojazdów, klientów, zleceń, diagnostyki i części.
 - **Status:** TODO
@@ -521,11 +522,11 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Następny krok
 
-**STOP — zakończono M3.1–M3.5.** Właściciel 2026-10-27 ograniczył zlecenie do końcaM3. Nie rozpoczynaj M4 ani późniejszych etapów. Wszystkie zadaniaM4 zachowująTODO. Następne prace wymagają nowego polecenia właściciela; nie jest to blokada techniczna ani fałszywy statusBLOCKED. Publikacja GitHub została potwierdzona 28.10.2026; B5 zamknięta, historia zdalna zachowana. Brak historii źródłowej ZIP opisano w raporcie synchronizacji.
+M4.1 w toku. Właściciel 2026-10-29 uchylił STOP po M3 i zlecił M4 oraz dalsze etapy. Następne M4.2; dane produkcyjne, Supabase, operator, wydatki i urządzenia nie są aktywowane.
 
 ## Instrukcja uruchomienia agenta (do wklejenia Codex)
 
-**Bieżący limit właściciela ma pierwszeństwo nad ogólnym promptem poniżej: M3 ukończone, STOP przed M4.**
+**Aktualna zgoda 2026-10-29: kontynuować M4 i dalej; zachować granice produkcji, kosztów i sprzętu.**
 
 > Przeczytaj `JARVIS_MASTER_PLAN.md` i traktuj go jako nadrzędną instrukcję oraz jedyny dziennik postępu. Wykonuj zadania M0–M8 kolejno, aktualizując status, dowody, testy, Snapshot, Dziennik i Następny krok w tym samym pliku po KAŻDYM zadaniu. Nie kończ na planie; twórz kod i testy. Nie zmieniaj produkcyjnej AutoLogiki, Supabase ani urządzeń. Kontynuuj od pierwszego niewykonanego zadania. Jeżeli czegoś nie da się wykonać, oznacz BLOCKED, opisz przyczynę i realizuj następne niezależne zadanie.
 
@@ -561,3 +562,7 @@ Kontrola paczki HUD: kompilacja Inno Setup PASS; dołączony Python/Core/API/ass
 - Wynik: spójna nawigacja/czat; rzeczywisty Chrome DEMO desktop/390px PASS, TypeScript/build/JS/plan PASS. Pełnych testów UI i backendu nie powtarzano (zmiana CSS). M4 bez zmian.
 
 Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izolowanych danych PASS (docs/evals/windows-hud3-smoke.json). Instalacja nowego EXE NOT_RUN — istniejąca instalacja użytkownika. SHA256: fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442.
+
+2026-10-29: właściciel zlecił M4 i dalej. Wcześniejszy STOP po M3 uchylony. M4.1 IN_PROGRESS; produkcja i sprzęt pozostają wyłączone.
+
+M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.

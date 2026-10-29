@@ -60,3 +60,8 @@ Wieloetapowe zadania są jawnym API read-only na istniejącej pętli, nie nowym 
 Właściciel zlecił instalator do lokalnego obejrzenia interfejsu. Pakujemy obecne M3 jako osobne zadanie dystrybucji, bez M4 i bez zmiany statusów M8. Per-user/offline runtime, localhost-only, osobny katalog danych, lokalny losowy klucz, brak automatycznego uruchamiania i brak aktywacji integracji. Deinstalacja zachowuje dane. Panel pozostaje aplikacją web w domyślnej przeglądarce, launcher zarządza lokalnym procesem.
 
 2026-10-29: HUD jako warstwa React/CSS istniejącego panelu, bez zastępowania autoryzacji. Radar jest nawigacją do stanu Core, nie symulacją skanowania sprzętu. Pakiet Windows 0.10.4.2 zachowuje AppId i dane.
+
+## 2026-10-29 — wznowienie M4 i kolejnych etapów
+Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
+
+Adapter pozostaje wyłącznie na dwóch audytowanych GET. Capabilities nie sprawdza sieci i nie zwraca origin/PIN. Odpowiedzi mają limit 2 MiB oraz 12 s całkowitego czasu; niezgodny envelope i obce order_id są odrzucane. Mock służy testom; awaria live nie przełącza się po cichu na DEMO.

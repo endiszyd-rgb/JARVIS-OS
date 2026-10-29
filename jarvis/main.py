@@ -23,7 +23,7 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
-from .autologika import AUDITED_COMMIT, configured_adapter
+from .autologika import AUDITED_COMMIT, configured_adapter, capabilities as autologika_capabilities
 from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
@@ -333,6 +333,10 @@ def create_app(db_path=None, api_key=None):
     def status():
         with db() as c:
             return {'mode': 'demo_with_optional_readonly', 'settings': settings(c), 'counts': {t: c.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0] for t in ['plugins', 'memory', 'audit', 'proposals', 'automations', 'notifications']}, 'live_devices': False, 'autologika_audit': AUDITED_COMMIT, 'models': ['demo', 'ollama', 'openai']}
+
+    @api.get('/autologika/capabilities', dependencies=[Depends(require('workshop:read'))])
+    def read_autologika_capabilities():
+        return autologika_capabilities()
 
     @api.get('/autologika/readonly/orders', dependencies=[Depends(require('workshop:read'))])
     async def read_orders():

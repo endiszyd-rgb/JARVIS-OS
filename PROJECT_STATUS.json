@@ -6,7 +6,7 @@
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
-  "next_task": null,
+  "next_task": "M4.2",
   "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
   "decisions_file": "docs/DECISIONS.md",
   "database": {
@@ -355,12 +355,9 @@
     "blocker_B5": "closed"
   },
   "owner_scope": {
-    "through": "M3",
-    "stop_before": "M4",
-    "date": "2026-10-27",
-    "status": "completed_stopped_before_M4",
-    "next_requires_new_owner_instruction": true,
-    "windows_installer_authorized": "2026-10-28"
+    "status": "M4_and_later_authorized",
+    "authorization_date": "2026-10-29",
+    "production_hardware_paid_activation": false
   },
   "verification_source_date": "2026-10-27",
   "publication_verification": {
@@ -401,5 +398,11 @@
     "package_version": "0.10.4.3",
     "installer_installation": "not_run_existing_user_installation",
     "installer_sha256": "fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442"
+  },
+  "m4_verification": {
+    "M4.1": "verified",
+    "pytest_passed": 861,
+    "pytest_skipped": 75,
+    "seconds": 240.21
   }
 }

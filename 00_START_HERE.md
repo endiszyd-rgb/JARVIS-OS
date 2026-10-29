@@ -1,3 +1,5 @@
+Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
+
 # JARVIS OS — zacznij tutaj
 
 **To gotowy kod projektu do przejęcia, nie samo zlecenie stworzenia aplikacji od nowa.**

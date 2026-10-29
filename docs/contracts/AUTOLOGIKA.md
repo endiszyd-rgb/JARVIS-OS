@@ -44,3 +44,6 @@ Supabase synchronizuje ogólne `public.sync_records` z entity_type/cloud_id/payl
 Bezpośredni INSERT do sync_records lub SQLite ominąłby część usług domenowych, idempotencji i kontroli konfliktów. JARVIS nie ma service_role ani dostępu do produkcyjnego Supabase. Zapisy, most domenowy i funkcje nieobecne w HTTP pozostają w M4.4/M4.5, za osobną zgodą na zmiany po stronie AutoLogiki. Dostęp do danych nie jest zgodą na sterowanie urządzeniami.
 
 Weryfikacja tego kontraktu: `.venv/bin/python -m pytest -q tests/test_autologika.py tests/test_workshop.py` — PASS22, kontrolowane HTTP i syntetyczna kopia. Produkcyjne dane/HTTP/Supabase/RLS: NOT_RUN. Nie wykonano zmian upstream.
+
+## M4.1 — kontrakt obronny (2026-10-29)
+Ponowny odczyt lokalnego electron/main.cjs (read-only) potwierdził dwie trasy. Adapter wymaga dodatnich unikalnych id (max100) i zgodnego order.id; notes/diag są obiektami, parts/payments listami rekordów tego samego order_id. Limit odpowiedzi 2MiB, timeout całkowity12s; redirect i błędy nie ujawniają treści ani PIN. GET /api/v1/autologika/capabilities wymaga workshop:read, nie wykonuje połączenia i ujawnia ograniczenia. Dane testowe są syntetyczne. Rzeczywiste połączenie z produkcją NOT_RUN.

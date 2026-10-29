@@ -1,3 +1,12 @@
+M4.1 pełna regresja: **861 PASS /75skip**,240.21s; pipcheckPASS.
+
+
+## M4.1 — adapter AutoLogika (2026-10-29)
+
+Właściciel autoryzował M4 i dalsze etapy. Adapter używa wyłącznie potwierdzonych GET /api/orders i /api/order/{id}; dodano limit odpowiedzi 2 MiB, całkowity deadline12s, kontrolę envelope i powiązania rekordów z order_id. GET /api/v1/autologika/capabilities wymaga workshop:read i pokazuje ograniczenia bez odpytywania usługi lub ujawniania konfiguracji. Audyt lokalnych źródeł: docs/audits/M4-AUTOLOGIKA-SOURCE.md. Brak awaryjnego przełączania live na DEMO.
+
+Testy kontraktów i snapshot:36 PASS; pip check PASS. Produkcyjna AutoLogika/Supabase i realne urządzenia NOT_RUN. Schemat bazy i instalator HUD3 bez zmian; ten commit rozwija źródła backendu.
+
 # JARVIS OS 0.10.4 — M3 ukończone
 
 Dostawa Windows 28.10: instalator 0.10.4-windows.1 VERIFIED; instalacja/reinstalacja/runtime/API/assets/Tk/restart/uninstall PASS, dane zachowane. Regresja847PASS/75skip258.56s; podpis i wizualny podgląd NOT_RUN. Instrukcja: WINDOWS-INSTALLER.md, dowód evals/windows-installer-0104.json. Osobna dostawa na nowe polecenie, M4 nadal nierozpoczęte.

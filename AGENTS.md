@@ -51,3 +51,6 @@ The owner explicitly requested a Windows installer to install and view the exist
 
 ## Owner UI scope — 2026-10-29
 The owner authorized a JARVIS-style interface and refreshed installer. Preserve existing functionality and role checks; this does not start M4.
+
+## Current owner scope — 2026-10-29 (supersedes M3 STOP)
+The owner explicitly authorized M4 and later stages. Continue eligible tasks in order. Production AutoLogika/Supabase changes, paid services, real calls/messages and physical devices remain outside authorization.

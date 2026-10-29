@@ -1,3 +1,5 @@
+Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
+
 # Historyczna kolejka R01–R07
 
 Nowe polecenie 28.10: instalator bieżącego M3 dostarczony i zweryfikowany. Następny krok użytkownika: instalacja oraz odbiór interfejsu według WINDOWS-INSTALLER.md. Nie rozpoczynaj automatycznie M4 ani dawnej kolejki R05.
