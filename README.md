@@ -6,6 +6,8 @@ Oficjalny plugin OpenClaw `autologika-jarvis-readonly` udostępnia dokładnie dw
 
 Świeża regresja eksperymentu: **865 testów backendu PASS / 75 skip**, **149 testów UI PASS**, typecheck/build, 6 testów pluginu, pip check, składnia JS i walidator 45 zadań PASS.
 
+Publikacja brancha potwierdzona: `experiment/openclaw-integration`, checkpoint prototypu `9de7d074dadd0409630f5fd85c1517c7e8141223`; `git ls-remote` zwrócił identyczny hash. Branch nie został scalony do `main`.
+
 ## M4.2 — diagnostyka i odczyty warsztatu (2026-10-29)
 
 Kopia schema18 udostępnia dodatkową domenę diagnostics: objawy, DTC, pomiary, hipotezę, wnioski, zalecenia i czas. Odczyt przez GET /api/v1/autologika/snapshot/diagnostics ma paginację, pomija usunięte zlecenia i nie modyfikuje źródła. Brak tabeli/kolumn daje503; pozostałe domeny pozostają dostępne. Panel AutoLogika udostępnia diagnostykę właścicielowi i workshop_reader; finanse/raporty/powiadomienia nadal owner-only. Terminarz, pojazdy, klienci i części pozostają odczytami offline, nie wymyślonymi trasami live.

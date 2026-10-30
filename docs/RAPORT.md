@@ -56,3 +56,5 @@ Zintegrowano przypięty OpenClaw `2026.10.7` jako warstwę rozmowy bez przejmowa
 Nowy test end-to-end uruchomił prawdziwy runtime pluginu i lokalne transporty HTTP z kontrolowanym serwerem modelu: odczyt warsztatu i HA PASS, źródła obecne, scope denial/revoke/unregistered operation/timeout/offline/redakcja/prompt injection PASS. Kontrolowany serwer nie wykonuje inferencji. WSL2, Docker, prawdziwy model, prawdziwy HA i produkcja `NOT_RUN`. Szczegóły: `OPENCLAW-INTEGRATION.md` oraz `evals/openclaw-prototype-2026-10-30.json`.
 
 Regresja po integracji: backend 865 PASS / 75 skip w 227.83 s; frontend 149 PASS oraz typecheck/build; plugin 6 PASS i package dry-run; pip check, JS, py_compile i plan 45 zadań PASS.
+
+Publikacja PASS: branch `experiment/openclaw-integration`, źródłowy checkpoint prototypu `9de7d074dadd0409630f5fd85c1517c7e8141223`; lokalny i zdalny hash były identyczne. Bez force push i bez scalenia do `main`.

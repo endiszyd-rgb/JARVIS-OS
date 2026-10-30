@@ -54,3 +54,5 @@ Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izol
 Branch `experiment/openclaw-integration`; nie scalać automatycznie do `main`. Przypięto OpenClaw `2026.10.7`/`157d8c2bc3ea2fa183afdc11088e69690bf8e64e` i Node `24.22.1`. Plugin `integrations/openclaw/autologika-jarvis-plugin` rejestruje wyłącznie `jarvis_workshop_orders` i `jarvis_home_entity_state`. JARVIS pozostaje granicą tożsamości, zakresów, odwołania i audytu; nie znaleziono serwera MCP, więc użyto istniejącego lokalnego HTTP.
 
 PASS: pakiet pluginu i runtime inspect, testy klienta, rzeczywisty lokalny przebieg OpenClaw→JARVIS→syntetyczna AutoLogika oraz HA mock przez HTTP, odmowa zakresu, revoke, niezarejestrowana operacja, timeout/backend offline, redakcja i prompt injection jako dane. Realna inferencja, WSL2/Docker, prawdziwy HA, produkcyjna AutoLogika/Supabase, kanały i urządzenia `NOT_RUN`. Instrukcja i rollback: `OPENCLAW-INTEGRATION.md`; dowód: `evals/openclaw-prototype-2026-10-30.json`.
+
+Publikacja PASS: branch `experiment/openclaw-integration`, checkpoint `9de7d074dadd0409630f5fd85c1517c7e8141223` potwierdzony przez `git ls-remote`. Nie scalono do `main`.

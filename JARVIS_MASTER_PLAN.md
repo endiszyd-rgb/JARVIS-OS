@@ -576,3 +576,4 @@ M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.
 - Plugin: dokładnie `jarvis_workshop_orders` i `jarvis_home_entity_state`; loopback-only, timeout4s, limit256KiB, allowlista encji HA, dwa osobne tokeny, brak terminala/plików/Docker socket/kanałów/sterowania.
 - PASS: unit pluginu, package/runtime inspect, OpenClaw→JARVIS→syntetyczny snapshot warsztatu, HA mock przez realny HTTP, denial/revoke/unregistered operation/timeout/offline/redakcja/prompt injection. Dowód `docs/evals/openclaw-prototype-2026-10-30.json`.
 - NOT_RUN: realna inferencja, WSL2/Docker, prawdziwy HA, produkcyjna AutoLogika/Supabase, kanały i urządzenia. Statusy 45 zadań bez zmian.
+- Publikacja: branch `experiment/openclaw-integration`, checkpoint `9de7d074dadd0409630f5fd85c1517c7e8141223` potwierdzony przez `git ls-remote`; bez force push i bez scalenia do `main`.
