@@ -1,3 +1,6 @@
+## Eksperyment OpenClaw — wąski dostęp warsztatowy (2026-10-30)
+
+Branch `experiment/openclaw-integration` rozwija izolowany prototyp bez zmian w produkcyjnej AutoLogice i Supabase. Core może teraz wydać odwoływalny token usługowy wyłącznie z zakresem `workshop:read`; token pozwala czytać potwierdzony snapshot warsztatu, nie pozwala zarządzać bezpieczeństwem ani czytać Home Assistant i po odwołaniu natychmiast przestaje działać. Plugin i instrukcja uruchomienia są wdrażane w kolejnych logicznych commitach tego samego eksperymentu.
 
 ## M4.2 — diagnostyka i odczyty warsztatu (2026-10-29)
 

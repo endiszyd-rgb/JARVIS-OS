@@ -83,6 +83,25 @@ def test_snapshot_is_explicitly_off_by_default(tmp_path,monkeypatch):
     assert c.get('/api/autologika/snapshot').status_code==503
 
 
+def test_narrow_workshop_service_token_can_read_then_is_revoked(setup):
+    client,_,_,_=setup
+    issued=client.post('/api/v1/security/tokens',json={
+        'name':'OpenClaw workshop reader','scopes':['workshop:read'],'hours':1,
+    })
+    assert issued.status_code==201,issued.text
+    body=issued.json();headers={'X-Jarvis-Key':body['token']}
+    result=client.get('/api/v1/autologika/snapshot/orders?limit=1',headers=headers)
+    assert result.status_code==200,result.text
+    assert len(result.json()['data']['items'])==1
+    assert client.get('/api/v1/status',headers=headers).status_code==403
+    assert client.get('/api/v1/home/states/sensor.workshop_temperature',headers=headers).status_code==403
+    assert client.post('/api/v1/security/tokens',json={
+        'name':'forbidden','scopes':['workshop:read']},headers=headers).status_code==403
+    assert body['token'] not in client.get('/api/v1/security/tokens').text
+    assert client.delete('/api/v1/security/tokens/'+body['id']).status_code==200
+    assert client.get('/api/v1/autologika/snapshot/orders',headers=headers).status_code==401
+
+
 def test_source_wal_is_copied_consistently_without_checkpoint(tmp_path):
     source=create_fixture(tmp_path/'source.db')
     with sqlite3.connect(source) as c:

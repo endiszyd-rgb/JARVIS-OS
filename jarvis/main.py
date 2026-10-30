@@ -124,7 +124,7 @@ class Automation(Strict):
 
 class TokenSpec(Strict):
     name:str=Field(min_length=1,max_length=100)
-    scopes:list[Literal['status:read','scheduler:tick','home:read','plugins:read','plugins:invoke','messages:read','messages:draft']]=Field(min_length=1,max_length=7)
+    scopes:list[Literal['status:read','scheduler:tick','home:read','workshop:read','plugins:read','plugins:invoke','messages:read','messages:draft']]=Field(min_length=1,max_length=8)
     hours:int=Field(default=24,ge=1,le=8760)
 
 class MessageDraft(Strict):
