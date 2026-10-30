@@ -80,7 +80,7 @@ async function cleanup(){
  await openView('AutoLogika');await page.getByRole('heading',{name:'AutoLogika · kopia i odczyt',exact:true}).waitFor();await page.waitForLoadState('networkidle');
  assert.equal(countPath('/api/v1/autologika/snapshot'),0);assert.equal(countPath('/api/v1/autologika/snapshot/orders'),0);assert.equal(countPath('/api/v1/autologika/readonly/orders'),0);
  const snapshotInfo=requestResponse('/api/v1/autologika/snapshot','GET');await page.getByRole('button',{name:'Sprawdź kopię',exact:true}).click();
- const manifest=await(await snapshotInfo).json();assert.equal(manifest.live,false);assert.equal(manifest.domains.length,8);
+ const manifest=await(await snapshotInfo).json();assert.equal(manifest.live,false);assert.equal(manifest.domains.length,9);
  await page.getByLabel('Domena kopii',{exact:true}).selectOption('orders');
  const workshop=requestResponse('/api/v1/autologika/snapshot/orders','GET');await page.getByRole('button',{name:'Odczytaj domenę',exact:true}).click();
  const copied=await(await workshop).json();assert.equal(copied.mode,'snapshot_readonly');assert.ok(copied.data.items.some(item=>item.title==='Zlecenie syntetyczne'));
@@ -176,21 +176,21 @@ async function cleanup(){
  const homeAllowed=new Set(['/api/v1/auth/login','/api/v1/auth/me','/api/v1/status','/api/v1/home/states']);assert.ok(requests.slice(homeStart).filter(item=>item.path.startsWith('/api/')).every(item=>homeAllowed.has(item.path)));
  await page.getByRole('button',{name:'Wyloguj',exact:true}).click();await loginScreen();
 
- // A workshop reader sees exactly five permitted domains and no owner modules.
+ // A workshop reader sees exactly six permitted domains and no owner modules.
  const workshopStart=requests.length,workshopAccount=await accountLogin('modules.workshop');assert.equal(await page.getByRole('link',{name:'Dom',exact:true}).count(),0);assert.equal(await page.getByRole('link',{name:'Bezpieczeństwo',exact:true}).count(),0);
  await openView('AutoLogika');const domainSelect=page.getByLabel('Domena kopii',{exact:true});
- assert.deepEqual(await domainSelect.locator('option').evaluateAll(nodes=>nodes.map(node=>node.value)),['calendar','orders','vehicles','parts','customers']);
- for(const domain of ['calendar','orders','vehicles','parts','customers']){
+ assert.deepEqual(await domainSelect.locator('option').evaluateAll(nodes=>nodes.map(node=>node.value)),['calendar','orders','vehicles','parts','customers','diagnostics']);
+ for(const domain of ['calendar','orders','vehicles','parts','customers','diagnostics']){
   await domainSelect.selectOption(domain);const response=requestResponse('/api/v1/autologika/snapshot/'+domain,'GET');await page.getByRole('button',{name:'Odczytaj domenę',exact:true}).click();assert.equal((await response).status(),200);
  }
  await page.evaluate(()=>{location.hash='#/notifications';});await page.getByText('Dostęp właściciela',{exact:true}).waitFor();await page.waitForLoadState('networkidle');
- const workshopAllowed=new Set(['/api/v1/auth/login','/api/v1/auth/me','/api/v1/status',...['calendar','orders','vehicles','parts','customers'].map(domain=>'/api/v1/autologika/snapshot/'+domain)]);
+ const workshopAllowed=new Set(['/api/v1/auth/login','/api/v1/auth/me','/api/v1/status',...['calendar','orders','vehicles','parts','customers','diagnostics'].map(domain=>'/api/v1/autologika/snapshot/'+domain)]);
  assert.ok(requests.slice(workshopStart).filter(item=>item.path.startsWith('/api/')).every(item=>workshopAllowed.has(item.path)));
  const deniedFinance=await context.request.get(info.url+'/api/v1/autologika/snapshot/finances',{headers:{'X-Jarvis-Key':workshopAccount.token}});assert.equal(deniedFinance.status(),403);
  const status=await ownerRequest('/_fixture_status');assert.deepEqual(status,{network_attempts:0,source_unchanged:true,snapshot_unchanged:true,synthetic_snapshot:true});
  await secretCheck();assert.deepEqual(await page.evaluate(()=>window.__modulesCsp),[]);assert.deepEqual(issues,[]);assert.deepEqual(assetFailures,[]);assert.deepEqual(foreign,[]);
  assert.ok(requests.every(item=>{let url=item.url;try{url=decodeURIComponent(url);}catch(_){}return !secrets.some(secret=>url.includes(secret));}));
- console.log(JSON.stringify({check:'chromium_modules',passed:true,source:'actual_chromium_temporary_core_synthetic_snapshot',checks:['nine_modules_navigation_mobile','explicit_remote_read_buttons','synthetic_snapshot_readonly','memory_crud_revision_history_confirmation','automation_proposal_separate_approval','scheduler_notification_with_fixture_due_time','telephony_policy_revision_dnd_preview_no_carrier','security_user_session_revocation','one_time_service_token_cleared','home_reader_scope','workshop_reader_five_domains','private_route_gates','credentials_not_persisted','csp'],fixture:status,mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshots:[memoryScreenshot,securityScreenshot,...screenshots]}));
+ console.log(JSON.stringify({check:'chromium_modules',passed:true,source:'actual_chromium_temporary_core_synthetic_snapshot',checks:['nine_modules_navigation_mobile','explicit_remote_read_buttons','synthetic_snapshot_readonly','memory_crud_revision_history_confirmation','automation_proposal_separate_approval','scheduler_notification_with_fixture_due_time','telephony_policy_revision_dnd_preview_no_carrier','security_user_session_revocation','one_time_service_token_cleared','home_reader_scope','workshop_reader_six_domains','private_route_gates','credentials_not_persisted','csp'],fixture:status,mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshots:[memoryScreenshot,securityScreenshot,...screenshots]}));
  await cleanup();
 })().catch(async error=>{
  console.error(sanitized(error.stack||String(error)));

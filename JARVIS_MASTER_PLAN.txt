@@ -261,10 +261,11 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** M4.2; rzeczywiste połączenie nadal niewłączone.
 
 #### M4.2 — Odczyt terminarza, pojazdów, klientów, zleceń, diagnostyki i części.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** IN_PROGRESS
+- **Rozpoczęto / aktualizacja UTC:** 2026-10-29
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
+- **Plan implementacji:** diagnostics z audytowanych kolumn, paginacja i pomijanie usuniętych rodziców, UI/syntetyczne testy. Pozostałe pięć domen zweryfikować ponownie.
+- **Wykonano / dowody (pliki, commit):** w toku
 - **Testy (komenda, wynik):** NOT_RUN
 - **Blokady / dalsze kroki:** —
 

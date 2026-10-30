@@ -137,3 +137,22 @@ def test_import_closes_database_handles_before_atomic_replace(tmp_path,monkeypat
     monkeypatch.setattr(workshop.os,'replace',replace)
     build_snapshot(source,destination)
     assert destination.exists()
+
+def test_diagnostics_filters_deleted_parents_and_paginates(setup):
+    client,source,dest,_=setup
+    with sqlite3.connect(source) as db:
+        db.execute("INSERT INTO diagnostics VALUES(3,1,'Second','','','','','',1,'2026-10-29')")
+    build_snapshot(source,dest)
+    first=client.get('/api/v1/autologika/snapshot/diagnostics?limit=1').json()['data']
+    second=client.get('/api/v1/autologika/snapshot/diagnostics?limit=1&offset=1').json()['data']
+    assert first['items'][0]['id']==1 and first['has_more']
+    assert second['items'][0]['id']==3 and not second['has_more']
+    assert 'Usuniety rodzic' not in str(first)+str(second)
+
+
+def test_missing_diagnostics_table_fails_explicitly(setup):
+    client,source,dest,_=setup
+    with sqlite3.connect(source) as db: db.execute('DROP TABLE diagnostics')
+    build_snapshot(source,dest)
+    assert client.get('/api/v1/autologika/snapshot/diagnostics').status_code==503
+    assert client.get('/api/v1/autologika/snapshot/orders').status_code==200

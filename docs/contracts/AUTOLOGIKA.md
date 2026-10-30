@@ -1,3 +1,9 @@
+
+## M4.2 — diagnostyka i odczyty warsztatu (2026-10-29)
+
+Kopia schema18 udostępnia dodatkową domenę diagnostics: objawy, DTC, pomiary, hipotezę, wnioski, zalecenia i czas. Odczyt przez GET /api/v1/autologika/snapshot/diagnostics ma paginację, pomija usunięte zlecenia i nie modyfikuje źródła. Brak tabeli/kolumn daje503; pozostałe domeny pozostają dostępne. Panel AutoLogika udostępnia diagnostykę właścicielowi i workshop_reader; finanse/raporty/powiadomienia nadal owner-only. Terminarz, pojazdy, klienci i części pozostają odczytami offline, nie wymyślonymi trasami live.
+
+Testy backendu adapter/snapshot:39 PASS na syntetycznych danych. Produkcja i rzeczywista synchronizacja NOT_RUN.
 # M0.3 — potwierdzone interfejsy AutoLogika
 
 Źródło: publiczny commit `681f7f5ecf5a1e365022a9ac1cb22b6ff443262c`, ponownie odczytany w M0.2. [Raport z liniami źródeł](../audits/M0-2-AUTOLOGIKA.md), [SHA-256](../audits/M0-2-evidence.json). To kontrakt źródłowy, bez połączenia z bazą użytkownika. [Rejestr maszynowy](autologika-http.json).

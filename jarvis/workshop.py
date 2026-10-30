@@ -14,7 +14,7 @@ import time
 from fastapi import HTTPException
 from .autologika import AUDITED_COMMIT
 
-DOMAINS=('calendar','orders','vehicles','parts','customers','finances','reports','notifications')
+DOMAINS=('calendar','orders','vehicles','parts','customers','diagnostics','finances','reports','notifications')
 TOTAL='COALESCE(o.final_price,COALESCE(o.labor_hours,0)*COALESCE(o.labor_rate,0)+COALESCE(o.parts_sale,0)+COALESCE(o.other_sale,0)+COALESCE(o.diagnosis_fee,0)-COALESCE(o.discount,0))'
 COST='COALESCE(o.parts_cost,0)+COALESCE(o.other_cost,0)'
 
@@ -110,6 +110,12 @@ class Snapshot:
                     self.require(c,table,cols.split(','))
                     rows=[dict(r) for r in c.execute(f'SELECT {cols} FROM {table} WHERE {self.active(c,table)} ORDER BY id LIMIT ? OFFSET ?',(limit+1,offset))]
                     data[table]={'items':rows[:limit],'has_more':len(rows)>limit}
+            elif domain=='diagnostics':
+                cols='id,order_id,symptom_confirmed,dtcs,measurements,hypothesis,conclusion,recommendation,time_hours,updated_at'
+                self.require(c,'diagnostics',cols.split(','))
+                fields=','.join('d.'+col for col in cols.split(','))
+                rows=[dict(r) for r in c.execute(f'SELECT {fields} FROM diagnostics d JOIN orders o ON o.id=d.order_id WHERE {self.active(c,"diagnostics","d")} AND {self.active(c,"orders","o")} ORDER BY d.id LIMIT ? OFFSET ?',(limit+1,offset))]
+                data={'items':rows[:limit],'has_more':len(rows)>limit}
             elif domain=='finances':
                 self.require(c,'payments',['id','order_id','amount','paid_at'])
                 active=self.active(c,'orders','o');pay_active=self.active(c,'payments','p')
