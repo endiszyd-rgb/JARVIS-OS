@@ -52,7 +52,7 @@ describe('AutoLogika reads preserve source and role boundaries', () => {
     expect(document.body.innerHTML).not.toContain(KEY)
   })
 
-  it('limits workshop readers to five domains and remounts when private access changes', async () => {
+  it('limits workshop readers to six domains and remounts when private access changes', async () => {
     const calls = server(), user = userEvent.setup()
     const view = render(panel())
     await user.selectOptions(screen.getByLabelText('Domena kopii'), 'finances')
@@ -60,7 +60,7 @@ describe('AutoLogika reads preserve source and role boundaries', () => {
     await screen.findByText('Wartość zleceń PLN')
     view.rerender(panel(false))
     expect(screen.queryByText('Wartość zleceń PLN')).not.toBeInTheDocument()
-    expect(screen.getAllByRole('option')).toHaveLength(5)
+    expect(screen.getAllByRole('option')).toHaveLength(6)
     expect(screen.queryByRole('option', { name: 'Finanse' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: 'Raporty' })).not.toBeInTheDocument()
     expect(screen.queryByRole('option', { name: 'Powiadomienia' })).not.toBeInTheDocument()

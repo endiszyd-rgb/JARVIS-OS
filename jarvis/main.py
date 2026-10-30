@@ -365,7 +365,7 @@ def create_app(db_path=None, api_key=None):
         return authenticate(x_jarvis_key,None if domain in ('finances','reports','notifications') else 'workshop:read')
 
     @api.get('/autologika/snapshot/{domain}', dependencies=[Depends(workshop_domain_auth)])
-    def snapshot_domain(domain:Literal['calendar','orders','vehicles','parts','customers','finances','reports','notifications'],limit:int=Query(50,ge=1,le=200),offset:int=Query(0,ge=0,le=100000),month:str|None=Query(None,pattern=r'^\d{4}-(0[1-9]|1[0-2])$')):
+    def snapshot_domain(domain:Literal['calendar','orders','vehicles','parts','customers','diagnostics','finances','reports','notifications'],limit:int=Query(50,ge=1,le=200),offset:int=Query(0,ge=0,le=100000),month:str|None=Query(None,pattern=r'^\d{4}-(0[1-9]|1[0-2])$')):
         snapshot=configured_snapshot()
         try:
             result=snapshot.read(domain,limit,offset,month)

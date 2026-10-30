@@ -1,7 +1,7 @@
 import { apiRequest } from '../../api'
 import { invalid, object } from '../home/api'
 
-export const DOMAINS = ['calendar', 'orders', 'vehicles', 'parts', 'customers', 'finances', 'reports', 'notifications'] as const
+export const DOMAINS = ['calendar', 'orders', 'vehicles', 'parts', 'customers', 'diagnostics', 'finances', 'reports', 'notifications'] as const
 export type Domain = typeof DOMAINS[number]
 export const PAGE = 50
 type Row = Record<string, unknown>

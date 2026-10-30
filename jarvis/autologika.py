@@ -84,7 +84,7 @@ def capabilities():
         'connection_verified': False,
         'http_reads': ['/api/orders', '/api/order/{id}'],
         'http_writes': [],
-        'snapshot_domains': ['calendar', 'orders', 'vehicles', 'parts', 'customers', 'finances', 'reports', 'notifications'],
+        'snapshot_domains': ['calendar', 'orders', 'vehicles', 'parts', 'customers', 'diagnostics', 'finances', 'reports', 'notifications'],
         'demo_is_synthetic': True,
         'limitations': ['HTTP list: at most 100 orders, excludes WYDANE',
                         'No complete calendar/customer/vehicle HTTP lists',

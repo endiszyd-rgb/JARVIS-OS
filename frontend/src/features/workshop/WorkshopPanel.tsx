@@ -7,8 +7,8 @@ import type { ReadProps } from '../home/useRead'
 import './workshop.css'
 
 interface Props extends ReadProps { canReadPrivate: boolean }
-const LABELS: Record<Domain, string> = { calendar: 'Terminarz', orders: 'Zlecenia', vehicles: 'Pojazdy', parts: 'Części', customers: 'Klienci', finances: 'Finanse', reports: 'Raporty', notifications: 'Powiadomienia' }
-const FIELD: Record<string, string> = { id: 'ID', title: 'Tytuł', name: 'Nazwa', status: 'Status', vehicle_id: 'Pojazd ID', order_id: 'Zlecenie ID', customer_id: 'Klient ID', plate: 'Rejestracja', make: 'Marka', model: 'Model', year: 'Rok', mileage: 'Przebieg', phone: 'Telefon', email: 'Email', company: 'Firma', start_at: 'Początek', end_at: 'Koniec', opened_at: 'Otwarto', due_at: 'Termin', created_at: 'Utworzono', bay: 'Stanowisko', total: 'Wartość PLN', variable_cost: 'Koszt zmienny PLN', wait_state: 'Oczekiwanie', qty: 'Ilość', part_no: 'Numer części', unit_cost: 'Koszt jednostkowy', unit_price: 'Cena jednostkowa', count: 'Liczba', text: 'Treść', kind: 'Rodzaj', stock: 'Stan', min_stock: 'Minimum', sell_price: 'Cena sprzedaży', expected_at: 'Przewidywany termin' }
+const LABELS: Record<Domain, string> = { calendar: 'Terminarz', orders: 'Zlecenia', vehicles: 'Pojazdy', parts: 'Części', customers: 'Klienci', diagnostics: 'Diagnostyka', finances: 'Finanse', reports: 'Raporty', notifications: 'Powiadomienia' }
+const FIELD: Record<string, string> = { symptom_confirmed: 'Potwierdzony objaw', dtcs: 'Kody DTC', measurements: 'Pomiary', hypothesis: 'Hipoteza', conclusion: 'Wniosek', recommendation: 'Zalecenie', time_hours: 'Czas (h)', updated_at: 'Zaktualizowano', id: 'ID', title: 'Tytuł', name: 'Nazwa', status: 'Status', vehicle_id: 'Pojazd ID', order_id: 'Zlecenie ID', customer_id: 'Klient ID', plate: 'Rejestracja', make: 'Marka', model: 'Model', year: 'Rok', mileage: 'Przebieg', phone: 'Telefon', email: 'Email', company: 'Firma', start_at: 'Początek', end_at: 'Koniec', opened_at: 'Otwarto', due_at: 'Termin', created_at: 'Utworzono', bay: 'Stanowisko', total: 'Wartość PLN', variable_cost: 'Koszt zmienny PLN', wait_state: 'Oczekiwanie', qty: 'Ilość', part_no: 'Numer części', unit_cost: 'Koszt jednostkowy', unit_price: 'Cena jednostkowa', count: 'Liczba', text: 'Treść', kind: 'Rodzaj', stock: 'Stan', min_stock: 'Minimum', sell_price: 'Cena sprzedaży', expected_at: 'Przewidywany termin' }
 function text(value: unknown): string { return value === null || value === undefined ? '—' : typeof value === 'object' ? JSON.stringify(value) : String(value) }
 function Rows({ rows, label }: { rows: Record<string, unknown>[]; label: string }) {
   const columns = [...new Set(rows.flatMap(row => Object.keys(row)))].slice(0, 24)
@@ -37,7 +37,7 @@ function WorkshopWorkspace(props: Props) {
   const [domain, setDomain] = useState<Domain>('orders'), [offset, setOffset] = useState(0)
   const [requestSource, setRequestSource] = useState<'snapshot' | 'live'>('snapshot')
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)), [orderId, setOrderId] = useState('')
-  const allowed = props.canReadPrivate ? DOMAINS : DOMAINS.slice(0, 5)
+  const allowed = props.canReadPrivate ? DOMAINS : DOMAINS.filter(key => !['finances', 'reports', 'notifications'].includes(key))
   const validMonth = /^\d{4}-(0[1-9]|1[0-2])$/.test(month)
   const validOrder = !orderId.trim() || (/^[1-9][0-9]*$/.test(orderId.trim()) && Number.isSafeInteger(Number(orderId.trim())))
   function readDomain(nextOffset = offset) {
@@ -55,7 +55,7 @@ function WorkshopWorkspace(props: Props) {
       <h2 className="panel-heading" id="workshop-title"><Car aria-hidden="true" />AutoLogika · kopia i odczyt</h2>
       <p className="panel-description">Dane z przygotowanej kopii albo jawny odczyt skonfigurowanej usługi. Ten panel nie zapisuje do AutoLogiki i nie synchronizuje kopii. Na otwarciu nie wykonuje żadnego odczytu.</p>
       <div className="workshop-source-heading"><h3><Database aria-hidden="true" />Kopia offline</h3><button className="button secondary" type="button" disabled={read.busy} onClick={() => { setRequestSource('snapshot'); void read.run(readSnapshotInfo) }}>Sprawdź kopię</button></div>
-      {!props.canReadPrivate && <p className="workshop-caption">Dostęp warsztatowy obejmuje pięć domen. Finanse, raporty i powiadomienia są dostępne właścicielowi.</p>}
+      {!props.canReadPrivate && <p className="workshop-caption">Dostęp warsztatowy obejmuje sześć domen. Finanse, raporty i powiadomienia są dostępne właścicielowi.</p>}
       <form className="workshop-form" onSubmit={event => { event.preventDefault(); readDomain(0) }}>
         <div className="form-field"><label htmlFor="workshop-domain">Domena kopii</label><select id="workshop-domain" value={domain} disabled={read.busy} onChange={event => { setDomain(event.target.value as Domain); setOffset(0); read.clear() }}>{allowed.map(key => <option key={key} value={key}>{LABELS[key]}</option>)}</select></div>
         <div className="form-field"><label htmlFor="workshop-month">Miesiąc finansów</label><input id="workshop-month" type="month" value={month} disabled={read.busy || domain !== 'finances'} onChange={event => { setMonth(event.target.value); setOffset(0); read.clear() }} /></div>
