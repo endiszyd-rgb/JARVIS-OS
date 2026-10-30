@@ -404,5 +404,29 @@
     "pytest_passed": 861,
     "pytest_skipped": 75,
     "seconds": 240.21
+  },
+  "openclaw_experiment": {
+    "date": "2026-10-30",
+    "branch": "experiment/openclaw-integration",
+    "status": "local_prototype_passed",
+    "openclaw_version": "2026.10.7",
+    "openclaw_commit": "157d8c2bc3ea2fa183afdc11088e69690bf8e64e",
+    "node_version": "24.22.1",
+    "plugin_tools": [
+      "jarvis_workshop_orders",
+      "jarvis_home_entity_state"
+    ],
+    "evidence": "docs/evals/openclaw-prototype-2026-10-30.json",
+    "backend_pytest_passed": 865,
+    "backend_pytest_skipped": 75,
+    "frontend_tests_passed": 149,
+    "frontend_typecheck_build": "passed",
+    "plugin_tests_passed": 6,
+    "synthetic_workshop": "passed_over_actual_local_http",
+    "home_assistant": "mock_passed_over_actual_local_http",
+    "real_model_inference": "not_run",
+    "wsl2": "not_run",
+    "docker": "not_run",
+    "production_autologika_supabase": "not_touched"
   }
 }

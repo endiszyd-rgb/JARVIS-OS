@@ -567,3 +567,12 @@ Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izol
 2026-10-29: właściciel zlecił M4 i dalej. Wcześniejszy STOP po M3 uchylony. M4.1 IN_PROGRESS; produkcja i sprzęt pozostają wyłączone.
 
 M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.
+
+## Eksperyment OpenClaw — 2026-10-30 (poza statusem 45 zadań)
+
+- Branch: `experiment/openclaw-integration`; bez scalenia do `main`.
+- Pin: OpenClaw `v2026.10.7`, commit `157d8c2bc3ea2fa183afdc11088e69690bf8e64e`, npm `2026.10.7`; Node `24.22.1`.
+- Architektura: OpenClaw = rozmowa/model/panel; JARVIS = adapter AutoLogiki, tożsamość, zakresy, revoke i audyt; Home Assistant = urządzenia. JARVIS nie udostępnia serwera MCP, więc plugin używa istniejącego lokalnego HTTP.
+- Plugin: dokładnie `jarvis_workshop_orders` i `jarvis_home_entity_state`; loopback-only, timeout4s, limit256KiB, allowlista encji HA, dwa osobne tokeny, brak terminala/plików/Docker socket/kanałów/sterowania.
+- PASS: unit pluginu, package/runtime inspect, OpenClaw→JARVIS→syntetyczny snapshot warsztatu, HA mock przez realny HTTP, denial/revoke/unregistered operation/timeout/offline/redakcja/prompt injection. Dowód `docs/evals/openclaw-prototype-2026-10-30.json`.
+- NOT_RUN: realna inferencja, WSL2/Docker, prawdziwy HA, produkcyjna AutoLogika/Supabase, kanały i urządzenia. Statusy 45 zadań bez zmian.

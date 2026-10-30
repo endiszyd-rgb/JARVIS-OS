@@ -1,0 +1,32 @@
+{
+  "gateway": { "port": 19190, "bind": "loopback" },
+  "plugins": {
+    "allow": ["autologika-jarvis-readonly"],
+    "entries": { "autologika-jarvis-readonly": { "enabled": true } }
+  },
+  "tools": {
+    "profile": "minimal",
+    "toolSearch": false,
+    "alsoAllow": ["jarvis_workshop_orders", "jarvis_home_entity_state"],
+    "deny": ["presence", "session_status", "gateway", "group:runtime", "group:fs", "group:messaging", "group:nodes", "group:automation"]
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "replace-with-your-provider": {
+        "baseUrl": "http://127.0.0.1:11434/v1",
+        "api": "openai-completions",
+        "apiKey": { "source": "env", "provider": "default", "id": "OPENCLAW_LOCAL_MODEL_KEY" },
+        "models": [{
+          "id": "replace-with-model-id",
+          "name": "Local model",
+          "reasoning": false,
+          "input": ["text"],
+          "contextWindow": 32768,
+          "maxTokens": 2048,
+          "compat": { "supportsTools": true }
+        }]
+      }
+    }
+  }
+}

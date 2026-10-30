@@ -1,0 +1,25 @@
+{
+  "id": "autologika-jarvis-readonly",
+  "name": "AutoLogika JARVIS Read-only",
+  "description": "Two bounded, local-only reads through JARVIS. No writes, shell, files, Docker or device control.",
+  "categories": ["productivity"],
+  "enabledByDefault": false,
+  "activation": {
+    "onStartup": true
+  },
+  "contracts": {
+    "tools": [
+      "jarvis_workshop_orders",
+      "jarvis_home_entity_state"
+    ]
+  },
+  "toolMetadata": {
+    "jarvis_workshop_orders": { "optional": true },
+    "jarvis_home_entity_state": { "optional": true }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

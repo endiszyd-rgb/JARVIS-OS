@@ -48,3 +48,11 @@ Wykonano: TypeScript/build PASS; node --check jarvis/app.js i check_control_brow
 Pakiet Windows 0.10.4.3 (Core 0.10.4): v0.10.4-windows.3. Instalacja na istniejącej kopii użytkownika NOT_RUN; dane i rejestracja pozostają nietknięte.
 
 Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izolowanych danych PASS (docs/evals/windows-hud3-smoke.json). Instalacja nowego EXE NOT_RUN — istniejąca instalacja użytkownika. SHA256: fe268664ad0ba001289e2d40abd286ea12cfa765cfbe6683c24971bb07d28442.
+
+## Eksperyment OpenClaw — lokalny prototyp (2026-10-30)
+
+Zintegrowano przypięty OpenClaw `2026.10.7` jako warstwę rozmowy bez przejmowania reguł JARVIS. Plugin ma tylko dwa odczyty: ograniczony snapshot zleceń i jawnie dozwoloną encję Home Assistant. Nie ma terminala, plików hosta, Docker socket, wiadomości, zakupów ani sterowania. Token `workshop:read` jest wąski i odwoływalny; `home:read` pozostaje osobnym poświadczeniem.
+
+Nowy test end-to-end uruchomił prawdziwy runtime pluginu i lokalne transporty HTTP z kontrolowanym serwerem modelu: odczyt warsztatu i HA PASS, źródła obecne, scope denial/revoke/unregistered operation/timeout/offline/redakcja/prompt injection PASS. Kontrolowany serwer nie wykonuje inferencji. WSL2, Docker, prawdziwy model, prawdziwy HA i produkcja `NOT_RUN`. Szczegóły: `OPENCLAW-INTEGRATION.md` oraz `evals/openclaw-prototype-2026-10-30.json`.
+
+Regresja po integracji: backend 865 PASS / 75 skip w 227.83 s; frontend 149 PASS oraz typecheck/build; plugin 6 PASS i package dry-run; pip check, JS, py_compile i plan 45 zadań PASS.

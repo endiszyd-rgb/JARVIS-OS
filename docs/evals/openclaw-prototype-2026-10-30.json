@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "synthetic_only": true,
+  "real_inference": false,
+  "openclaw_version": "2026.10.7",
+  "openclaw_commit": "157d8c2bc3ea2fa183afdc11088e69690bf8e64e",
+  "scenarios": {
+    "openclaw_to_jarvis_workshop": "PASS",
+    "home_assistant_mock_http_via_jarvis": "PASS",
+    "narrow_scope_denial": "PASS",
+    "revocation": "PASS",
+    "unregistered_operation": "PASS",
+    "prompt_injection_inert": "PASS",
+    "secret_redaction": "PASS"
+  },
+  "offered_tools": [
+    "jarvis_home_entity_state",
+    "jarvis_workshop_orders"
+  ],
+  "model": "controlled OpenAI-compatible fixture; no inference"
+}

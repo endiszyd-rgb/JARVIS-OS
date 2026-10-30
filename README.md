@@ -1,6 +1,10 @@
 ## Eksperyment OpenClaw — wąski dostęp warsztatowy (2026-10-30)
 
-Branch `experiment/openclaw-integration` rozwija izolowany prototyp bez zmian w produkcyjnej AutoLogice i Supabase. Core może teraz wydać odwoływalny token usługowy wyłącznie z zakresem `workshop:read`; token pozwala czytać potwierdzony snapshot warsztatu, nie pozwala zarządzać bezpieczeństwem ani czytać Home Assistant i po odwołaniu natychmiast przestaje działać. Plugin i instrukcja uruchomienia są wdrażane w kolejnych logicznych commitach tego samego eksperymentu.
+Branch `experiment/openclaw-integration` zawiera izolowany prototyp bez zmian w produkcyjnej AutoLogice i Supabase. Core wydaje odwoływalny token usługowy wyłącznie z zakresem `workshop:read`; token pozwala czytać potwierdzony snapshot warsztatu, nie pozwala zarządzać bezpieczeństwem ani czytać Home Assistant i po odwołaniu natychmiast przestaje działać.
+
+Oficjalny plugin OpenClaw `autologika-jarvis-readonly` udostępnia dokładnie dwa odczyty: zlecenia warsztatu oraz jedną encję Home Assistant z allowlisty. Pełny test na loopback potwierdził OpenClaw → plugin → JARVIS → syntetyczne dane warsztatu i osobny mock Home Assistant przez rzeczywisty HTTP, a także odmowę bez zakresu, odwołanie tokenu, brak niezarejestrowanej operacji, timeout, niedostępność backendu, brak sekretów i odporność na prompt injection w danych narzędzia. Użyto przypiętego OpenClaw `2026.10.7` (`157d8c2bc3ea2fa183afdc11088e69690bf8e64e`) oraz Node `24.22.1`. Realna inferencja, WSL2/Docker, prawdziwy Home Assistant i produkcja są `NOT_RUN`. [Architektura, uruchomienie i ograniczenia](docs/OPENCLAW-INTEGRATION.md); [dowód testu](docs/evals/openclaw-prototype-2026-10-30.json).
+
+Świeża regresja eksperymentu: **865 testów backendu PASS / 75 skip**, **149 testów UI PASS**, typecheck/build, 6 testów pluginu, pip check, składnia JS i walidator 45 zadań PASS.
 
 ## M4.2 — diagnostyka i odczyty warsztatu (2026-10-29)
 
