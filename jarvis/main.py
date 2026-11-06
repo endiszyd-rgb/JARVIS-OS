@@ -154,7 +154,7 @@ def create_app(db_path=None, api_key=None):
     app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.10.4', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
-        if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks"):
+        if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
             # Framework defaults echo invalid input, including malformed Unicode.
             return JSONResponse({"detail":"Invalid AI task request"},status_code=422)
         return await request_validation_exception_handler(request,exc)
@@ -1056,6 +1056,9 @@ def create_app(db_path=None, api_key=None):
     app.state.postgres_context=postgres_context
     app.state.postgres_context_capacity=postgres_context_api.mount(api,postgres_context,auth,authenticate)
     postgres_memory_api.mount(api,postgres_memory,auth,authenticate)
+    from . import workshop_lab
+    app.state.workshop_lab = workshop_lab.mount(api, auth)
+
     app.include_router(api, prefix='/api/v1')
     app.include_router(api, prefix='/api')  # Compatibility for the current UI/workers.
     app.add_middleware(BodyLimit)

@@ -25,14 +25,14 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 - Data ostatniej aktualizacji: 2026-11-06
 - Bieżący etap: M4 — adapter AutoLogika
-- Aktualne zadanie: M4.1–M4.3 VERIFIED; następne M4.4
+- Aktualne zadanie: M4.4 laboratorium zweryfikowane; realne zapisy BLOCKED
 - Zadania VERIFIED: 23 / 45
 - Zadania DONE: 0 / 45
 - Ostatni commit źródeł: bieżący commit M4.3; checkpoint M4.2 b98b44f, eksperyment OpenClaw zachowany oddzielnie
-- Testy: 2026-11-06 PASS867pytest/75skip240.74s,10UI,typecheck/build,pip/JS,Chrome72API/9widoków390px; PG/Docker nie powtarzano.
+- Testy: 2026-11-06 PASS881pytest/75skip282.69s,14lab/10UI/typecheck/build/pip/JS,Chrome84API/4operacjeDEM0/390px.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: M4.4 — podgląd i autoryzacja zapisów na izolowanym adapterze; produkcja nadal wyłączona.
+- Następny krok: M5.1 — adapter Home Assistant; M4.4 realny zapis i M4.5 zależne pozostają nieweryfikowane.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -279,12 +279,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** M4.4; produkcja, pełna analityka i rzeczywista kontrola pojazdu NOT_RUN.
 
 #### M4.4 — Operacje zapisu: notatki, zadania, wyceny i statusy tylko z uprawnieniami oraz potwierdzeniem.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** BLOCKED
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-06
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** owner-only izolowane laboratorium RAM notatki/zadania/wyceny/statusu; per-account, podgląd before/after, digest, revision/CAS, idempotencja i TTL; GUI osobnego zatwierdzenia. Brak transportu zapisu produkcyjnego.
+- **Wykonano / dowody (pliki, commit):** workshop_lab.py, WriteLab.tsx: izolowane owner-only RAM DEMO,4operacje, before/after, digest/revision, idempotencja/TTL/limity i dziennik metadanych. docs/WORKSHOP-WRITE-LAB.md.
+- **Testy (komenda, wynik):** PASS 881pytest/75skip282.69s;14lab/10UI/typecheck/build/pip/JS,actualChrome4operacje84API/390px/role/CSP; zero outbound i źródła bez zmian.
+- **Blokady / dalsze kroki:** LIVE BLOCKED: brak bezpiecznego kontraktu zadań/wycen i per-client autoryzacji oraz zgody na produkcyjne zapisy. Laboratorium zweryfikowane; nie zamyka pełnego M4.4. Następne niezależne M5.1.
 
 #### M4.5 — Testy kontraktowe, RLS i separacji klientów; dokumentacja nieobsługiwanych funkcji.
 - **Status:** TODO
@@ -524,7 +525,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Następny krok
 
-M4.4: przygotować jawne propozycje i potwierdzenia zapisów na izolowanych danych. Realne zapisy wymagają potwierdzonego kontraktu i osobnej autoryzacji; nie włączać produkcji. M4.1–M4.3 VERIFIED,23/45. OpenClaw pozostaje na osobnym branchu, bez scalenia.
+M5.1 zgodnie z grafem zależności. M4.4 lab jest zweryfikowane, realne zapisy BLOCKED (kontrakt i autoryzacja). M4.5 nadal TODO; nie deklarować RLS upstream.23/45 VERIFIED.
 
 ## Instrukcja uruchomienia agenta (do wklejenia Codex)
 
@@ -572,3 +573,5 @@ M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.
 M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/build PASS. Rzeczywisty Chrome/Core: sześć domen workshop_reader z diagnostyką, nine modules/390px, role/CSP i brak zewnętrznej sieci PASS; źródło i kopia bez zmian. Poprawiono przestarzałą asercję liczby domen8→9. Produkcja NOT_RUN.
 
 2026-11-06 M4.3 VERIFIED:867pytestPASS/75skip240.74s,10UI/build/pip/JS i actualChromePASS; raport docs/evals/m43-workshop.json. Następne M4.4.
+
+2026-11-06 M4.4: laboratorium4operacji zweryfikowane; LIVE BLOCKED,23/45bez zmian. PASS881/75skip282.69s +Chrome/typecheck/build/pip. NastępneM5.1.

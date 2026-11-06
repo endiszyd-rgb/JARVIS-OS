@@ -86,6 +86,27 @@ async function cleanup(){
  const copied=await(await workshop).json();assert.equal(copied.mode,'snapshot_readonly');assert.ok(copied.data.items.some(item=>item.title==='Zlecenie syntetyczne'));
  await page.getByText('Zlecenie syntetyczne',{exact:true}).waitFor();
  assert.equal(await page.getByLabel('Domena kopii',{exact:true}).locator('option').count(),10);
+ // The synthetic write lab never writes the source snapshot or AutoLogika.
+ for (const operation of ['note','task','quote','status']) {
+  await page.getByRole('button',{name:'Odczytaj stan laboratorium',exact:true}).click();
+  await page.getByLabel('Operacja DEMO',{exact:true}).selectOption(operation);
+  if(operation==='status') await page.getByLabel('Nowy status DEMO',{exact:true}).selectOption('DIAGNOZA');
+  else await page.getByLabel('Treść DEMO',{exact:true}).fill('Synthetic '+operation);
+  if(operation==='quote') await page.getByLabel('Kwota DEMO (PLN)',{exact:true}).fill('123.45');
+  const before=await ownerRequest('/api/v1/autologika/write-lab');
+  await page.getByRole('button',{name:'Przygotuj podgląd DEMO',exact:true}).click();
+  await page.getByText('Oczekuje na osobną decyzję',{exact:true}).waitFor();
+  assert.deepEqual((await ownerRequest('/api/v1/autologika/write-lab')).order,before.order);
+  assert.equal(await page.getByRole('button',{name:'Zatwierdź zmianę DEMO',exact:true}).isDisabled(),true);
+  await page.getByLabel('Sprawdziłem podgląd; potwierdzam zmianę w DEMO',{exact:true}).check();
+  await page.getByRole('button',{name:'Zatwierdź zmianę DEMO',exact:true}).click();
+  await page.getByText('Zapisano wyłącznie w laboratorium DEMO',{exact:true}).waitFor();
+  assert.equal((await ownerRequest('/api/v1/autologika/write-lab')).order.revision,before.order.revision+1);
+ }
+ await page.setViewportSize({width:390,height:844});
+ assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Write lab must fit mobile viewport');
+ await page.screenshot({path:path.resolve(root,'docs/evals/control-m44-lab-mobile.png'),fullPage:true});
+ await page.setViewportSize({width:1440,height:1000});
  await openView('Dom');await page.getByRole('heading',{name:'Dom i czujniki',exact:true}).waitFor();await page.waitForLoadState('networkidle');assert.equal(countPath('/api/v1/home/states'),0);
  const home=requestResponse('/api/v1/home/states','GET');await page.getByRole('button',{name:'Odczytaj stany',exact:true}).click();assert.equal((await home).status(),503);
  await page.getByText('Odczyt Home Assistant jest wyłączony lub wymaga konfiguracji.',{exact:true}).waitFor();
@@ -193,7 +214,7 @@ async function cleanup(){
  const status=await ownerRequest('/_fixture_status');assert.deepEqual(status,{network_attempts:0,source_unchanged:true,snapshot_unchanged:true,synthetic_snapshot:true});
  await secretCheck();assert.deepEqual(await page.evaluate(()=>window.__modulesCsp),[]);assert.deepEqual(issues,[]);assert.deepEqual(assetFailures,[]);assert.deepEqual(foreign,[]);
  assert.ok(requests.every(item=>{let url=item.url;try{url=decodeURIComponent(url);}catch(_){}return !secrets.some(secret=>url.includes(secret));}));
- console.log(JSON.stringify({check:'chromium_modules',passed:true,source:'actual_chromium_temporary_core_synthetic_snapshot',checks:['nine_modules_navigation_mobile','explicit_remote_read_buttons','synthetic_snapshot_readonly','memory_crud_revision_history_confirmation','automation_proposal_separate_approval','scheduler_notification_with_fixture_due_time','telephony_policy_revision_dnd_preview_no_carrier','security_user_session_revocation','one_time_service_token_cleared','home_reader_scope','workshop_reader_seven_domains','private_route_gates','credentials_not_persisted','csp'],fixture:status,mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshots:[memoryScreenshot,securityScreenshot,...screenshots]}));
+ console.log(JSON.stringify({check:'chromium_modules',passed:true,source:'actual_chromium_temporary_core_synthetic_snapshot',checks:['nine_modules_navigation_mobile','explicit_remote_read_buttons','synthetic_snapshot_readonly','memory_crud_revision_history_confirmation','automation_proposal_separate_approval','scheduler_notification_with_fixture_due_time','telephony_policy_revision_dnd_preview_no_carrier','security_user_session_revocation','one_time_service_token_cleared','home_reader_scope','workshop_reader_seven_domains','four_synthetic_writes_separate_approval','private_route_gates','credentials_not_persisted','csp'],fixture:status,mobile,api_requests:requests.filter(item=>item.path.startsWith('/api/')).length,screenshots:[memoryScreenshot,securityScreenshot,...screenshots]}));
  await cleanup();
 })().catch(async error=>{
  console.error(sanitized(error.stack||String(error)));

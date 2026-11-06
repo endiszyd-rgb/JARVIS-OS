@@ -1,0 +1,28 @@
+{
+  "date": "2026-11-06",
+  "mode": "synthetic_write_lab",
+  "backend": {
+    "passed": 881,
+    "skipped": 75,
+    "seconds": 282.69
+  },
+  "lab_tests": 14,
+  "ui_tests": 10,
+  "browser": {
+    "passed": true,
+    "api_requests": 84,
+    "operations": [
+      "note",
+      "task",
+      "quote",
+      "status"
+    ],
+    "separate_approval": true,
+    "mobile_width": 390,
+    "source_unchanged": true,
+    "snapshot_unchanged": true,
+    "outbound_attempts": 0
+  },
+  "production_writes": "NOT_RUN_UNIMPLEMENTED",
+  "durability": "RAM_ONLY"
+}

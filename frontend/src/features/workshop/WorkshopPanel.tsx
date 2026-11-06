@@ -5,6 +5,7 @@ import type { Domain, SnapshotDomain, WorkshopRead } from './api'
 import { useRead } from '../home/useRead'
 import type { ReadProps } from '../home/useRead'
 import './workshop.css'
+import { WriteLab } from './WriteLab'
 
 interface Props extends ReadProps { canReadPrivate: boolean }
 const LABELS: Record<Domain, string> = { calendar: 'Terminarz', orders: 'Zlecenia', vehicles: 'Pojazdy', parts: 'Części', customers: 'Klienci', diagnostics: 'Diagnostyka', qc: 'Kontrola jakości', finances: 'Finanse', reports: 'Raporty', notifications: 'Powiadomienia' }
@@ -82,5 +83,6 @@ function WorkshopWorkspace(props: Props) {
       {snapshot && <><SnapshotData value={snapshot} />{pageable && <div className="workshop-pagination"><button className="button subtle" type="button" disabled={read.busy || snapshot.offset === 0} onClick={() => readDomain(Math.max(0, snapshot.offset - PAGE))}>Poprzednia strona danych</button><p className="workshop-caption">Strona {snapshot.offset / PAGE + 1} · do {PAGE} rekordów na kolekcję</p><button className="button subtle" type="button" disabled={read.busy || !hasMore || snapshot.offset + PAGE > 100000} onClick={() => readDomain(snapshot.offset + PAGE)}>Następna strona danych</button></div>}</>}
       {read.value.kind === 'live' && (read.value.value.detail ? <details className="workshop-details" open><summary>Szczegóły zlecenia</summary><pre>{JSON.stringify(read.value.value.data, null, 2).slice(0, 32000)}</pre><p className="workshop-caption">Podgląd szczegółów ograniczony do 32 000 znaków.</p></details> : <Rows rows={read.value.value.data as Record<string, unknown>[]} label="Niewydane zlecenia · maksymalnie 100" />)}
     </section>}
+    {props.canReadPrivate && <WriteLab key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />}
   </div>
 }

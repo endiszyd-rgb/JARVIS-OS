@@ -6,7 +6,7 @@
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
-  "next_task": "M4.4",
+  "next_task": "M5.1",
   "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
   "decisions_file": "docs/DECISIONS.md",
   "database": {
@@ -401,12 +401,14 @@
   },
   "m4_verification": {
     "M4.1": "verified",
-    "pytest_passed": 867,
+    "pytest_passed": 881,
     "pytest_skipped": 75,
-    "seconds": 240.74,
+    "seconds": 282.69,
     "M4.2": "verified_synthetic_snapshot_and_browser",
     "M4.3": "verified_synthetic_snapshot_qc_reports_finances_notifications",
-    "browser": "PASS actual Chrome; 72 API calls; no outbound; source and snapshot unchanged",
-    "ui_tests_passed": 10
+    "browser": "PASS actual Chrome84API/four demo writes/separate approval/390px/zero outbound",
+    "ui_tests_passed": 10,
+    "M4.4": "lab_verified_live_blocked",
+    "lab_tests_passed": 14
   }
 }

@@ -65,3 +65,6 @@ Właściciel zlecił instalator do lokalnego obejrzenia interfejsu. Pakujemy obe
 Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
 
 Adapter pozostaje wyłącznie na dwóch audytowanych GET. Capabilities nie sprawdza sieci i nie zwraca origin/PIN. Odpowiedzi mają limit 2 MiB oraz 12 s całkowitego czasu; niezgodny envelope i obce order_id są odrzucane. Mock służy testom; awaria live nie przełącza się po cichu na DEMO.
+
+## M4.4 — jawny adapter laboratoryjny
+Oddzielny namespace write-lab i stan RAM zapobiegają myleniu zatwierdzenia DEMO z zapisem do AutoLogiki. Brak nowych tabel/migracji Core; żadne parametry nie wybierają produkcyjnego adaptera. Live pozostaje BLOCKED, a mock jest dostępny do przetestowania przepływu użytkownika.

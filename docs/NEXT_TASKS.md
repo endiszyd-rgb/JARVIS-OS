@@ -1,3 +1,5 @@
+2026-11-06: M4.4 laboratoryjne propozycje/zgody zweryfikowane; realne zapisy BLOCKED. Następne niezależne M5.1.
+
 2026-11-06: M4.2 zweryfikowane; M4.3 QC w weryfikacji. Następne M4.4: jawny podgląd i zgody dla zapisów, wyłącznie na izolowanym adapterze, bez produkcji. Eksperyment OpenClaw zachowany na osobnym branchu.
 
 Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
