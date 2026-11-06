@@ -68,3 +68,7 @@ Adapter pozostaje wyłącznie na dwóch audytowanych GET. Capabilities nie spraw
 
 ## M4.4 — jawny adapter laboratoryjny
 Oddzielny namespace write-lab i stan RAM zapobiegają myleniu zatwierdzenia DEMO z zapisem do AutoLogiki. Brak nowych tabel/migracji Core; żadne parametry nie wybierają produkcyjnego adaptera. Live pozostaje BLOCKED, a mock jest dostępny do przetestowania przepływu użytkownika.
+
+
+## 2026-11-06 — M5.1 ograniczony odczyt
+WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług. Filtrowanie encji i atrybutów odbywa się w Core; nie utożsamiamy go z upstream ACL. Brak rzeczywistego konta z potwierdzonymi uprawnieniami pozostawia live M5.1 BLOCKED. Następne niezależne prace MQTT wyłącznie w izolowanym laboratorium.

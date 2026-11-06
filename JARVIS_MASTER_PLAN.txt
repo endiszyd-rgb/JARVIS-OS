@@ -24,15 +24,15 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 ## Snapshot (aktualizuj po każdej sesji)
 
 - Data ostatniej aktualizacji: 2026-11-06
-- Bieżący etap: M4 — adapter AutoLogika
-- Aktualne zadanie: M4.4 laboratorium zweryfikowane; realne zapisy BLOCKED
+- Bieżący etap: M5 — dom i urządzenia
+- Aktualne zadanie: M5.1 adapter zweryfikowany laboratoryjnie; realny HA/token BLOCKED
 - Zadania VERIFIED: 23 / 45
 - Zadania DONE: 0 / 45
-- Ostatni commit źródeł: bieżący commit M4.3; checkpoint M4.2 b98b44f, eksperyment OpenClaw zachowany oddzielnie
-- Testy: 2026-11-06 PASS881pytest/75skip282.69s,14lab/10UI/typecheck/build/pip/JS,Chrome84API/4operacjeDEM0/390px.
+- Ostatni commit źródeł: bieżący commit M5.1; M4.4 lab09ff61a, eksperyment OpenClaw zachowany oddzielnie
+- Testy: 2026-11-06 893 pytest PASS /75skip/2warnings w256.52s; po dodaniu testu odwołania tokenu osobno13test_home_ws PASS,25test_master_plan PASS;10UI/typecheck/build/pip/JS/Chrome85API PASS.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: M5.1 — adapter Home Assistant; M4.4 realny zapis i M4.5 zależne pozostają nieweryfikowane.
+- Następny krok: M5.2 laboratorium MQTT; realne M4.4/M5.1 i zależne M4.5 pozostają nieweryfikowane.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -298,12 +298,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 ### M5 — Dom, warsztat i ESP32
 
 #### M5.1 — Adapter Home Assistant REST/WebSocket z ograniczonym tokenem.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** BLOCKED
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-06
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** REST+jednorazowy WebSocket auth/get_states; pinned DNS/IP allowlist, brak redirect, bounded timeout/rozmiar, filtrowanie encji/pól; jawny wybór UI i lokalny protokółsyntetyczny.
+- **Wykonano / dowody (pliki, commit):** jarvis/home_ws.py, home.py, main.py, HomePanel.tsx; REST/WS odczyt, pinned DNS/IP, limity, filtrowanie i rewalidacja autoryzacji. docs/HOME-ASSISTANT.md.
+- **Testy (komenda, wynik):** PASS 13test_home_ws/10HomePanel;typecheck/build/pip/JS;Chrome85API/9widoków390px/zero outbound. Pełna regresja: 893 pytest PASS /75skip/2warnings w256.52s; po dodaniu testu odwołania tokenu osobno13test_home_ws PASS,25test_master_plan PASS;docs/evals/m51-home.json.
+- **Blokady / dalsze kroki:** LIVE BLOCKED: brak testu prawdziwego HA i ograniczeń konta/tokenu upstream; sprzęt NOT_RUN. Adapter/protokół zweryfikowane laboratoryjnie. Następne niezależne M5.2 MQTT.
 
 #### M5.2 — MQTT/Mosquitto, ESPHome/ESP32, status urządzeń i reconnect.
 - **Status:** TODO
@@ -525,7 +526,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Następny krok
 
-M5.1 zgodnie z grafem zależności. M4.4 lab jest zweryfikowane, realne zapisy BLOCKED (kontrakt i autoryzacja). M4.5 nadal TODO; nie deklarować RLS upstream.23/45 VERIFIED.
+M5.2 laboratoryjnie: MQTT/status/reconnect. M5.1 adapter zweryfikowany, live/token BLOCKED. M4.4 realne zapisy BLOCKED; M4.5 TODO.23/45 VERIFIED.
 
 ## Instrukcja uruchomienia agenta (do wklejenia Codex)
 
@@ -575,3 +576,5 @@ M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/bu
 2026-11-06 M4.3 VERIFIED:867pytestPASS/75skip240.74s,10UI/build/pip/JS i actualChromePASS; raport docs/evals/m43-workshop.json. Następne M4.4.
 
 2026-11-06 M4.4: laboratorium4operacji zweryfikowane; LIVE BLOCKED,23/45bez zmian. PASS881/75skip282.69s +Chrome/typecheck/build/pip. NastępneM5.1.
+
+2026-11-06 M5.1: REST+WebSocket oraz jawny wybór w GUI,13testów protokołu/API i10UI PASS; Chrome85API/390px PASS. Live/token HA BLOCKED. Następne M5.2 w laboratorium.

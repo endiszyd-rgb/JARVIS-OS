@@ -17,9 +17,9 @@ export interface Integrations {
 export function object(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === 'object' && !Array.isArray(value) }
 export function invalid(): never { throw new ApiError(null, 'response') }
 export const ENTITY = /^[a-z_]+\.[a-z0-9_]+$/
-export async function readHome(credential: string, signal: AbortSignal, entity = ''): Promise<HomeRead> {
+export async function readHome(credential: string, signal: AbortSignal, entity = '', transport: 'rest' | 'websocket' = 'rest'): Promise<HomeRead> {
   if (entity && !ENTITY.test(entity)) return invalid()
-  const result = await apiRequest('/api/v1/home/states' + (entity ? '/' + encodeURIComponent(entity) : ''), signal, credential, { timeoutMs: 30000 })
+  const result = await apiRequest(transport === 'websocket' ? '/api/v1/home/websocket/states' : '/api/v1/home/states' + (entity ? '/' + encodeURIComponent(entity) : ''), signal, credential, { timeoutMs: 30000 })
   if (!object(result) || result.mode !== 'live_readonly' || result.controls_enabled !== false || !Array.isArray(result.states)
     || result.states.length > 10000) return invalid()
   const states = result.states.map(row => {

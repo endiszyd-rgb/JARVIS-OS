@@ -167,7 +167,7 @@
       "requires": [
         "M1.3"
       ],
-      "external_gate": null
+      "external_gate": "Rzeczywista instalacja Home Assistant i potwierdzenie minimalnych uprawnień konta/tokenu; adapter laboratoryjny zweryfikowany."
     },
     "M5.2": {
       "requires": [

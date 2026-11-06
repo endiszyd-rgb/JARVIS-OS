@@ -1,6 +1,8 @@
 .home-panel { min-width: 0; }
 .home-read-form { display: flex; align-items: end; gap: 16px; margin-bottom: 22px; }
 .home-read-form .form-field { flex: 1; max-width: 600px; }
+.home-read-form select { width: 100%; min-height: 44px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: #0f1722; color: var(--text); font: inherit; }
+.home-read-form select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .home-read-form .button { flex-shrink: 0; margin-bottom: 27px; }
 .home-caption { color: var(--subtle); font-size: 12px; line-height: 1.9; overflow-wrap: anywhere; }
 .home-empty { padding: 20px 0; color: var(--muted); font-size: 14px; line-height: 1.8; }

@@ -110,6 +110,11 @@ async function cleanup(){
  await openView('Dom');await page.getByRole('heading',{name:'Dom i czujniki',exact:true}).waitFor();await page.waitForLoadState('networkidle');assert.equal(countPath('/api/v1/home/states'),0);
  const home=requestResponse('/api/v1/home/states','GET');await page.getByRole('button',{name:'Odczytaj stany',exact:true}).click();assert.equal((await home).status(),503);
  await page.getByText('Odczyt Home Assistant jest wyłączony lub wymaga konfiguracji.',{exact:true}).waitFor();
+ await page.getByLabel('Transport odczytu',{exact:true}).selectOption('websocket');
+ await page.waitForLoadState('networkidle');assert.equal(countPath('/api/v1/home/websocket/states'),0);
+ assert.equal(await page.getByLabel('Encja Home Assistant (opcjonalnie)',{exact:true}).isDisabled(),true);
+ const homeWs=requestResponse('/api/v1/home/websocket/states','GET');await page.getByRole('button',{name:'Odczytaj stany',exact:true}).click();assert.equal((await homeWs).status(),503);
+ await page.getByText('Odczyt Home Assistant jest wyłączony lub wymaga konfiguracji.',{exact:true}).waitFor();
  await openView('Urządzenia');await page.getByRole('heading',{name:'Urządzenia i możliwości',exact:true}).waitFor();await page.waitForLoadState('networkidle');assert.equal(countPath('/api/v1/integrations'),0);
  const devices=requestResponse('/api/v1/integrations','GET');await page.getByRole('button',{name:'Odczytaj konfigurację',exact:true}).click();assert.equal((await devices).status(),200);
 

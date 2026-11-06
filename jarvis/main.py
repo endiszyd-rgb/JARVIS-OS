@@ -497,6 +497,18 @@ def create_app(db_path=None, api_key=None):
             audit(c,'token.revoked',{'id':ident})
         return {'revoked':ident}
 
+    @api.get('/home/websocket/states')
+    async def home_websocket_states(x_jarvis_key: str | None = Header(default=None)):
+        authenticate(x_jarvis_key, 'home:read')
+        from . import home_ws
+        try:
+            result = await home_ws.states()
+        except HTTPException: raise
+        except Exception: raise HTTPException(502, 'Home Assistant WebSocket read failed') from None
+        authenticate(x_jarvis_key, 'home:read')
+        with db() as c: audit(c, 'home.websocket_read', {'count': len(result['states'])})
+        return result
+
     @api.get('/home/states', dependencies=[Depends(require('home:read'))])
     async def home_states():
         try:

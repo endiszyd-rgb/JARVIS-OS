@@ -10,12 +10,14 @@ export function HomePanel(props: ReadProps) { return <HomeWorkspace key={props.c
 function HomeWorkspace(props: ReadProps) {
   const read = useRead<HomeRead>(props)
   const [entity, setEntity] = useState('')
+  const [transport, setTransport] = useState<'rest' | 'websocket'>('rest')
   const trimmed = entity.trim(), valid = !trimmed || ENTITY.test(trimmed)
   return <section className="panel home-panel" aria-labelledby="home-title" aria-busy={read.busy}>
     <h2 className="panel-heading" id="home-title"><Home aria-hidden="true" />Dom i czujniki</h2>
     <p className="panel-description">Odczyt stanów Home Assistant z listy dozwolonych encji. Połączenie z usługą następuje dopiero po naciśnięciu przycisku. Sterowanie światłem, scenami i bramą jest niedostępne.</p>
-    <form className="home-read-form" onSubmit={event => { event.preventDefault(); if (valid && !read.busy) void read.run((credential, signal) => readHome(credential, signal, trimmed)) }}>
-      <div className="form-field"><label htmlFor="home-entity">Encja Home Assistant (opcjonalnie)</label><input id="home-entity" value={entity} maxLength={200} onChange={event => { setEntity(event.target.value); read.clear() }} placeholder="sensor.temperatura" aria-invalid={!valid} />
+    <form className="home-read-form" onSubmit={event => { event.preventDefault(); if (valid && !read.busy) void read.run((credential, signal) => readHome(credential, signal, trimmed, transport)) }}>
+      <div className="form-field"><label htmlFor="home-transport">Transport odczytu</label><select id="home-transport" value={transport} disabled={read.busy} onChange={event => { setTransport(event.target.value as typeof transport); setEntity(''); read.clear() }}><option value="rest">HTTP REST</option><option value="websocket">WebSocket · jednorazowy odczyt</option></select></div>
+      <div className="form-field"><label htmlFor="home-entity">Encja Home Assistant (opcjonalnie)</label><input id="home-entity" disabled={transport === 'websocket' || read.busy} value={entity} maxLength={200} onChange={event => { setEntity(event.target.value); read.clear() }} placeholder="sensor.temperatura" aria-invalid={!valid} />
         <small>Puste pole odczytuje wszystkie dozwolone encje. Format: sensor.temperatura; dostęp kontroluje backend.</small></div>
       <button className="button secondary" type="submit" disabled={read.busy || !valid}><RefreshCw aria-hidden="true" />Odczytaj stany</button>
     </form>

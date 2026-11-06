@@ -12,3 +12,4 @@ pydantic-settings==2.9.1
 wyoming==1.10.2
 tzdata==2025.2
 psycopg[binary]==3.2.13
+aiohttp==3.14.5

@@ -6,7 +6,7 @@
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
-  "next_task": "M5.1",
+  "next_task": "M5.2",
   "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
   "decisions_file": "docs/DECISIONS.md",
   "database": {
@@ -330,10 +330,10 @@
   "master_plan": {
     "source": "JARVIS_MASTER_PLAN.txt",
     "journal": "JARVIS_MASTER_PLAN.md",
-    "verified": 20,
+    "verified": 23,
     "done": 0,
     "total": 45,
-    "updated_utc": "2026-10-28T14:58:29+00:00"
+    "updated_utc": "2026-11-06"
   },
   "publication": {
     "requested": true,
@@ -410,5 +410,18 @@
     "ui_tests_passed": 10,
     "M4.4": "lab_verified_live_blocked",
     "lab_tests_passed": 14
+  },
+  "m5_verification": {
+    "M5.1": "adapter_lab_verified_live_token_acl_blocked",
+    "protocol_tests_passed": 13,
+    "ui_tests_passed": 10,
+    "browser": "PASS actual Chrome85API/390px/zero outbound",
+    "real_home_assistant": "not_run",
+    "hardware": "not_run",
+    "report": "docs/evals/m51-home.json",
+    "pytest_passed": 893,
+    "pytest_skipped": 75,
+    "seconds": 256.52,
+    "additional_revocation_test": "passed_in_targeted_13_test_run"
   }
 }

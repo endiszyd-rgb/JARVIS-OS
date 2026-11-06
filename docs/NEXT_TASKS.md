@@ -1,3 +1,5 @@
+2026-11-06: M5.1 adapter REST/WS i GUI przetestowane laboratoryjnie; realne konto/ACL HA BLOCKED. Następne M5.2: izolowane MQTT/status/reconnect, bez fizycznych urządzeń.
+
 2026-11-06: M4.4 laboratoryjne propozycje/zgody zweryfikowane; realne zapisy BLOCKED. Następne niezależne M5.1.
 
 2026-11-06: M4.2 zweryfikowane; M4.3 QC w weryfikacji. Następne M4.4: jawny podgląd i zgody dla zapisów, wyłącznie na izolowanym adapterze, bez produkcji. Eksperyment OpenClaw zachowany na osobnym branchu.

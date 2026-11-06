@@ -1,0 +1,37 @@
+{
+  "date": "2026-11-06",
+  "task": "M5.1",
+  "status": "adapter_lab_verified_live_token_acl_blocked",
+  "pytest": {
+    "command": ".venv/Scripts/python.exe -m pytest -q",
+    "passed": 893,
+    "skipped": 75,
+    "warnings": 2,
+    "seconds": 256.52
+  },
+  "targeted_ws": {
+    "passed": 13,
+    "note": "Includes additional revocation test added after full-suite collection; final backend source unchanged."
+  },
+  "master_plan_tests_passed": 25,
+  "ui_tests_passed": 10,
+  "typecheck": "PASS",
+  "build": "PASS",
+  "pip_check": "PASS",
+  "js_syntax": "PASS",
+  "browser": {
+    "kind": "actual Chrome and isolated Core",
+    "api_requests": 85,
+    "mobile_width": 390,
+    "views": 9,
+    "outbound_attempts": 0,
+    "source_unchanged": true,
+    "snapshot_unchanged": true,
+    "transport_selection": "PASS explicit WS selection, entity disabled,503 when unconfigured, no automatic request"
+  },
+  "protocol": "actual local aiohttp WebSocket; synthetic HA messages",
+  "real_ha": "NOT_RUN",
+  "upstream_token_acl": "NOT_RUN",
+  "physical_devices": "NOT_RUN",
+  "installer": "unchanged M3 HUD3"
+}

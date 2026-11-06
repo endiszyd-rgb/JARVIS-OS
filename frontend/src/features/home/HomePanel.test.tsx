@@ -14,6 +14,19 @@ function server(handler: (path: string, options: RequestInit) => Response | Prom
 }
 afterEach(() => vi.unstubAllGlobals())
 describe('Home states require explicit reads', () => {
+  it('selects WebSocket without automatic requests and clears previous REST results', async () => {
+    const calls = server(), user = userEvent.setup()
+    render(<HomePanel credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.click(screen.getByRole('button', { name: 'Odczytaj stany' }))
+    await screen.findByText('Temperatura testowa')
+    await user.selectOptions(screen.getByLabelText('Transport odczytu'), 'websocket')
+    expect(calls).toHaveLength(1)
+    expect(screen.queryByText('Temperatura testowa')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Encja Home Assistant (opcjonalnie)')).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: 'Odczytaj stany' }))
+    await screen.findByText('Temperatura testowa')
+    expect(calls.map(call => call.path)).toEqual(['/api/v1/home/states', '/api/v1/home/websocket/states'])
+  })
   it('reads states only on request, without fetching owner-only integration metadata', async () => {
     const calls = server(), user = userEvent.setup()
     render(<HomePanel credential={KEY} onUnauthorized={vi.fn()} />)

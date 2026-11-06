@@ -1,3 +1,11 @@
+## M5.1 — odczyt Home Assistant (2026-11-06)
+
+Dodano jednorazowy WebSocket auth/get_states obok REST i jawny wybór transportu w panelu Dom. Połączenia mają pinned DNS/IP, zakaz przekierowań, deadline, limit odpowiedzi i czterech sesji. Core zwraca wyłącznie dozwolone encje i bezpieczny podzbiór pól; ponownie sprawdza uprawnienia po odczycie WS. Nie dodano sterowania ani subskrypcji.
+
+13 testów WebSocket/API PASS na rzeczywistym lokalnym serwerze z syntetycznymi odpowiedziami;10 testów panelu PASS, TypeScript/build/pip/JS PASS. Chrome/Core:85 żądań API,9 widoków390px, jawny wybór WS, role/CSP i zero outbound PASS. Pełna regresja: 893 pytest PASS /75skip/2warnings w256.52s; po dodaniu testu odwołania tokenu osobno13test_home_ws PASS,25test_master_plan PASS. Raport: docs/evals/m51-home.json.
+
+**M5.1 BLOCKED dla realnej integracji**: konto HA i uprawnienia jego tokenu nie zostały zweryfikowane. Lokalna allowlista nie ogranicza tokenu upstream. Sprzęt NOT_RUN.23/45 VERIFIED bez zmian. Następny niezależny etap: laboratoryjna część M5.2 MQTT/status/reconnect. Instalator HUD3 nadal zawiera wcześniejszy M3. Instrukcja: [HOME-ASSISTANT.md](docs/HOME-ASSISTANT.md).
+
 ## M4.4 — laboratorium zapisów (2026-11-06)
 
 Panel AutoLogika właściciela zawiera jawne laboratorium DEMO: notatka, zadanie, wycena w groszach i status syntetycznego DEMO-1. Podgląd before/after nie zmienia stanu. Osobne potwierdzenie wysyła digest dokładnej propozycji; CAS odrzuca nieaktualny stan, UUID eliminuje powtórny zapis, konta są odseparowane, odwołana sesja traci dostęp. Żadna ścieżka nie wywołuje adaptera AutoLogiki ani nie modyfikuje snapshotu.
