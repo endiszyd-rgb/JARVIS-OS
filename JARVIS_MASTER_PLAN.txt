@@ -26,7 +26,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - Data ostatniej aktualizacji: 2026-10-29
 - Bieżący etap: M4 — adapter AutoLogika
 - Aktualne zadanie: M4.1 VERIFIED; następne M4.2
-- Zadania VERIFIED: 21 / 45
+- Zadania VERIFIED: 22 / 45
 - Zadania DONE: 0 / 45
 - Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
 - Testy: 28.10 Windows PASS843pytest/75skip220.45s,149UI/typecheck/build, task HTTP/MCP, pip/JS/plan. PG76/Chromium/Docker to historyczne wyniki 27.10, bez powtórki lokalnie.
@@ -261,13 +261,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** M4.2; rzeczywiste połączenie nadal niewłączone.
 
 #### M4.2 — Odczyt terminarza, pojazdów, klientów, zleceń, diagnostyki i części.
-- **Status:** IN_PROGRESS
+- **Status:** VERIFIED
 - **Rozpoczęto / aktualizacja UTC:** 2026-10-29
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
 - **Plan implementacji:** diagnostics z audytowanych kolumn, paginacja i pomijanie usuniętych rodziców, UI/syntetyczne testy. Pozostałe pięć domen zweryfikować ponownie.
-- **Wykonano / dowody (pliki, commit):** w toku
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Wykonano / dowody (pliki, commit):** diagnostics snapshot/API/React; pomijanie usuniętych rodziców i jawny503 przy brakach. Checkpoint e68f8fe.
+- **Testy (komenda, wynik):** PASS 39pytest, pipcheck/typecheck/build, actual Chrome71API/9widoków390px/6domen reader; zero outbound.
+- **Blokady / dalsze kroki:** M4.3; realne dane NOT_RUN.
 
 #### M4.3 — Raporty, finanse, powiadomienia i statusy QC, jeśli wspierane przez system.
 - **Status:** TODO
@@ -567,3 +567,5 @@ Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izol
 2026-10-29: właściciel zlecił M4 i dalej. Wcześniejszy STOP po M3 uchylony. M4.1 IN_PROGRESS; produkcja i sprzęt pozostają wyłączone.
 
 M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.
+
+M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/build PASS. Rzeczywisty Chrome/Core: sześć domen workshop_reader z diagnostyką, nine modules/390px, role/CSP i brak zewnętrznej sieci PASS; źródło i kopia bez zmian. Poprawiono przestarzałą asercję liczby domen8→9. Produkcja NOT_RUN.

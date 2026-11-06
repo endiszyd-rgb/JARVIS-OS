@@ -85,7 +85,7 @@ async function cleanup(){
  const workshop=requestResponse('/api/v1/autologika/snapshot/orders','GET');await page.getByRole('button',{name:'Odczytaj domenę',exact:true}).click();
  const copied=await(await workshop).json();assert.equal(copied.mode,'snapshot_readonly');assert.ok(copied.data.items.some(item=>item.title==='Zlecenie syntetyczne'));
  await page.getByText('Zlecenie syntetyczne',{exact:true}).waitFor();
- assert.equal(await page.getByLabel('Domena kopii',{exact:true}).locator('option').count(),8);
+ assert.equal(await page.getByLabel('Domena kopii',{exact:true}).locator('option').count(),9);
  await openView('Dom');await page.getByRole('heading',{name:'Dom i czujniki',exact:true}).waitFor();await page.waitForLoadState('networkidle');assert.equal(countPath('/api/v1/home/states'),0);
  const home=requestResponse('/api/v1/home/states','GET');await page.getByRole('button',{name:'Odczytaj stany',exact:true}).click();assert.equal((await home).status(),503);
  await page.getByText('Odczyt Home Assistant jest wyłączony lub wymaga konfiguracji.',{exact:true}).waitFor();

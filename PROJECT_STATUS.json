@@ -2,11 +2,11 @@
   "format_version": 1,
   "application_version": "0.10.4",
   "handoff_revision": "0.10.4-handoff.1",
-  "snapshot_date": "2026-10-29",
+  "snapshot_date": "2026-11-06",
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
-  "next_task": "M4.2",
+  "next_task": "M4.3",
   "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
   "decisions_file": "docs/DECISIONS.md",
   "database": {
@@ -403,6 +403,7 @@
     "M4.1": "verified",
     "pytest_passed": 861,
     "pytest_skipped": 75,
-    "seconds": 240.21
+    "seconds": 240.21,
+    "M4.2": "verified_synthetic_snapshot_and_browser"
   }
 }
