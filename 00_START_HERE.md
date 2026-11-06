@@ -1,3 +1,5 @@
+Weryfikacja M4.3 (2026-11-06): **867 pytest PASS /75skip**,240.74s; **10 testów panelu PASS**, typecheck/build/pip/JS PASS; rzeczywisty Chrome72API/9widoków390px/7domen warsztatowych PASS.23/45 VERIFIED; następne M4.4. Eksperyment OpenClaw zachowany na osobnym branchu.
+
 Aktualizacja 2026-10-29: właściciel zlecił kontynuację M4 i dalszych etapów. To uchyla wcześniejszy STOP po M3; produkcja AutoLogika/Supabase, wydatki, operator i sprzęt pozostają wyłączone.
 
 # JARVIS OS — zacznij tutaj

@@ -1,0 +1,23 @@
+{
+  "date": "2026-11-06",
+  "source": "synthetic schema18 snapshot and real Chrome against temporary Core",
+  "browser_passed": true,
+  "api_requests": 72,
+  "workshop_reader_domains": 7,
+  "owner_domains": 10,
+  "mobile_width": 390,
+  "outbound_attempts": 0,
+  "source_unchanged": true,
+  "snapshot_unchanged": true,
+  "qc_visible": true,
+  "deleted_order_qc_hidden": true,
+  "component_tests_passed": 10,
+  "typecheck_build": "PASS",
+  "pip_check": "PASS",
+  "production": "NOT_RUN",
+  "full_regression": {
+    "passed": 867,
+    "skipped": 75,
+    "seconds": 240.74
+  }
+}

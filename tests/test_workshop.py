@@ -156,3 +156,21 @@ def test_missing_diagnostics_table_fails_explicitly(setup):
     build_snapshot(source,dest)
     assert client.get('/api/v1/autologika/snapshot/diagnostics').status_code==503
     assert client.get('/api/v1/autologika/snapshot/orders').status_code==200
+
+def test_qc_is_paginated_and_excludes_deleted_orders(setup):
+    client,source,dest,_=setup
+    before=(digest(source),digest(dest))
+    first=client.get('/api/v1/autologika/snapshot/qc?limit=1').json()['data']
+    second=client.get('/api/v1/autologika/snapshot/qc?limit=1&offset=1').json()['data']
+    assert first['items'][0]['checked']==0 and first['has_more']
+    assert second['items'][0]['checked']==1 and not second['has_more']
+    assert first['items'][0]['order_id']==second['items'][0]['order_id']==1
+    assert before==(digest(source),digest(dest))
+
+
+def test_missing_qc_does_not_break_other_domains(setup):
+    client,source,dest,_=setup
+    with sqlite3.connect(source) as db: db.execute('DROP TABLE order_qc')
+    build_snapshot(source,dest)
+    assert client.get('/api/v1/autologika/snapshot/qc').status_code==503
+    assert client.get('/api/v1/autologika/snapshot/reports').status_code==200

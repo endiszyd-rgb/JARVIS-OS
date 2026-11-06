@@ -6,3 +6,5 @@ Odczyt bez uruchamiania AutoLogiki i bez dostępu do bazy użytkownika. Lokalny 
 - electron/db.cjs SHA256 02b3b710aea5bcf3eecc21b1d506c3554ec5d2f6688b78f3e6eb56e80e253bb2, linie662–669: diagnostics; linie925–931: order_qc.
 
 Kontrakt HTTP zgodny z poprzednim audytem681f7f5. Nie rozszerzamy automatycznie zgodności całej bazy tylko na podstawie numeru wersji; odczyty snapshot wymagają obecności konkretnych tabel/kolumn. Produkcyjne połączenie, Supabase/RLS i zapisy NOT_RUN.
+
+2026-11-06: ponowny odczyt db.cjs926–930 potwierdził order_qc i te same pola; SHA256 nadal02b3b710aea5bcf3eecc21b1d506c3554ec5d2f6688b78f3e6eb56e80e253bb2. Bez uruchamiania AutoLogiki.

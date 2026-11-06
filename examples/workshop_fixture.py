@@ -24,6 +24,10 @@ def create_fixture(path):
         CREATE TABLE diagnostics(id INTEGER PRIMARY KEY,order_id INTEGER,symptom_confirmed TEXT,dtcs TEXT,measurements TEXT,hypothesis TEXT,conclusion TEXT,recommendation TEXT,time_hours REAL,updated_at TEXT);
         INSERT INTO diagnostics VALUES(1,1,'Objaw DEMO','P0000','Pomiar DEMO','Hipoteza DEMO','Wniosek DEMO','Sprawdzenie DEMO',0.5,'2026-10-29');
         INSERT INTO diagnostics VALUES(2,4,'Usuniety rodzic','','','','','',0,'2026-10-29');
+        CREATE TABLE order_qc(id INTEGER PRIMARY KEY,order_id INTEGER,check_key TEXT,label TEXT,checked INTEGER,note TEXT,checked_at TEXT,created_at TEXT);
+        INSERT INTO order_qc VALUES(1,1,'demo','Kontrola DEMO',0,'Do sprawdzenia',NULL,'2026-11-06');
+        INSERT INTO order_qc VALUES(2,1,'demo_done','Druga kontrola DEMO',1,'OK','2026-11-06','2026-11-06');
+        INSERT INTO order_qc VALUES(3,4,'deleted','QC usunietego zlecenia',1,'',NULL,'2026-11-06');
         INSERT INTO customers VALUES(1,'Klient demonstracyjny','DEMO','','', '2026-10-01',NULL);
         INSERT INTO vehicles VALUES(1,1,'DEMO','SYNTHETIC','VW','Touran',2003,'1.9 TDI',250000,'2026-10-01',NULL);
         INSERT INTO orders VALUES(1,1,'Zlecenie syntetyczne','PRZYJETE','CZESCI','2026-10-01','2026-10-05',NULL,2,200,150,50,20,10,100,20,NULL);

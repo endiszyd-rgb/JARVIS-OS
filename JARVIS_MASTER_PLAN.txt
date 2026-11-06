@@ -23,16 +23,16 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-10-29
+- Data ostatniej aktualizacji: 2026-11-06
 - Bieżący etap: M4 — adapter AutoLogika
-- Aktualne zadanie: M4.1 VERIFIED; następne M4.2
-- Zadania VERIFIED: 22 / 45
+- Aktualne zadanie: M4.1–M4.3 VERIFIED; następne M4.4
+- Zadania VERIFIED: 23 / 45
 - Zadania DONE: 0 / 45
-- Ostatni commit źródeł: 8cf20683525bdaeb20192e604d2cf881ce4afb1f, potwierdzony na origin/main; bieżący commit zapisuje zamknięcie B5
-- Testy: 28.10 Windows PASS843pytest/75skip220.45s,149UI/typecheck/build, task HTTP/MCP, pip/JS/plan. PG76/Chromium/Docker to historyczne wyniki 27.10, bez powtórki lokalnie.
+- Ostatni commit źródeł: bieżący commit M4.3; checkpoint M4.2 b98b44f, eksperyment OpenClaw zachowany oddzielnie
+- Testy: 2026-11-06 PASS867pytest/75skip240.74s,10UI,typecheck/build,pip/JS,Chrome72API/9widoków390px; PG/Docker nie powtarzano.
 - Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: M4.2 po zweryfikowaniu M4.1; kontynuacja M4+ autoryzowana 2026-10-29.
+- Następny krok: M4.4 — podgląd i autoryzacja zapisów na izolowanym adapterze; produkcja nadal wyłączona.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -270,12 +270,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** M4.3; realne dane NOT_RUN.
 
 #### M4.3 — Raporty, finanse, powiadomienia i statusy QC, jeśli wspierane przez system.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** VERIFIED
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-06
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** paginowany odczyt audytowanej order_qc, pomijanie usuniętych zleceń, UI i testy raportów/finansów/powiadomień.
+- **Wykonano / dowody (pliki, commit):** domena qc w snapshot/API/React; audyt order_qc, paginacja, usunięte zlecenia pomijane. docs/evals/m43-workshop.json i control-m43-qc-mobile.png. Raporty/finanse/powiadomienia ponownie przetestowane.
+- **Testy (komenda, wynik):** PASS pytest867/75skip/240.74s;10UItests/typecheck/build/pip/JS; actualChrome72API/9widoków390px/7domen reader, zero outbound i niezmieniona baza źródłowa.
+- **Blokady / dalsze kroki:** M4.4; produkcja, pełna analityka i rzeczywista kontrola pojazdu NOT_RUN.
 
 #### M4.4 — Operacje zapisu: notatki, zadania, wyceny i statusy tylko z uprawnieniami oraz potwierdzeniem.
 - **Status:** TODO
@@ -523,7 +524,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Następny krok
 
-M4.1 w toku. Właściciel 2026-10-29 uchylił STOP po M3 i zlecił M4 oraz dalsze etapy. Następne M4.2; dane produkcyjne, Supabase, operator, wydatki i urządzenia nie są aktywowane.
+M4.4: przygotować jawne propozycje i potwierdzenia zapisów na izolowanych danych. Realne zapisy wymagają potwierdzonego kontraktu i osobnej autoryzacji; nie włączać produkcji. M4.1–M4.3 VERIFIED,23/45. OpenClaw pozostaje na osobnym branchu, bez scalenia.
 
 ## Instrukcja uruchomienia agenta (do wklejenia Codex)
 
@@ -569,3 +570,5 @@ Wynik paczki HUD3: Inno Setup build PASS; Python 3.12.16/API/UI z paczki na izol
 M4.1 VERIFIED:861pytestPASS/75skip240.21s, pipcheckPASS; następneM4.2.
 
 M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/build PASS. Rzeczywisty Chrome/Core: sześć domen workshop_reader z diagnostyką, nine modules/390px, role/CSP i brak zewnętrznej sieci PASS; źródło i kopia bez zmian. Poprawiono przestarzałą asercję liczby domen8→9. Produkcja NOT_RUN.
+
+2026-11-06 M4.3 VERIFIED:867pytestPASS/75skip240.74s,10UI/build/pip/JS i actualChromePASS; raport docs/evals/m43-workshop.json. Następne M4.4.

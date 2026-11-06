@@ -1,3 +1,11 @@
+Weryfikacja M4.3 (2026-11-06): **867 pytest PASS /75skip**,240.74s; **10 testów panelu PASS**, typecheck/build/pip/JS PASS; rzeczywisty Chrome72API/9widoków390px/7domen warsztatowych PASS.23/45 VERIFIED; następne M4.4. Eksperyment OpenClaw zachowany na osobnym branchu.
+
+
+## M4.3 — kontrola jakości z kopii (2026-11-06)
+
+Dodano domenę qc dla audytowanej tabeli order_qc: kod/nazwa kontroli, stan0/1, notatka i daty. JOIN do nieusuniętych zleceń oraz paginacja wykluczają osierocone/usunięte rekordy. Brak tabeli lub wymaganych kolumn daje503 bez blokowania raportów. API i React udostępniają siedem domen workshop_reader; finanse, raporty i powiadomienia pozostają owner-only. To historia kopii, nie wykonanie kontroli ani potwierdzenie bezpieczeństwa pojazdu.
+
+Nie dodano niepotwierdzonych tras AutoLogiki. Istniejące raporty finansowe są podzbiorem danych, wkład nie jest zyskiem księgowym, a powiadomienia są wyliczane z kopii. Produkcja, Supabase, synchronizacja i fizyczna kontrola pojazdu NOT_RUN. Instalator HUD3 pozostaje poprzednią wersją M3.
 M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/build PASS. Rzeczywisty Chrome/Core: sześć domen workshop_reader z diagnostyką, nine modules/390px, role/CSP i brak zewnętrznej sieci PASS; źródło i kopia bez zmian. Poprawiono przestarzałą asercję liczby domen8→9. Produkcja NOT_RUN.
 
 

@@ -1,4 +1,10 @@
 
+## M4.3 — kontrola jakości z kopii (2026-11-06)
+
+Dodano domenę qc dla audytowanej tabeli order_qc: kod/nazwa kontroli, stan0/1, notatka i daty. JOIN do nieusuniętych zleceń oraz paginacja wykluczają osierocone/usunięte rekordy. Brak tabeli lub wymaganych kolumn daje503 bez blokowania raportów. API i React udostępniają siedem domen workshop_reader; finanse, raporty i powiadomienia pozostają owner-only. To historia kopii, nie wykonanie kontroli ani potwierdzenie bezpieczeństwa pojazdu.
+
+Nie dodano niepotwierdzonych tras AutoLogiki. Istniejące raporty finansowe są podzbiorem danych, wkład nie jest zyskiem księgowym, a powiadomienia są wyliczane z kopii. Produkcja, Supabase, synchronizacja i fizyczna kontrola pojazdu NOT_RUN. Instalator HUD3 pozostaje poprzednią wersją M3.
+
 ## M4.2 — diagnostyka i odczyty warsztatu (2026-10-29)
 
 Kopia schema18 udostępnia dodatkową domenę diagnostics: objawy, DTC, pomiary, hipotezę, wnioski, zalecenia i czas. Odczyt przez GET /api/v1/autologika/snapshot/diagnostics ma paginację, pomija usunięte zlecenia i nie modyfikuje źródła. Brak tabeli/kolumn daje503; pozostałe domeny pozostają dostępne. Panel AutoLogika udostępnia diagnostykę właścicielowi i workshop_reader; finanse/raporty/powiadomienia nadal owner-only. Terminarz, pojazdy, klienci i części pozostają odczytami offline, nie wymyślonymi trasami live.
