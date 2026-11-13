@@ -23,16 +23,16 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-11-06
+- Data ostatniej aktualizacji: 2026-11-13
 - Bieżący etap: M5 — dom i urządzenia
-- Aktualne zadanie: M5.1 adapter zweryfikowany laboratoryjnie; realny HA/token BLOCKED
-- Zadania VERIFIED: 23 / 45
-- Zadania DONE: 0 / 45
-- Ostatni commit źródeł: bieżący commit M5.1; M4.4 lab09ff61a, eksperyment OpenClaw zachowany oddzielnie
-- Testy: 2026-11-06 893 pytest PASS /75skip/2warnings w256.52s; po dodaniu testu odwołania tokenu osobno13test_home_ws PASS,25test_master_plan PASS;10UI/typecheck/build/pip/JS/Chrome85API PASS.
-- Co działa rzeczywiście: Core0.10.4/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI i bounded wieloetapowe zadania read-only z anulowaniem; M3.1–M3.5 VERIFIED
-- Co działa tylko jako mock/demo: odpowiedzi modeli w testach protokołów i embeddingów są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia działa jako laboratorium bez operatora; brak fizycznego sterowania.
-- Następny krok: M5.2 laboratorium MQTT; realne M4.4/M5.1 i zależne M4.5 pozostają nieweryfikowane.
+- Aktualne zadanie: M5.4 symulator VERIFIED; M5.5 sterowniki bramy DONE (HTTP/Tuya/HA) — realny sprzęt do sprawdzenia przez właściciela na warsztacie
+- Zadania VERIFIED: 24 / 45
+- Zadania DONE: 1 / 45
+- Ostatni commit źródeł: bieżący commit 0.11.0 (brama + głos); poprzednio M5.1
+- Testy: 2026-11-13 920 pytest PASS /75skip/2warnings w115.36s (26 nowych test_gate); pip check PASS; frontend 161 testów PASS (GatePanel5, VoicePanel6), typecheck/build PASS; Chrome headless: logowanie z zapamiętanym kluczem, widoki Brama/Głos/Pulpit/390px PASS; launcher smoke PASS (Linux).
+- Co działa rzeczywiście: Core0.11.0/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI, bounded zadania read-only; sterowanie bramą z panelu i głosem (parser intencji PL, cooldown, potwierdzenie, audyt), konfiguracja sterownika z aplikacji; M3.1–M3.5, M5.4 VERIFIED
+- Co działa tylko jako mock/demo: odpowiedzi modeli w testach są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia jako laboratorium; sterowniki bramy HTTP/Tuya/HA przetestowane na lokalnym serwerze testowym i według kontraktów — prawdziwy sterownik, konto Tuya, HA i mikrofon NOT_RUN.
+- Następny krok: właściciel wykonuje Etap 0 z docs/PLAN-ROZWOJU.md (realna brama + głos) → M5.5 VERIFIED; potem M5.2 MQTT/katalog urządzeń. Realne M4.4/M5.1 i M4.5 nadal nieweryfikowane.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -323,20 +323,22 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** —
 
 #### M5.4 — Symulator bramy: stany, blokady, logi, timeout i potwierdzenie w zaufanej aplikacji.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** VERIFIED
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-13
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** jarvis/gate.py Controller+Simulator: stany unknown/open/closed/opening/closing/stopped, travel_seconds, cooldown, jednorazowy token potwierdzenia (12 s, per akcja), tabela gate_events i audyt; parser intencji PL jarvis/intents.py w /chat (tekst i głos); API /devices/gate*; widoki React Brama i Głos; polecenie z pulpitu.
+- **Wykonano / dowody (pliki, commit):** jarvis/gate.py, jarvis/intents.py, jarvis/main.py (trasy, gate_intent), frontend/src/features/gate/*, frontend/src/features/voice/*, App.tsx; docs/BRAMA-I-GLOS.md. Commit: bieżący wpis 0.11.0.
+- **Testy (komenda, wynik):** PASS .venv/bin/python -m pytest -q tests/test_gate.py: 26 (symulator, cooldown, potwierdzenie, maskowanie sekretów, lokalny przekaźnik HTTP, allowlista, rozmowa/głos, konfiguracja głosu); PASS pełna regresja 920/75skip 115.36s; PASS npm test 161 (GatePanel 5, VoicePanel 6), typecheck/build; PASS Chrome headless Brama/Głos/Pulpit/390px.
+- **Blokady / dalsze kroki:** symulator nie dowodzi sprzętu — patrz M5.5.
 
 #### M5.5 — Adapter prawdziwej bramy tylko po inspekcji centrali, czujników i fabrycznych zabezpieczeń; bez zdalnego otwarcia w testach.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** DONE
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-13
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Plan implementacji:** właściciel zlecił 2026-11-13 realne sterowanie bramą Wi‑Fi z aplikacji i głosem (AGENTS.md). Sterowniki w jarvis/gate.py: http (Shelly/Tasmota/ESP, pinned DNS/IP, allowlista), tuya_cloud (Tuya IoT OpenAPI, HMAC‑SHA256, token cache, commands/status), home_assistant (usługa na encji cover/switch); konfiguracja z panelu z maskowaniem sekretów i rewizją; test połączenia bez ruchu bramy.
+- **Wykonano / dowody (pliki, commit):** jarvis/gate.py (Http, TuyaCloud, HomeAssistant), trasy /devices/gate/config i /devices/gate/test, GatePanel.tsx formularze sterowników; docs/BRAMA-I-GLOS.md z instrukcją Tuya/Shelly/HA. Commit: bieżący wpis 0.11.0.
+- **Testy (komenda, wynik):** PASS sterownik HTTP na lokalnym serwerze testowym (otwarcie/zamknięcie/stan/501 bez stop URL), PASS odmowa poza allowlistą, PASS kształt podpisu Tuya; prawdziwy sterownik bramy, konto Tuya, instalacja HA, czujniki i zabezpieczenia centrali NOT_RUN.
+- **Blokady / dalsze kroki:** VERIFIED dopiero po realnym teście właściciela przy bramie (docs/PLAN-ROZWOJU.md, Etap 0). Tuya Cloud wymaga internetu i aktywnej subskrypcji IoT Core.
 
 ### M6 — Automatyzacje i zmiany zachowania
 
@@ -578,3 +580,5 @@ M4.2 VERIFIED 2026-11-06:39 testów adapter/snapshot PASS, pipcheck/typecheck/bu
 2026-11-06 M4.4: laboratorium4operacji zweryfikowane; LIVE BLOCKED,23/45bez zmian. PASS881/75skip282.69s +Chrome/typecheck/build/pip. NastępneM5.1.
 
 2026-11-06 M5.1: REST+WebSocket oraz jawny wybór w GUI,13testów protokołu/API i10UI PASS; Chrome85API/390px PASS. Live/token HA BLOCKED. Następne M5.2 w laboratorium.
+
+2026-11-13 0.11.0 brama i głos: M5.4 VERIFIED (symulator, potwierdzenie, cooldown, audyt, parser intencji, widoki Brama/Głos), M5.5 DONE (sterowniki HTTP/Tuya/HA, konfiguracja z aplikacji) — sprzęt NOT_RUN. PASS 920 pytest/75skip 115.36s, 161 UI, typecheck/build/pip, Chrome headless; instalator: workflow GitHub Actions windows-installer.yml, stały port 17321, zapamiętany klucz. 24/45 VERIFIED, 1 DONE. Następne: Etap 0 planu rozwoju (realna brama), potem M5.2.

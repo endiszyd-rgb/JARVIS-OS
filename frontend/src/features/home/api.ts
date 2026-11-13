@@ -10,7 +10,8 @@ export interface HomeRead { mode: 'live_readonly'; states: HomeState[]; controls
 export interface Integrations {
   home_readonly_enabled: boolean
   twilio_webhook_enabled: boolean
-  physical_controls: false
+  physical_controls: boolean
+  gate_driver: string
   whatsapp_send: false
   whatsapp_calling: false
 }
@@ -36,6 +37,6 @@ export async function readHome(credential: string, signal: AbortSignal, entity =
 export async function readIntegrations(credential: string, signal: AbortSignal): Promise<Integrations> {
   const result = await apiRequest('/api/v1/integrations', signal, credential)
   if (!object(result) || typeof result.home_readonly_enabled !== 'boolean' || typeof result.twilio_webhook_enabled !== 'boolean'
-    || result.physical_controls !== false || result.whatsapp_send !== false || result.whatsapp_calling !== false) return invalid()
+    || typeof result.physical_controls !== 'boolean' || typeof result.gate_driver !== 'string' || result.whatsapp_send !== false || result.whatsapp_calling !== false) return invalid()
   return result as unknown as Integrations
 }

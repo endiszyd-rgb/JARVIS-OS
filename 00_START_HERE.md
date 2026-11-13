@@ -1,3 +1,7 @@
+## 0.11.0 — brama i głos (2026-11-13)
+
+Właściciel zlecił realne sterowanie bramą Wi‑Fi z aplikacji i głosem. Dostarczono: `jarvis/gate.py` (symulator, HTTP, Tuya/Smart Life, Home Assistant), `jarvis/intents.py`, widoki React **Brama** i **Głos**, ustawienia z aplikacji, workflow instalatora Windows i plan rozwoju `docs/PLAN-ROZWOJU.md`. M5.4 VERIFIED, M5.5 DONE — sprzęt NOT_RUN do testu właściciela. 920 pytest PASS/75 skip, 161 UI PASS. Instrukcja: `docs/BRAMA-I-GLOS.md`.
+
 ## M4.4 — laboratorium zapisów (2026-11-06)
 
 Panel AutoLogika właściciela zawiera jawne laboratorium DEMO: notatka, zadanie, wycena w groszach i status syntetycznego DEMO-1. Podgląd before/after nie zmienia stanu. Osobne potwierdzenie wysyła digest dokładnej propozycji; CAS odrzuca nieaktualny stan, UUID eliminuje powtórny zapis, konta są odseparowane, odwołana sesja traci dostęp. Żadna ścieżka nie wywołuje adaptera AutoLogiki ani nie modyfikuje snapshotu.

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Activity, ArrowRight, ArrowUpRight, Bell, Check, ChevronRight, CircleAlert, Cpu, Database, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, Wrench, X } from 'lucide-react'
+import { Activity, ArrowRight, ArrowUpRight, AudioLines, Bell, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, Wrench, X } from 'lucide-react'
 import { ApiError, connect, endSession, readSnapshot } from './api'
 import type { AuthSession, LoginInput, Role, Snapshot } from './types'
 import { roleLabels } from './types'
@@ -11,6 +11,9 @@ import { PluginPanel } from './features/plugins/PluginPanel'
 import { WorkshopPanel } from './features/workshop/WorkshopPanel'
 import { HomePanel } from './features/home/HomePanel'
 import { DevicesPanel } from './features/devices/DevicesPanel'
+import { GatePanel } from './features/gate/GatePanel'
+import { VoicePanel } from './features/voice/VoicePanel'
+import { GateTile } from './features/gate/GateTile'
 import { AutomationsPanel } from './features/automations/AutomationsPanel'
 import { MemoryPanel } from './features/memory/MemoryPanel'
 import { TelephonyPanel } from './features/telephony/TelephonyPanel'
@@ -19,7 +22,7 @@ import { SecurityPanel } from './features/security/SecurityPanel'
 import { ChangesPanel } from './features/changes/ChangesPanel'
 
 const viewLabels = {
-  dashboard: 'Pulpit', system: 'System', chat: 'Rozmowa', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
+  dashboard: 'Pulpit', system: 'System', chat: 'Rozmowa', voice: 'Głos', gate: 'Brama', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
   workshop: 'AutoLogika', home: 'Dom', devices: 'Urządzenia', automations: 'Automatyzacje', memory: 'Pamięć',
   telephony: 'Telefonia', notifications: 'Powiadomienia', security: 'Bezpieczeństwo', logs: 'Logi', changes: 'Zmiany i zgody',
 } as const
@@ -27,6 +30,8 @@ type View = keyof typeof viewLabels
 const viewDescriptions: Record<View, string> = {
   dashboard: 'Podgląd Twojej instalacji. Zawsze z jasnym stanem i zakresem działania.', system: 'Gotowość instalacji i informacje o bieżącym dostępie.',
   chat: 'Twoje rozmowy, zapisane sesje i wybór skonfigurowanego modelu.', settings: 'Ustawienia asystenta z podglądem przed zatwierdzeniem.',
+  voice: 'Komendy głosowe: nasłuch słowa aktywującego lub przytrzymaj i mów. Polecenia urządzeń wykonuje serwer.',
+  gate: 'Sterowanie bramą warsztatu, konfiguracja sterownika i historia poleceń.',
   activity: 'Ostatnie zdarzenia zapisane przez JARVIS OS.', plugins: 'Konfiguracja integracji, uprawnienia odczytu i jawne testy połączenia.',
   workshop: 'Kopia danych warsztatu oraz jawny odczyt skonfigurowanej AutoLogiki.', home: 'Stany dozwolonych encji Home Assistant, bez sterowania.',
   devices: 'Konfiguracja integracji i zakres dostępnych odczytów.', automations: 'Lokalne przypomnienia z osobnym zatwierdzeniem zmian.',
@@ -37,7 +42,7 @@ const viewDescriptions: Record<View, string> = {
 }
 const navItems: { view: View; icon: ReactNode }[] = [
   { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Activity /> },
-  { view: 'chat', icon: <MessageSquare /> }, { view: 'memory', icon: <Database /> },
+  { view: 'chat', icon: <MessageSquare /> }, { view: 'voice', icon: <AudioLines /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'memory', icon: <Database /> },
   { view: 'settings', icon: <Cpu /> }, { view: 'activity', icon: <Activity /> }, { view: 'plugins', icon: <Plug /> },
   { view: 'workshop', icon: <Wrench /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
   { view: 'automations', icon: <RefreshCw /> }, { view: 'telephony', icon: <Phone /> }, { view: 'notifications', icon: <Bell /> },
@@ -53,6 +58,9 @@ const currentView = (): View => {
   return Object.hasOwn(viewLabels, route) ? route as View : 'dashboard'
 }
 const message = (error: unknown) => error instanceof ApiError ? error.message : 'Nie udało się wykonać żądania. Spróbuj ponownie.'
+const REMEMBER_KEY = 'jarvis.owner-key'
+function rememberedKey(): string | null { try { return window.localStorage.getItem(REMEMBER_KEY) } catch { return null } }
+function rememberKey(value: string | null) { try { if (value) window.localStorage.setItem(REMEMBER_KEY, value); else window.localStorage.removeItem(REMEMBER_KEY) } catch { /* storage unavailable */ } }
 const aborted = (error: unknown) => error instanceof DOMException && error.name === 'AbortError'
 
 function Brand() {
@@ -63,12 +71,14 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
   const [mode, setMode] = useState<'account' | 'key'>('account')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
-  const [key, setKey] = useState('')
+  const [key, setKey] = useState(() => rememberedKey() ?? '')
+  const [remember, setRemember] = useState(() => rememberedKey() !== null)
   const choose = (next: 'account' | 'key') => { setMode(next); setPassword(''); setKey('') }
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (busy) return
     const input: LoginInput = mode === 'account' ? { mode, username: username.trim(), password } : { mode, key }
+    if (mode === 'key') rememberKey(remember ? key : null)
     setPassword(''); setKey('')
     onSubmit(input)
   }
@@ -92,7 +102,7 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
           {mode === 'account' ? <>
             <div className="form-field"><label htmlFor="login-name">Login</label><input id="login-name" name="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Twoja nazwa użytkownika" /></div>
             <div className="form-field"><label htmlFor="login-password">Hasło</label><input id="login-password" name="password" type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete="current-password" required disabled={busy} placeholder="Wprowadź hasło" /></div>
-          </> : <div className="form-field"><label htmlFor="login-key">Klucz dostępu</label><input id="login-key" name="key" type="password" value={key} onChange={event => setKey(event.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Klucz właściciela" /><small>Użyj klucza skonfigurowanego dla tej instalacji.</small></div>}
+          </> : <div className="form-field"><label htmlFor="login-key">Klucz dostępu</label><input id="login-key" name="key" type="password" value={key} onChange={event => setKey(event.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Klucz właściciela" /><small>Użyj klucza skonfigurowanego dla tej instalacji.</small><label className="remember-key"><input type="checkbox" checked={remember} disabled={busy} onChange={event => setRemember(event.target.checked)} />Zapamiętaj klucz na tym komputerze (tylko zaufane stanowisko, np. PC na warsztacie)</label></div>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="button primary" type="submit" disabled={busy}>{busy ? <RefreshCw className="spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}{mode === 'account' ? 'Zaloguj się' : 'Połącz kluczem'}</button>
         </form>
@@ -125,7 +135,7 @@ function CoreRadar({ ready }: { ready: boolean }) {
   </a>
 }
 
-function Dashboard({ snapshot, role }: { snapshot: Snapshot; role: Role }) {
+function Dashboard({ snapshot, role, credential, onUnauthorized }: { snapshot: Snapshot; role: Role; credential: string; onUnauthorized: () => void }) {
   const status = snapshot.status
   const ready = snapshot.ready.status === 'ready'
   return <>
@@ -147,10 +157,11 @@ function Dashboard({ snapshot, role }: { snapshot: Snapshot; role: Role }) {
       <Metric label="Powiadomienia" value={status.counts.notifications} icon={<Bell />} caption="Wszystkie zapisane powiadomienia" />
     </section>
     <div className="dashboard-grid">
+      {role === 'owner' && <GateTile credential={credential} onUnauthorized={onUnauthorized} />}
       <section className="panel" aria-labelledby="current-state-title"><h2 className="panel-heading" id="current-state-title"><Activity aria-hidden="true" />Stan systemu</h2><p className="panel-description">Gotowość Core i bieżące ustawienia. To nie jest potwierdzenie połączenia z usługami zewnętrznymi.</p><ul className="status-list">
         <StatusRow title="Core" description="Konfiguracja i lokalna baza danych" badge={ready ? 'Gotowy' : 'Wymaga uwagi'} tone={ready ? 'tone-good' : 'tone-warning'} />
         <StatusRow title="Tryb rozmów" description={status.settings.model === 'demo' ? 'Odpowiedzi demonstracyjne' : 'Wybrany dostawca '+(status.settings.model === 'openai' ? 'OpenAI (chmura)' : 'Ollama')+'; model wymaga sprawdzenia'} badge={status.settings.model === 'demo' ? 'DEMO' : status.settings.model === 'openai' ? 'OpenAI' : 'Ollama'} tone="tone-warning" />
-        <StatusRow title="Sterowanie urządzeniami" description="Fizyczne skutki wymagają uprawnień i osobnego uruchomienia" badge={status.live_devices ? 'Sprawdź uprawnienia' : 'Wyłączone'} />
+        <StatusRow title="Sterowanie bramą" description={status.live_devices ? 'Skonfigurowany sterownik sprzętowy; polecenia trafiają do audytu' : 'Symulator lub wyłączone — skonfiguruj w widoku Brama'} badge={status.live_devices ? 'Sprzęt' : 'Symulator'} tone={status.live_devices ? 'tone-good' : ''} />
       </ul></section>
       <section className="panel legacy-card" aria-labelledby="legacy-title"><h2 className="panel-heading" id="legacy-title"><LayoutDashboard aria-hidden="true" />Więcej możliwości</h2><p className="panel-description">Laboratoria głosu, recepcji i transportu są dostępne w dotychczasowym panelu. Po przejściu połącz się ponownie.</p><ul className="legacy-feature-list"><li className="legacy-feature"><MessageSquare aria-hidden="true" />Głos</li><li className="legacy-feature"><Phone aria-hidden="true" />Recepcja</li><li className="legacy-feature"><Plug aria-hidden="true" />Transport</li><li className="legacy-feature"><ShieldCheck aria-hidden="true" />Laboratoria</li></ul><a className="link-button" href="/">Otwórz pełny panel<ArrowUpRight aria-hidden="true" /></a></section>
     </div>
@@ -202,6 +213,12 @@ export default function App() {
 
   const privateUnauthorized = useCallback(() => clearAuthentication('Sesja zakończyła się. Połącz się ponownie.'), [clearAuthentication])
 
+  const autoLogin = useRef(false)
+  useEffect(() => {
+    const remembered = rememberedKey()
+    if (remembered && !autoLogin.current) { autoLogin.current = true; void login({ mode: 'key', key: remembered }, true) }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
   useEffect(() => {
     const changed = () => setView(currentView())
     window.addEventListener('hashchange', changed)
@@ -234,14 +251,15 @@ export default function App() {
     return () => { window.cancelAnimationFrame(focusFrame); document.removeEventListener('keydown', keydown) }
   }, [menuOpen])
 
-  async function login(input: LoginInput) {
+  async function login(input: LoginInput, keepView = false) {
     const { controller, id } = begin()
     setBusyLogin(true); setLoginError(null); setError(null); setSnapshot(null)
     try {
       const authenticated = await connect(input, controller.signal)
       if (epoch.current !== id || controller.signal.aborted) return
-      setSession(authenticated); setView('dashboard'); setMenuOpen(false)
-      window.history.replaceState(null, '', '#/dashboard')
+      const target = keepView ? currentView() : 'dashboard'
+      setSession(authenticated); setView(target); setMenuOpen(false)
+      window.history.replaceState(null, '', '#/' + target)
       setBusyRefresh(true)
       try {
         const next = await readSnapshot(authenticated.credential, controller.signal)
@@ -252,7 +270,7 @@ export default function App() {
         else setError(message(failure))
       }
     } catch (failure) {
-      if (epoch.current === id && !controller.signal.aborted && !aborted(failure)) setLoginError(message(failure))
+      if (epoch.current === id && !controller.signal.aborted && !aborted(failure)) { setLoginError(message(failure)); if (failure instanceof ApiError && failure.status === 401) rememberKey(null) }
     } finally {
       if (epoch.current === id) { setBusyLogin(false); setBusyRefresh(false); pending.current = null }
     }
@@ -275,6 +293,7 @@ export default function App() {
   async function logout() {
     if (!session || busyLogout) return
     const previous = session
+    rememberKey(null)
     clearAuthentication()
     setBusyLogout(true)
     const controller = new AbortController()
@@ -315,13 +334,15 @@ export default function App() {
           view === 'workshop' ? <WorkshopPanel credential={session.credential} onUnauthorized={privateUnauthorized} canReadPrivate={isOwner} /> :
           view === 'home' ? <HomePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'devices' ? <DevicesPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
+          view === 'gate' ? <GatePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
+          view === 'voice' ? <VoicePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'automations' ? <AutomationsPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'memory' ? <MemoryPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'telephony' ? <TelephonyPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'notifications' ? <NotificationsPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'changes' ? <ChangesPanel credential={session.credential} onUnauthorized={privateUnauthorized} onStatusChanged={() => { void refresh() }} /> :
           view === 'security' ? <SecurityPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
-          snapshot ? view === 'dashboard' ? <Dashboard snapshot={snapshot} role={session.identity.role} /> : <System session={session} snapshot={snapshot} /> : <section className="loading-state" aria-live="polite">{busyRefresh ? <><RefreshCw className="spin" aria-hidden="true" /><p>Odczytywanie danych instalacji…</p></> : <><CircleAlert aria-hidden="true" /><p>Dane są chwilowo niedostępne. Możesz spróbować ponownie.</p></>}</section>}
+          snapshot ? view === 'dashboard' ? <Dashboard snapshot={snapshot} role={session.identity.role} credential={session.credential} onUnauthorized={privateUnauthorized} /> : <System session={session} snapshot={snapshot} /> : <section className="loading-state" aria-live="polite">{busyRefresh ? <><RefreshCw className="spin" aria-hidden="true" /><p>Odczytywanie danych instalacji…</p></> : <><CircleAlert aria-hidden="true" /><p>Dane są chwilowo niedostępne. Możesz spróbować ponownie.</p></>}</section>}
         {(view === 'dashboard' || view === 'system') && <p className="footer-note"><Check aria-hidden="true" />Liczniki obejmują wszystkie zapisane rekordy. Odczyt Core nie potwierdza dostępności opcjonalnych usług ani sprzętu.</p>}
       </main>
     </div>

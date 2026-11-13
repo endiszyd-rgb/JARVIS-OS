@@ -24,7 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from .autologika import AUDITED_COMMIT, configured_adapter, capabilities as autologika_capabilities
-from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport
+from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
 from .security_limits import SecurityConfig, RateLimit
@@ -145,13 +145,34 @@ class Retention(Strict):
     dry_run: bool = True
 
 
+class GateCommand(Strict):
+    action: Literal['open','close','stop','status']
+    source: Literal['panel','voice','api'] = 'panel'
+    confirm_token: str | None = Field(default=None,max_length=64)
+
+
+class GateConfigUpdate(Strict):
+    revision: int = Field(ge=0)
+    config: dict
+
+
+class VoiceConfig(Strict):
+    """Owner preferences for the browser voice panel; stored locally, no secrets."""
+    engine: Literal['browser','wyoming'] = 'browser'
+    wake_word: str = Field(default='jarvis',min_length=2,max_length=30,pattern=r'^[a-zA-Ząćęłńóśźż ]+$')
+    wake_listening: bool = True
+    speak_replies: bool = True
+    language: Literal['pl-PL','en-US'] = 'pl-PL'
+    send_to_model: bool = Field(default=False,description='Unrecognized voice phrases go to the chat model; otherwise only device commands are executed')
+
+
 def create_app(db_path=None, api_key=None):
     tasks=TaskManager()
     @asynccontextmanager
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.10.4', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.11.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -227,6 +248,8 @@ def create_app(db_path=None, api_key=None):
         install_modes(c)
         telephony_transport.install(c)
         identity.install(c)
+        gate.install(c)
+        c.execute('INSERT OR IGNORE INTO device_config VALUES(?,?,?,?)', ('voice', VoiceConfig().model_dump_json(), 0, time.time()))
         c.execute('PRAGMA user_version=12')
         c.execute('INSERT OR IGNORE INTO settings VALUES(1,?)', (Settings().model_dump_json(),))
         for pid in BUILTINS:
@@ -317,7 +340,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.10.4', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.11.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -332,7 +355,7 @@ def create_app(db_path=None, api_key=None):
     @api.get('/status', dependencies=[Depends(require('status:read'))])
     def status():
         with db() as c:
-            return {'mode': 'demo_with_optional_readonly', 'settings': settings(c), 'counts': {t: c.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0] for t in ['plugins', 'memory', 'audit', 'proposals', 'automations', 'notifications']}, 'live_devices': False, 'autologika_audit': AUDITED_COMMIT, 'models': ['demo', 'ollama', 'openai']}
+            return {'mode': 'demo_with_optional_readonly', 'settings': settings(c), 'counts': {t: c.execute(f'SELECT COUNT(*) FROM {t}').fetchone()[0] for t in ['plugins', 'memory', 'audit', 'proposals', 'automations', 'notifications']}, 'live_devices': gate_live(c), 'autologika_audit': AUDITED_COMMIT, 'models': ['demo', 'ollama', 'openai']}
 
     @api.get('/autologika/capabilities', dependencies=[Depends(require('workshop:read'))])
     def read_autologika_capabilities():
@@ -529,7 +552,74 @@ def create_app(db_path=None, api_key=None):
 
     @api.get('/integrations', dependencies=[Depends(auth)])
     def integration_status():
-        return {'home_readonly_enabled':os.getenv('HA_READONLY_ENABLED','false').lower()=='true','twilio_webhook_enabled':os.getenv('TWILIO_WEBHOOK_ENABLED','false').lower()=='true','physical_controls':False,'whatsapp_send':False,'whatsapp_calling':False}
+        with db() as c: gate_config,_=gate.load(c)
+        return {'home_readonly_enabled':os.getenv('HA_READONLY_ENABLED','false').lower()=='true','twilio_webhook_enabled':os.getenv('TWILIO_WEBHOOK_ENABLED','false').lower()=='true','physical_controls':gate_config.driver not in ('disabled','simulator'),'gate_driver':gate_config.driver,'whatsapp_send':False,'whatsapp_calling':False}
+
+    # ---- Gate (M5.4 simulator + M5.5 live drivers) and voice preferences ----
+    gate_controller=gate.Controller()
+    app.state.gate=gate_controller
+
+    def gate_live(c):
+        return gate.load(c)[0].driver not in ('disabled','simulator')
+
+    def voice_config(c):
+        row=c.execute("SELECT value,revision FROM device_config WHERE id='voice'").fetchone()
+        try: return (VoiceConfig.model_validate_json(row[0]) if row else VoiceConfig()), (row[1] if row else 0)
+        except ValidationError: return VoiceConfig(), row[1]
+
+    async def run_gate(action,source,confirm_key=None,confirm_token=None):
+        with db() as c: config,revision=gate.load(c)
+        return await gate_controller.execute(config,revision,action,source=source,actor=AUDIT_ACTOR.get(),c_factory=db,audit=audit,confirm_key=confirm_key,confirm_token=confirm_token)
+
+    @api.get('/devices/gate', dependencies=[Depends(auth)])
+    def gate_overview():
+        with db() as c:
+            config,revision=gate.load(c)
+            return {'gate':gate_controller.describe(config),'config':config.masked(),'revision':revision,'events':gate.events(c),'drivers':list(gate.DRIVERS)+['disabled']}
+
+    @api.post('/devices/gate/command', dependencies=[Depends(auth)])
+    async def gate_command(body:GateCommand):
+        return await run_gate(body.action,body.source,confirm_key=body.source,confirm_token=body.confirm_token)
+
+    @api.post('/devices/gate/test', dependencies=[Depends(auth)])
+    async def gate_test():
+        """Reads the controller status without actuating anything."""
+        result=await run_gate('status','panel')
+        with db() as c: audit(c,'gate.tested',{'driver':result['driver']})
+        return {'status':'reachable','gate':result}
+
+    @api.get('/devices/gate/config', dependencies=[Depends(auth)])
+    def gate_config_read():
+        with db() as c:
+            config,revision=gate.load(c)
+            return {'config':config.masked(),'revision':revision,'tuya_endpoints':list(gate.TUYA_ENDPOINTS)}
+
+    @api.put('/devices/gate/config', dependencies=[Depends(auth)])
+    def gate_config_write(body:GateConfigUpdate):
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            config,revision=gate.save(c,body.config,body.revision)
+            audit(c,'gate.config_changed',{'driver':config.driver,'revision':revision,'require_confirmation':config.require_confirmation})
+        gate_controller._driver_cache=None
+        return {'config':config.masked(),'revision':revision}
+
+    @api.get('/config/voice', dependencies=[Depends(auth)])
+    def voice_config_read():
+        with db() as c:
+            config,revision=voice_config(c)
+            return {'config':config.model_dump(),'revision':revision,'wyoming_available':bool(os.getenv('WYOMING_STT_URI')) and os.getenv('JARVIS_VOICE_ENABLED','false').lower()=='true'}
+
+    @api.put('/config/voice', dependencies=[Depends(auth)])
+    def voice_config_write(body:GateConfigUpdate):
+        try: config=VoiceConfig(**body.config)
+        except (ValidationError,TypeError): raise HTTPException(422,'Invalid voice configuration') from None
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            _,revision=voice_config(c)
+            if revision!=body.revision: raise HTTPException(409,'Voice configuration changed; reload and retry')
+            c.execute("UPDATE device_config SET value=?,revision=revision+1,updated=? WHERE id='voice'",(config.model_dump_json(),time.time()))
+            audit(c,'voice.config_changed',{'engine':config.engine,'wake_listening':config.wake_listening})
+        return {'config':config.model_dump(),'revision':revision+1}
 
     @app.post('/webhooks/twilio/whatsapp')
     async def whatsapp_inbound(request:Request):
@@ -900,7 +990,46 @@ def create_app(db_path=None, api_key=None):
             if isinstance(exc,TimeoutError):raise HTTPException(504,'Model request timed out')
             raise
 
+    async def gate_intent(intent, body: Chat):
+        """Owner device commands from chat or voice. Deterministic; never produced by the model."""
+        key='chat:'+(body.session_id or 'none')
+        source='voice' if body.input_mode=='voice' else 'chat'
+        with db() as c: config,_=gate.load(c)
+        name=config.name
+        if intent.kind in ('confirm','cancel'):
+            entry=gate_controller.pending.get(key)
+            if entry is None or entry[1]<time.time():
+                return None  # plain "tak"/"nie" without a pending question goes to the model
+            if intent.kind=='cancel':
+                gate_controller.cancel(key)
+                return {'reply':'Anulowane. Brama pozostaje bez zmian.','model':'parser','ai_generated':False,'device':{'status':'cancelled'}}
+            action,token=entry[0].split(':',1)
+            result=await run_gate(action,source,confirm_key=key,confirm_token=token)
+        elif config.driver=='disabled':
+            return {'reply':'Sterowanie bramą jest wyłączone. Włącz je w panelu Urządzenia.','model':'parser','ai_generated':False,'device':{'status':'disabled'}}
+        else:
+            try:
+                result=await run_gate(intent.action,source,confirm_key=key)
+            except HTTPException as exc:
+                if exc.status_code==429: return {'reply':'Chwila — brama dostała polecenie przed momentem. Spróbuj za kilka sekund.','model':'parser','ai_generated':False,'device':{'status':'cooldown'}}
+                if exc.status_code in (501,502,503): return {'reply':'Nie udało się połączyć ze sterownikiem bramy: '+str(exc.detail),'model':'parser','ai_generated':False,'device':{'status':'error','detail':exc.detail}}
+                raise
+        if result.get('status')=='confirmation_required':
+            return {'reply':result['prompt']+' Powiedz „tak”, aby potwierdzić.','model':'parser','ai_generated':False,'device':result}
+        if intent.kind=='gate' and intent.action=='status':
+            result={'status':'read','action':'status','gate':result}
+            reply=f"{name}: stan {result['gate']['state_label']}."
+        else:
+            action=result['action']
+            reply={'open':f'Otwieram: {name}.','close':f'Zamykam: {name}.','stop':f'Zatrzymuję: {name}.'}[action]
+            if config.driver=='simulator': reply+=' (symulator — bez fizycznego sterowania)'
+        return {'reply':reply,'model':'parser','ai_generated':False,'device':result}
+
     async def respond(body: Chat, history):
+        intent=intents.parse(body.message)
+        if intent is not None:
+            handled=await gate_intent(intent,body)
+            if handled is not None: return handled
         with db() as c:
             s = settings(c)
             # Deliberately small, deterministic parser. LLM output never executes tools.

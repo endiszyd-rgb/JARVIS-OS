@@ -1,8 +1,8 @@
 {
   "format_version": 1,
-  "application_version": "0.10.4",
+  "application_version": "0.11.0",
   "handoff_revision": "0.10.4-handoff.1",
-  "snapshot_date": "2026-11-06",
+  "snapshot_date": "2026-11-13",
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
@@ -16,7 +16,7 @@
     "postgres_memory_feature_schema": 4
   },
   "verification": {
-    "pytest_passed": 843,
+    "pytest_passed": 920,
     "python": "3.12",
     "pip_check": "passed",
     "js_syntax": "passed",
@@ -41,7 +41,7 @@
     "postgres_report": "docs/evals/postgres-m35.json",
     "tool_registry": "41unit_37transport_6API_and_real_local_sdk_lab_passed",
     "postgres": "76_real_PG_API_browser_passed_M3.5",
-    "react_components_passed": 149,
+    "react_components_passed": 161,
     "react_typecheck": "passed_M3.5",
     "react_build": "passed_M3.5",
     "control_report": "docs/evals/postgres-m35.json",
@@ -161,15 +161,16 @@
     {
       "id": "devices",
       "name": "HA/ESP32/MQTT",
-      "status": "partial",
-      "entry_point": "jarvis/home.py",
+      "status": "implemented_gate_hardware_unverified",
+      "entry_point": "jarvis/gate.py",
       "available": [
         "HA readonly, allowlista",
+        "brama: symulator/HTTP/Tuya/HA, konfiguracja z panelu, komendy głosowe",
         "DEMO urządzeń"
       ],
       "pending": [
-        "realny MQTT/ESP32",
-        "sterowanie z uprawnieniami"
+        "realny MQTT/ESP32 i katalog urządzeń",
+        "weryfikacja sprzętu bramy przez właściciela"
       ]
     },
     {
@@ -225,7 +226,8 @@
         "React rozmowy/sesje/modele, ustawienia z osobnym zatwierdzeniem i ostatnie100zdarzeń",
         "React Plugin Manager: config/reviewedreads/enable-disable/explicit transport test",
         "React:9widoków modułów, role home/workshop reader, lokalne zapisy z rewizjami i zgodami",
-        "Zmiany i zgody: decisions/rollback, sprawdzona struktura16widoków i keyboard/mobilefocus"
+        "Zmiany i zgody: decisions/rollback, sprawdzona struktura16widoków i keyboard/mobilefocus",
+        "0.11.0: widoki Brama i Głos, kafelek bramy na pulpicie, zapamiętany klucz na zaufanym PC"
       ],
       "pending": [
         "pełny WCAG/czytnik/Safari",
@@ -239,7 +241,8 @@
       "entry_point": "scripts/start.ps1",
       "available": [
         "skrypt Windows",
-        "web panel"
+        "web panel",
+        "workflow GitHub Actions budujący instalator; launcher ze stałym portem"
       ],
       "pending": [
         "Windows, telefony, HTTPS"
@@ -299,8 +302,8 @@
   },
   "current_task": {
     "id": null,
-    "stage": "STOPPED_AFTER_M3",
-    "last_completed": "M3.5",
+    "stage": "M5_GATE_DELIVERED_HARDWARE_NOT_RUN",
+    "last_completed": "M5.4",
     "journal": "JARVIS_MASTER_PLAN.md"
   },
   "local_commits_pushed": true,
@@ -330,10 +333,10 @@
   "master_plan": {
     "source": "JARVIS_MASTER_PLAN.txt",
     "journal": "JARVIS_MASTER_PLAN.md",
-    "verified": 23,
-    "done": 0,
+    "verified": 24,
+    "done": 1,
     "total": 45,
-    "updated_utc": "2026-11-06"
+    "updated_utc": "2026-11-13"
   },
   "publication": {
     "requested": true,
@@ -355,9 +358,10 @@
     "blocker_B5": "closed"
   },
   "owner_scope": {
-    "status": "M4_and_later_authorized",
-    "authorization_date": "2026-10-29",
-    "production_hardware_paid_activation": false
+    "status": "M4_and_later_authorized_plus_real_gate_control",
+    "authorization_date": "2026-11-13",
+    "production_hardware_paid_activation": false,
+    "gate_control_authorized": true
   },
   "verification_source_date": "2026-10-27",
   "publication_verification": {
@@ -377,18 +381,20 @@
     "pytest_seconds": 220.45
   },
   "windows_delivery": {
-    "status": "verified",
-    "version": "0.10.4-windows.1",
-    "installer": "JARVIS-OS-0.10.4-Setup-x64.exe",
-    "sha256": "2b58ceff9f0558054c0231f8c7781520b3ed32765db4f4b5f78527d33e9b660a",
+    "status": "build_pipeline_added_not_run",
+    "version": "0.11.0",
+    "installer": "JARVIS-OS-0.11.0-Setup-x64.exe",
+    "sha256": "not_built_yet",
     "bytes": 28223337,
-    "release_url": "https://github.com/endiszyd-rgb/JARVIS-OS/releases/tag/v0.10.4-windows.1",
+    "release_url": "",
     "report": "docs/evals/windows-installer-0104.json",
     "pytest_passed": 847,
     "pytest_skipped": 75,
     "signed": false,
     "visual_inspection": "not_run_tool_unavailable",
-    "m4_started": false
+    "m4_started": false,
+    "workflow": ".github/workflows/windows-installer.yml",
+    "stable_port": 17321
   },
   "hud_delivery": {
     "status": "chat_ui_verified_installer_built_payload_smoke_passed",
@@ -423,5 +429,30 @@
     "pytest_skipped": 75,
     "seconds": 256.52,
     "additional_revocation_test": "passed_in_targeted_13_test_run"
+  },
+  "gate": {
+    "module": "jarvis/gate.py",
+    "intents": "jarvis/intents.py",
+    "drivers": [
+      "simulator",
+      "http",
+      "tuya_cloud",
+      "home_assistant"
+    ],
+    "default": "simulator",
+    "owner_only": true,
+    "confirmation": "optional_single_use_token",
+    "hardware_verified": false,
+    "docs": "docs/BRAMA-I-GLOS.md",
+    "tests": "tests/test_gate.py"
+  },
+  "voice": {
+    "engines": [
+      "browser_web_speech",
+      "wyoming_push_to_talk"
+    ],
+    "wake_word_default": "jarvis",
+    "ui": "frontend/src/features/voice",
+    "microphone_verified": false
   }
 }

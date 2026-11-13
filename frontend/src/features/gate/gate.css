@@ -1,0 +1,48 @@
+.gate-feature { display: grid; gap: 22px; min-width: 0; }
+.gate-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 20px; }
+.gate-head .button { flex-shrink: 0; }
+.gate-notice { display: flex; align-items: center; gap: 9px; margin: 0; padding: 12px 15px; border: 1px solid #2d6e5e; border-radius: 9px; background: #11302d; color: var(--good); font-size: 13px; }
+.gate-notice svg { width: 15px; height: 15px; }
+.gate-readout { display: flex; align-items: center; gap: 22px; margin: 22px 0 18px; padding: 22px 26px; border: 1px solid var(--border); border-radius: 10px; background: linear-gradient(120deg, #0e1f2a, #0b1620); position: relative; overflow: hidden; }
+.gate-readout::before { content: ''; position: absolute; top: 0; left: 0; width: 70px; height: 3px; background: currentColor; box-shadow: 0 0 18px currentColor; }
+.gate-readout.is-open { color: #7ff0c4; border-color: #2d6c58; }
+.gate-readout.is-closed { color: #7ceaff; border-color: #2d5364; }
+.gate-readout.is-unknown { color: #f1ce8f; border-color: #5c4a2a; }
+.gate-readout-icon { display: grid; place-items: center; width: 62px; height: 62px; border-radius: 50%; border: 1px solid currentColor; background: #0b161f; flex-shrink: 0; }
+.gate-readout-icon svg { width: 28px; height: 28px; }
+.gate-readout p { margin: 0; }
+.gate-readout-label { font: 10px Consolas, monospace; letter-spacing: 2px; color: var(--subtle); }
+.gate-readout-value { font-size: clamp(24px, 3vw, 36px); font-weight: 500; letter-spacing: 2px; line-height: 1.2; margin-top: 4px; }
+.gate-readout-meta { font-size: 12px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+.gate-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.gate-actions .button { min-width: 130px; }
+.gate-open { min-width: 160px; }
+.gate-confirm { padding: 18px; border: 1px solid #7a5a2a; border-radius: 10px; background: #2d2415; }
+.gate-confirm > p { display: flex; align-items: center; gap: 9px; margin: 0 0 14px; font-size: 16px; font-weight: 600; color: var(--warning); }
+.gate-confirm svg { width: 18px; height: 18px; }
+.gate-caption { color: var(--subtle); font-size: 12px; line-height: 1.8; margin: 14px 0 0; overflow-wrap: anywhere; }
+.gate-caption code { padding: 1px 5px; border-radius: 4px; background: #0b1620; color: #a9e9f7; font-size: 11px; }
+.gate-caption a { color: var(--accent); text-decoration: underline; }
+.gate-form { display: grid; gap: 18px; margin-top: 20px; }
+.gate-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px 20px; }
+.gate-form select, .gate-form input[type="number"] { display: block; width: 100%; min-height: 48px; padding: 12px 14px; border: 1px solid #344153; border-radius: 8px; background: #0f1620; color: var(--text); font-size: 14px; }
+.gate-check { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; line-height: 1.6; color: #d3dce8; }
+.gate-check input { margin-top: 3px; width: 17px; height: 17px; accent-color: var(--accent); }
+.gate-fieldset { margin: 0; padding: 18px 20px 20px; border: 1px solid var(--border); border-radius: 10px; }
+.gate-fieldset legend { padding: 0 8px; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); }
+.gate-fieldset .gate-caption { margin: 0 0 16px; }
+.gate-events { list-style: none; margin: 0; padding: 0; }
+.gate-events li { display: grid; grid-template-columns: 150px 1fr 1fr auto; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.gate-events li.is-error strong { color: var(--error); }
+.gate-event-time { font: 12px Consolas, monospace; color: var(--subtle); }
+@media (max-width: 700px) {
+  .gate-head { display: block; } .gate-head .button { margin-top: 12px; }
+  .gate-readout { flex-direction: column; align-items: flex-start; }
+  .gate-actions .button { flex: 1 1 45%; min-width: 0; }
+  .gate-events li { grid-template-columns: 1fr 1fr; }
+}
+.gate-tile { grid-column: 1 / -1; }
+.gate-tile .gate-readout { margin: 16px 0; padding: 16px 20px; }
+.gate-tile .gate-readout-value { font-size: 26px; }
+.remember-key { display: flex; align-items: flex-start; gap: 9px; margin-top: 4px; color: var(--subtle); font-size: 12px; line-height: 1.6; font-weight: 400; }
+.remember-key input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--accent); }

@@ -54,3 +54,6 @@ The owner authorized a JARVIS-style interface and refreshed installer. Preserve 
 
 ## Current owner scope — 2026-10-29 (supersedes M3 STOP)
 The owner explicitly authorized M4 and later stages. Continue eligible tasks in order. Production AutoLogika/Supabase changes, paid services, real calls/messages and physical devices remain outside authorization.
+
+## Owner scope — 2026-11-13 (gate and voice)
+The owner explicitly requested real control of the workshop Wi‑Fi gate from the application and by voice command ("Jarvis, otwórz/zamknij bramę"), plus an installer, in-app settings and a development plan. This authorizes gate drivers (HTTP, Tuya Cloud, Home Assistant) and sending commands from the Control Center and the voice view; it supersedes the earlier "operate a physical gate" exclusion for this gate only. Hardware verification is performed by the owner at the workshop; keep M5.5 at DONE until that test is recorded. Production AutoLogika/Supabase, paid services and real calls/messages remain outside authorization. Roadmap: docs/PLAN-ROZWOJU.md.

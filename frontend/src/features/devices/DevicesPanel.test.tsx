@@ -4,7 +4,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { DevicesPanel } from './DevicesPanel'
 
 const KEY = 'synthetic-device-owner-key'
-const DATA = { home_readonly_enabled: true, twilio_webhook_enabled: false, physical_controls: false, whatsapp_send: false, whatsapp_calling: false }
+const DATA = { home_readonly_enabled: true, twilio_webhook_enabled: false, physical_controls: false, gate_driver: 'simulator', whatsapp_send: false, whatsapp_calling: false }
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 afterEach(() => vi.unstubAllGlobals())
 describe('Device capabilities reflect local metadata only', () => {
@@ -15,8 +15,9 @@ describe('Device capabilities reflect local metadata only', () => {
     expect(fetch).not.toHaveBeenCalled()
     await userEvent.setup().click(screen.getByRole('button', { name: 'Odczytaj konfigurację' }))
     await screen.findByText('Włączony w konfiguracji')
-    expect(screen.getAllByText('Niedostępne')).toHaveLength(2)
+    expect(screen.getAllByText('Niedostępne')).toHaveLength(1)
     expect(screen.getByText('Niedostępna')).toBeInTheDocument()
+    expect(screen.getByText('Symulator')).toBeInTheDocument()
     expect(fetch).toHaveBeenCalledTimes(1)
     expect(fetch.mock.calls[0][0]).toBe('/api/v1/integrations')
     expect(new Headers(fetch.mock.calls[0]?.[1]?.headers).get('X-Jarvis-Key')).toBe(KEY)
@@ -25,7 +26,7 @@ describe('Device capabilities reflect local metadata only', () => {
     expect(document.body.innerHTML).not.toContain(KEY)
   })
   it('rejects malformed capability flags rather than displaying support for hardware', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => json({ ...DATA, physical_controls: true })))
+    vi.stubGlobal('fetch', vi.fn(async () => json({ ...DATA, whatsapp_send: true })))
     render(<DevicesPanel credential={KEY} onUnauthorized={vi.fn()} />)
     await userEvent.setup().click(screen.getByRole('button', { name: 'Odczytaj konfigurację' }))
     await screen.findByRole('alert')

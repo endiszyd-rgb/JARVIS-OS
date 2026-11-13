@@ -1,12 +1,13 @@
-# JARVIS OS 0.10.4 — instalacja Windows
+# JARVIS OS 0.11.0 — instalacja Windows
 
-1. Uruchom `JARVIS-OS-0.10.4-HUD3-Setup-x64.exe` na Windows 10/11 x64.
+1. Uruchom `JARVIS-OS-0.11.0-Setup-x64.exe` na Windows 10/11 x64 (budowany przez workflow **Windows installer** w GitHub Actions: *Run workflow* → artefakt, albo tag `v0.11.0` → Release).
 2. Zainstaluj dla swojego użytkownika. Python, biblioteki i gotowy panel są w paczce; nie instaluj osobno Node, Docker ani Pythona.
 3. Uruchom skrót **JARVIS OS**. Otworzy się małe okno startowe oraz panel w domyślnej przeglądarce.
-4. Kliknij **Kopiuj klucz dostępu**, w panelu wybierz **Klucz właściciela**, wklej klucz i zaloguj się.
+4. Kliknij **Kopiuj klucz dostępu**, w panelu wybierz **Klucz właściciela**, wklej klucz, zaznacz „Zapamiętaj klucz na tym komputerze” (tylko zaufane stanowisko) i zaloguj się. Kolejne uruchomienia logują się same.
+5. Brama: widok **Brama** → konfiguracja sterownika; głos: widok **Głos** w Chrome/Edge (zgoda na mikrofon). Szczegóły: [BRAMA-I-GLOS.md](BRAMA-I-GLOS.md).
 5. Obejrzyj Pulpit, Rozmowę, Ustawienia, Pamięć i pozostałe widoki. Domyślny model DEMO pozwala obejrzeć przepływ bez konta AI. Prawdziwe modele i integracje wymagają osobnej konfiguracji.
 
-Serwer nasłuchuje wyłącznie na `127.0.0.1`, na wolnym porcie wybranym przy każdym uruchomieniu. Nie otwiera portu w zaporze i nie uruchamia się automatycznie z Windows. Zamknięcie przeglądarki nie zatrzymuje serwera; zamknij okno startowe JARVIS, aby go zatrzymać. Nie uruchamiaj drugiej kopii z tym samym katalogiem danych.
+Serwer nasłuchuje wyłącznie na `127.0.0.1`, domyślnie na porcie 17321 (`JARVIS_PORT` w `.env`; gdy zajęty — wolny port). Nie otwiera portu w zaporze i nie uruchamia się automatycznie z Windows. Zamknięcie przeglądarki nie zatrzymuje serwera; zamknij okno startowe JARVIS, aby go zatrzymać. Nie uruchamiaj drugiej kopii z tym samym katalogiem danych.
 
 ## Dane i aktualizacja
 
@@ -24,7 +25,11 @@ Wymagane: Windows, Python 3.12, gotowe zależności frontend (`npm ci`), Node i 
 
 ```powershell
 .venv\Scripts\python.exe scripts\build_windows_installer.py --runtime "C:\path\to\standalone-python-3.12" --compiler "C:\path\to\ISCC.exe" --output "C:\path\to\new-build-folder"
+# lub pobierz runtime automatycznie (python-build-standalone, SHA-256 sprawdzane):
+.venv\Scripts\python.exe scripts\build_windows_installer.py --download-runtime --compiler "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" --output "C:\path\to\new-build-folder"
 ```
+
+Ten sam skrypt uruchamia `.github/workflows/windows-installer.yml` na `windows-latest` (choco innosetup, npm ci, szybki podzbiór pytest, build, smoke launchera z zainstalowanego runtime, artefakt; przy tagu `v*` tworzy Release z plikiem .exe i .sha256).
 
 Skrypt wymaga nowego folderu wyniku, kopiuje runtime, instaluje produkcyjne zależności z requirements/lock, kompiluje UI i instalator oraz zapisuje SHA-256. Nie pakuje roboczej bazy, `.env`, node_modules ani `.venv`. Runtime i zależności są zawartością instalatora, nie repozytorium Git. Ich pliki licencji pozostają w paczce.
 

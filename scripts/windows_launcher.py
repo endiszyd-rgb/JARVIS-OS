@@ -17,6 +17,7 @@ import webbrowser
 
 
 APP_ROOT = Path(__file__).resolve().parents[1]
+DEFAULT_PORT = 17321
 
 
 def prepare(data_dir):
@@ -53,7 +54,13 @@ class LocalServer:
         self.thread = None
         self.stopping = threading.Event()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(('127.0.0.1', 0))
+        # A stable port keeps browser-side choices (remembered owner key, microphone permission)
+        # valid between restarts; fall back to a free port when it is taken.
+        preferred = os.environ.get('JARVIS_PORT', str(DEFAULT_PORT))
+        try:
+            self.sock.bind(('127.0.0.1', int(preferred)))
+        except (OSError, ValueError):
+            self.sock.bind(('127.0.0.1', 0))
         self.port = self.sock.getsockname()[1]
         self.url = f'http://127.0.0.1:{self.port}/control/'
 
@@ -125,14 +132,15 @@ def gui(server):
     from tkinter import messagebox
     root = tk.Tk()
     root.title('JARVIS OS')
-    root.geometry('580x360')
+    root.geometry('620x430')
     root.resizable(False, False)
     root.configure(bg='#10151e')
     font = ('Segoe UI', 11)
     tk.Label(root, text='JARVIS OS', font=('Segoe UI', 25, 'bold'), bg='#10151e', fg='#f0f5ff').pack(pady=(25, 4))
     status = tk.StringVar(value='Uruchamianie lokalnego panelu…')
     tk.Label(root, textvariable=status, font=font, bg='#10151e', fg='#9eb7d5').pack(pady=8)
-    tk.Label(root, text='W panelu wybierz „Klucz właściciela”.\nSkopiuj klucz przyciskiem poniżej i wklej go w pole logowania.',
+    tk.Label(root, text='Pierwsze logowanie: wybierz „Klucz właściciela”, skopiuj klucz przyciskiem poniżej\n'
+                        'i zaznacz „Zapamiętaj klucz na tym komputerze”. Komendy głosowe: widok „Głos” w Chrome/Edge.',
              font=font, bg='#10151e', fg='#d3deed').pack(pady=12)
     def copy_key():
         root.clipboard_clear()
@@ -144,6 +152,8 @@ def gui(server):
         item.pack(pady=4)
         return item
     open_button = button('Otwórz panel', lambda: webbrowser.open(server.url))
+    voice_button = button('Otwórz sterowanie głosem', lambda: webbrowser.open(server.url + '#/voice'))
+    voice_button.configure(state='disabled')
     open_button.configure(state='disabled')
     button('Kopiuj klucz dostępu', copy_key)
     button('Otwórz folder danych', lambda: os.startfile(server.data_dir))
@@ -165,6 +175,7 @@ def gui(server):
         if server.ready():
             status.set('Działa lokalnie • ' + server.url)
             open_button.configure(state='normal')
+            voice_button.configure(state='normal')
             webbrowser.open(server.url)
         elif server.error or time.monotonic() > deadline:
             status.set('Nie udało się uruchomić. Sprawdź launcher.log w folderze danych.')
