@@ -1,3 +1,11 @@
+2026-11-26: 0.14.1 — menu w grupach, start na ekranie Warsztat, instrukcja kamer Setti (Tuya) przez go2rtc.
+
+2026-11-26: 0.14.0 — logowanie Face ID / passkeys (schemat 14) i ekran „Warsztat”. Następne: raport poranny (harmonogram), powiadomienia o bramie, test właściciela na iPhonie przez tunel.
+
+2026-11-26: 0.13.0 — raport dnia i części na żywo z AutoLogiki OS (M6.2 IN_PROGRESS). Następne: test właściciela na jego AutoLogice (serwer mobilny + PIN w widoku AutoLogika), logowanie Face ID (passkeys), tryb warsztatowy.
+
+2026-11-26: 0.12.0 — dostęp z telefonu (2FA TOTP, rola operatora, polityka tunelu, kamery go2rtc, komenda części, PWA); M8.1 IN_PROGRESS. Następne: test właściciela przy bramie (M5.5) i przez tunel z 2FA (docs/DOSTEP-ZDALNY.md), potem M5.2 MQTT/katalog urządzeń.
+
 2026-11-06: M5.1 adapter REST/WS i GUI przetestowane laboratoryjnie; realne konto/ACL HA BLOCKED. Następne M5.2: izolowane MQTT/status/reconnect, bez fizycznych urządzeń.
 
 2026-11-06: M4.4 laboratoryjne propozycje/zgody zweryfikowane; realne zapisy BLOCKED. Następne niezależne M5.1.

@@ -6,6 +6,7 @@ PBKDF2-HMAC-SHA256; session secrets are returned once and stored only as SHA-256
 from dataclasses import dataclass
 import hashlib
 import hmac
+import json
 import math
 import re
 import secrets
@@ -16,6 +17,8 @@ import uuid
 
 from fastapi import HTTPException
 
+from . import totp
+
 
 ROLES = MappingProxyType({
     'owner': frozenset({'*'}),
@@ -23,7 +26,10 @@ ROLES = MappingProxyType({
     'home_reader': frozenset({'status:read', 'home:read'}),
     'workshop_reader': frozenset({'status:read', 'workshop:read'}),
     'automation_runner': frozenset({'status:read', 'scheduler:tick'}),
+    # Workshop staff on a phone/tablet: gate, voice commands and camera preview only.
+    'operator': frozenset({'status:read', 'gate:control', 'voice:command', 'cameras:view'}),
 })
+MFA_REQUIRED = 'mfa_required'
 ITERATIONS = 600_000
 MAX_USERS = 256
 MAX_ACTIVE_SESSIONS = 16
@@ -39,24 +45,76 @@ class Principal:
     scopes: frozenset[str]
     username: str | None = None
     expires_at: float | None = None
+    mfa: bool = False
 
     @property
     def is_owner(self):
         return self.role == 'owner'
 
 
+def _role_check():
+    return 'role IN (' + ','.join("'" + name + "'" for name in ROLES) + ')'
+
+
+_USERS_DDL = '''CREATE TABLE IF NOT EXISTS {name}(
+        id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL,
+        role TEXT NOT NULL CHECK({check}),
+        enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), revision INTEGER NOT NULL CHECK(revision>=0),
+        created REAL NOT NULL, updated REAL NOT NULL)'''
+
+
+def _rebuild_users(c):
+    """Schema 13: widen the role CHECK (adds 'operator') keeping ids, hashes and sessions.
+
+    SQLite cannot alter a CHECK constraint, so the table is copied under
+    foreign_keys=OFF inside one transaction (documented SQLite procedure).
+    """
+    if c.in_transaction:
+        c.commit()
+    c.execute('PRAGMA foreign_keys=OFF')
+    try:
+        c.execute('BEGIN IMMEDIATE')
+        c.execute(_USERS_DDL.format(name='identity_users_v13', check=_role_check()))
+        c.execute('INSERT INTO identity_users_v13 SELECT id,username,password_hash,role,enabled,revision,created,updated FROM identity_users')
+        c.execute('DROP TABLE identity_users')
+        c.execute('ALTER TABLE identity_users_v13 RENAME TO identity_users')
+        if c.execute('PRAGMA foreign_key_check').fetchall():
+            raise RuntimeError('Account migration would break session references')
+        c.commit()
+    except BaseException:
+        c.rollback()
+        raise
+    finally:
+        c.execute('PRAGMA foreign_keys=ON')
+
+
 def install(c):
     """Add only JARVIS tables; execute DDL without an implicit transaction commit."""
-    c.execute('''CREATE TABLE IF NOT EXISTS identity_users(
-        id TEXT PRIMARY KEY, username TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL,
-        role TEXT NOT NULL CHECK(role IN ('owner','observer','home_reader','workshop_reader','automation_runner')),
-        enabled INTEGER NOT NULL CHECK(enabled IN (0,1)), revision INTEGER NOT NULL CHECK(revision>=0),
-        created REAL NOT NULL, updated REAL NOT NULL)''')
+    row = c.execute("SELECT sql FROM sqlite_master WHERE type='table' AND name='identity_users'").fetchone()
+    if row is None:
+        c.execute(_USERS_DDL.format(name='identity_users', check=_role_check()))
+    elif "'operator'" not in row[0]:
+        _rebuild_users(c)
     c.execute('''CREATE TABLE IF NOT EXISTS identity_sessions(
         id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES identity_users(id) ON DELETE CASCADE,
         token_digest TEXT NOT NULL UNIQUE, expires_at REAL NOT NULL,
-        revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)), created REAL NOT NULL)''')
+        revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)), created REAL NOT NULL,
+        mfa INTEGER NOT NULL DEFAULT 0 CHECK(mfa IN (0,1)))''')
+    columns = {item[1] for item in c.execute('PRAGMA table_info(identity_sessions)')}
+    if 'mfa' not in columns:
+        c.execute('ALTER TABLE identity_sessions ADD COLUMN mfa INTEGER NOT NULL DEFAULT 0 CHECK(mfa IN (0,1))')
     c.execute('CREATE INDEX IF NOT EXISTS identity_sessions_user ON identity_sessions(user_id)')
+    c.execute('''CREATE TABLE IF NOT EXISTS identity_mfa(
+        user_id TEXT PRIMARY KEY REFERENCES identity_users(id) ON DELETE CASCADE,
+        secret TEXT NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),
+        last_step INTEGER NOT NULL DEFAULT 0, backup_codes TEXT NOT NULL DEFAULT '[]',
+        created REAL NOT NULL, updated REAL NOT NULL)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS identity_passkeys(
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES identity_users(id) ON DELETE CASCADE,
+        credential_id TEXT NOT NULL UNIQUE, public_key BLOB NOT NULL, sign_count INTEGER NOT NULL CHECK(sign_count>=0),
+        name TEXT NOT NULL, transports TEXT NOT NULL DEFAULT '[]', created REAL NOT NULL, last_used REAL,
+        rp_id TEXT NOT NULL)''')
+    c.execute('CREATE INDEX IF NOT EXISTS identity_passkeys_user ON identity_passkeys(user_id)')
 
 
 def _transaction(c):
@@ -121,9 +179,12 @@ _DUMMY_PASSWORD = b'non-account password used only for verification work'
 _DUMMY_HASH = _hash_password(_DUMMY_PASSWORD)
 
 
-def _user(row):
-    return {name: (bool(row[name]) if name == 'enabled' else row[name])
+def _user(row, c=None):
+    data = {name: (bool(row[name]) if name == 'enabled' else row[name])
             for name in ('id', 'username', 'role', 'enabled', 'revision', 'created', 'updated')}
+    if c is not None:
+        data['mfa_enabled'] = c.execute('SELECT 1 FROM identity_mfa WHERE user_id=? AND enabled=1', (row['id'],)).fetchone() is not None
+    return data
 
 
 def create_user(c, username, password: str, role):
@@ -145,11 +206,11 @@ def create_user(c, username, password: str, role):
                   (ident, username, _hash_password(encoded), role, now, now))
     except sqlite3.IntegrityError:
         raise HTTPException(409, 'Account username already exists') from None
-    return _user(_one(c, 'SELECT * FROM identity_users WHERE id=?', (ident,)))
+    return _user(_one(c, 'SELECT * FROM identity_users WHERE id=?', (ident,)), c)
 
 
 def list_users(c):
-    return [_user(row) for row in _all(c, 'SELECT * FROM identity_users ORDER BY created,id')]
+    return [_user(row, c) for row in _all(c, 'SELECT * FROM identity_users ORDER BY created,id')]
 
 
 def change_user(c, ident, revision, role=None, enabled=None):
@@ -171,10 +232,10 @@ def change_user(c, ident, revision, role=None, enabled=None):
               (row['role'] if role is None else role, row['enabled'] if enabled is None else int(enabled),
                _now(), row['id']))
     c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (row['id'],))
-    return _user(_one(c, 'SELECT * FROM identity_users WHERE id=?', (row['id'],)))
+    return _user(_one(c, 'SELECT * FROM identity_users WHERE id=?', (row['id'],)), c)
 
 
-def issue_session(c, username, password, ttl_seconds, now=None):
+def issue_session(c, username, password, ttl_seconds, now=None, otp=None):
     """Verify credentials, prune expired/revoked rows and allow <=16 live sessions.
 
     A successful seventeenth login revokes the oldest session. Revoked metadata
@@ -192,6 +253,17 @@ def issue_session(c, username, password, ttl_seconds, now=None):
     matched = _verify_password(encoded if encoded is not None else _DUMMY_PASSWORD, stored)
     if row is None or not row['enabled'] or encoded is None or not matched or row['role'] not in ROLES:
         return None
+    second = _one(c, 'SELECT * FROM identity_mfa WHERE user_id=? AND enabled=1', (row['id'],))
+    if second is not None:
+        if otp is None or otp == '':
+            return MFA_REQUIRED
+        if not _consume_second_factor(c, second, otp, at):
+            return None
+    return _open_session(c, row, ttl_seconds, at, mfa=second is not None)
+
+
+def _open_session(c, row, ttl_seconds, at, mfa):
+    """Prune, enforce <=16 live sessions per account and store only the token digest."""
     c.execute('DELETE FROM identity_sessions WHERE expires_at<=? OR revoked=1', (at,))
     active = _all(c, 'SELECT id FROM identity_sessions WHERE user_id=? AND revoked=0 ORDER BY created,id',
                   (row['id'],))
@@ -200,9 +272,9 @@ def issue_session(c, username, password, ttl_seconds, now=None):
         c.executemany('UPDATE identity_sessions SET revoked=1 WHERE id=?',
                       [(item['id'],) for item in active[:len(active) - MAX_ACTIVE_SESSIONS + 1]])
     ident, token, expires = str(uuid.uuid4()), secrets.token_urlsafe(32), at + ttl_seconds
-    c.execute('INSERT INTO identity_sessions VALUES(?,?,?,?,0,?)',
-              (ident, row['id'], hashlib.sha256(token.encode()).hexdigest(), expires, at))
-    return {'session_id': ident, 'token': token, 'expires_at': expires, 'user': _user(row)}
+    c.execute('INSERT INTO identity_sessions(id,user_id,token_digest,expires_at,revoked,created,mfa) VALUES(?,?,?,?,0,?,?)',
+              (ident, row['id'], hashlib.sha256(token.encode()).hexdigest(), expires, at, int(bool(mfa))))
+    return {'session_id': ident, 'token': token, 'expires_at': expires, 'user': _user(row, c), 'mfa': bool(mfa)}
 
 
 def _token_digest(token):
@@ -215,21 +287,21 @@ def resolve_session(c, token, now=None):
     digest = _token_digest(token)
     if digest is None:
         return None
-    row = _one(c, '''SELECT u.id,u.username,u.role,u.enabled,s.expires_at,s.revoked
+    row = _one(c, '''SELECT u.id,u.username,u.role,u.enabled,s.expires_at,s.revoked,s.mfa
                     FROM identity_sessions s JOIN identity_users u ON u.id=s.user_id
                     WHERE s.token_digest=?''', (digest,))
     if (row is None or not row['enabled'] or row['revoked'] or
             row['expires_at'] <= _now(now) or row['role'] not in ROLES):
         return None
     return Principal(id=row['id'], kind='session', role=row['role'], scopes=ROLES[row['role']],
-                     username=row['username'], expires_at=row['expires_at'])
+                     username=row['username'], expires_at=row['expires_at'], mfa=bool(row['mfa']))
 
 
 def list_sessions(c):
-    rows = _all(c, '''SELECT s.id,s.user_id,u.username,u.role,s.expires_at,s.revoked,s.created
+    rows = _all(c, '''SELECT s.id,s.user_id,u.username,u.role,s.expires_at,s.revoked,s.created,s.mfa
                      FROM identity_sessions s JOIN identity_users u ON u.id=s.user_id
                      ORDER BY s.created DESC,s.id''')
-    return [{**row, 'revoked': bool(row['revoked'])} for row in rows]
+    return [{**row, 'revoked': bool(row['revoked']), 'mfa': bool(row['mfa'])} for row in rows]
 
 
 def revoke_session(c, ident):
@@ -250,3 +322,132 @@ def logout(c, token, now=None):
         return None
     c.execute('UPDATE identity_sessions SET revoked=1 WHERE id=?', (row['id'],))
     return row['id']
+
+
+# --------------------------------------------------------------------------- second factor (TOTP)
+
+def _consume_second_factor(c, second, otp, at):
+    """Accept a fresh TOTP step or an unused backup code; both are single-use."""
+    step = totp.verify(second['secret'], otp, second['last_step'], now=at)
+    if step is not None:
+        c.execute('UPDATE identity_mfa SET last_step=?,updated=? WHERE user_id=?', (step, at, second['user_id']))
+        return True
+    digest = totp.backup_digest(otp)
+    codes = json.loads(second['backup_codes'])
+    matched = next((item for item in codes if digest is not None and hmac.compare_digest(item, digest)), None)
+    if matched is None:
+        return False
+    codes.remove(matched)
+    c.execute('UPDATE identity_mfa SET backup_codes=?,updated=? WHERE user_id=?', (json.dumps(codes), at, second['user_id']))
+    return True
+
+
+def mfa_status(c, user_id):
+    row = _one(c, 'SELECT enabled,backup_codes FROM identity_mfa WHERE user_id=?', (str(user_id),))
+    if row is None:
+        return {'enabled': False, 'pending': False, 'backup_codes_left': 0}
+    return {'enabled': bool(row['enabled']), 'pending': not row['enabled'],
+            'backup_codes_left': len(json.loads(row['backup_codes'])) if row['enabled'] else 0}
+
+
+def mfa_begin(c, user_id, username):
+    """Create (or replace) a pending secret; an active second factor must be disabled first."""
+    _transaction(c)
+    current = _one(c, 'SELECT enabled FROM identity_mfa WHERE user_id=?', (str(user_id),))
+    if current is not None and current['enabled']:
+        raise HTTPException(409, 'Second factor is already enabled')
+    secret, now = totp.new_secret(), _now()
+    c.execute('INSERT OR REPLACE INTO identity_mfa VALUES(?,?,0,0,?,?,?)', (str(user_id), secret, '[]', now, now))
+    return {'secret': secret, 'uri': totp.provisioning_uri(secret, username),
+            'period': totp.PERIOD, 'digits': totp.DIGITS}
+
+
+def mfa_enable(c, user_id, code):
+    _transaction(c)
+    row = _one(c, 'SELECT * FROM identity_mfa WHERE user_id=?', (str(user_id),))
+    if row is None or row['enabled']:
+        raise HTTPException(409, 'Start second-factor setup first')
+    step = totp.verify(row['secret'], code, 0)
+    if step is None:
+        raise HTTPException(422, 'Invalid authenticator code')
+    codes = totp.backup_codes()
+    c.execute('UPDATE identity_mfa SET enabled=1,last_step=?,backup_codes=?,updated=? WHERE user_id=?',
+              (step, json.dumps([totp.backup_digest(item) for item in codes]), _now(), row['user_id']))
+    return {'enabled': True, 'backup_codes': codes}
+
+
+def mfa_disable(c, user_id, password, code):
+    """Self-service removal needs the password and a current code; revokes all sessions."""
+    _transaction(c)
+    user = _one(c, 'SELECT * FROM identity_users WHERE id=?', (str(user_id),))
+    second = _one(c, 'SELECT * FROM identity_mfa WHERE user_id=? AND enabled=1', (str(user_id),))
+    encoded = _password_bytes(password)
+    if user is None or second is None:
+        raise HTTPException(409, 'Second factor is not enabled')
+    if encoded is None or not _verify_password(encoded, user['password_hash']) or not _consume_second_factor(c, second, code, _now()):
+        raise HTTPException(401, 'Invalid credentials')
+    c.execute('DELETE FROM identity_mfa WHERE user_id=?', (user['id'],))
+    c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (user['id'],))
+    return {'enabled': False}
+
+
+def mfa_reset(c, user_id):
+    """Owner recovery (lost phone): remove the factor and revoke the account's sessions."""
+    _transaction(c)
+    if _one(c, 'SELECT id FROM identity_users WHERE id=?', (str(user_id),)) is None:
+        raise HTTPException(404, 'Account missing')
+    removed = c.execute('DELETE FROM identity_mfa WHERE user_id=?', (str(user_id),)).rowcount > 0
+    removed = c.execute('DELETE FROM identity_passkeys WHERE user_id=?', (str(user_id),)).rowcount > 0 or removed
+    c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (str(user_id),))
+    return {'reset': removed}
+
+
+# --------------------------------------------------------------------------- passkeys (WebAuthn: Face ID / Touch ID / Windows Hello)
+
+MAX_PASSKEYS = 10
+
+
+def passkey_list(c, user_id):
+    return [{**row, 'transports': json.loads(row['transports'])} for row in
+            _all(c, 'SELECT id,name,transports,created,last_used,rp_id FROM identity_passkeys WHERE user_id=? ORDER BY created,id', (str(user_id),))]
+
+
+def passkey_credentials(c, user_id, rp_id=None):
+    sql, values = 'SELECT credential_id FROM identity_passkeys WHERE user_id=?', [str(user_id)]
+    if rp_id is not None:
+        sql, values = sql + ' AND rp_id=?', values + [rp_id]
+    return [row['credential_id'] for row in _all(c, sql, tuple(values))]
+
+
+def passkey_add(c, user_id, credential_id, public_key, sign_count, name, transports, rp_id):
+    _transaction(c)
+    if c.execute('SELECT count(*) FROM identity_passkeys WHERE user_id=?', (str(user_id),)).fetchone()[0] >= MAX_PASSKEYS:
+        raise HTTPException(409, 'Passkey limit reached; remove an old device first')
+    if c.execute('SELECT 1 FROM identity_passkeys WHERE credential_id=?', (credential_id,)).fetchone():
+        raise HTTPException(409, 'This passkey is already registered')
+    ident = str(uuid.uuid4())
+    c.execute('INSERT INTO identity_passkeys(id,user_id,credential_id,public_key,sign_count,name,transports,created,last_used,rp_id) VALUES(?,?,?,?,?,?,?,?,NULL,?)',
+              (ident, str(user_id), credential_id, public_key, int(sign_count), name, json.dumps(list(transports)[:8]), _now(), rp_id))
+    return next(item for item in passkey_list(c, user_id) if item['id'] == ident)
+
+
+def passkey_delete(c, user_id, ident):
+    _transaction(c)
+    return c.execute('DELETE FROM identity_passkeys WHERE id=? AND user_id=?', (str(ident), str(user_id))).rowcount > 0
+
+
+def passkey_lookup(c, credential_id, rp_id):
+    """Credential registered for this RP with its enabled account, or None (unknown, other domain, disabled)."""
+    row = _one(c, '''SELECT p.id passkey_id,p.public_key,p.sign_count,u.* FROM identity_passkeys p
+                    JOIN identity_users u ON u.id=p.user_id WHERE p.credential_id=? AND p.rp_id=?''', (credential_id, rp_id))
+    if row is None or not row['enabled'] or row['role'] not in ROLES:
+        return None
+    return row
+
+
+def passkey_login(c, row, new_sign_count, ttl_seconds, now=None):
+    """A verified passkey with user verification (Face ID/PIN) counts as two factors."""
+    _transaction(c)
+    at = _now(now)
+    c.execute('UPDATE identity_passkeys SET sign_count=?,last_used=? WHERE id=?', (int(new_sign_count), at, row['passkey_id']))
+    return _open_session(c, row, ttl_seconds, at, mfa=True)

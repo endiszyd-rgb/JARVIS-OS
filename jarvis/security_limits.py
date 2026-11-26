@@ -8,6 +8,8 @@ import re
 import time
 from urllib.parse import urlsplit
 
+from .remote_access import client_key
+
 
 def _origins(values):
     result = []
@@ -110,7 +112,7 @@ class RateLimit:
         if scope['type'] != 'http' or scope['method'] == 'OPTIONS' or not (path == '/api' or path.startswith('/api/')):
             return await self.app(scope, receive, send)
         now = self.clock()
-        peer = (scope.get('client') or ('unknown',))[0]
+        peer = client_key(scope)
         window = self._clients.get(peer)
         if window is None or now - window.start >= 60:
             self._clients = {client: entry for client, entry in self._clients.items() if now - entry.start < 60}
@@ -123,7 +125,7 @@ class RateLimit:
         window.api += 1
         if path.startswith('/api/v1/'):
             path = '/api/' + path[len('/api/v1/'):]
-        if path.rstrip('/') == '/api/auth/login':
+        if path.rstrip('/') in ('/api/auth/login', '/api/auth/passkeys/login/verify'):
             if window.login >= self.config.login_per_minute:
                 return await self._reject(send, window.start + 60 - now)
             window.login += 1

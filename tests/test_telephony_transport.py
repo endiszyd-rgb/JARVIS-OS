@@ -367,15 +367,15 @@ def test_schema10_migration_backup_preserves_legacy_reception_memory_and_policy(
     assert migrated.get('/api/memory').json()[0]['id']==note
     assert migrated.get('/api/telephony/settings').json()==before_policy
     assert migrated.get('/api/telephony/transport/calls').json()==[]
-    copies=list((c.path.parent/'backups').glob('before-schema12-*.sqlite3'));assert len(copies)==1
+    copies=list((c.path.parent/'backups').glob('before-schema14-*.sqlite3'));assert len(copies)==1
     with sqlite3.connect(copies[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==10
         assert db.execute('SELECT id FROM reception_calls').fetchone()[0]==old['id']
         assert db.execute('SELECT text FROM memory').fetchone()[0]=='Ręczna notatka sprzed transportu'
         assert db.execute("SELECT name FROM sqlite_master WHERE name='transport_calls'").fetchone() is None
-    with sqlite3.connect(c.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==12
+    with sqlite3.connect(c.path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==14
     create_app(c.path,KEY)
-    assert len(list((c.path.parent/'backups').glob('before-schema12-*.sqlite3')))==1
+    assert len(list((c.path.parent/'backups').glob('before-schema14-*.sqlite3')))==1
 
 
 def test_bound_reception_cannot_be_mutated_or_deleted_through_old_owner_lab_routes(client):

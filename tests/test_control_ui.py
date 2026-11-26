@@ -50,3 +50,27 @@ def test_control_ui_does_not_create_missing_database_for_stale_header(tmp_path,p
         assert not database.exists()
         assert response.headers['Content-Security-Policy'].startswith("default-src 'self'")
         assert 'unsafe-inline' not in response.headers['Content-Security-Policy']
+
+
+def test_pwa_manifest_and_icons_are_served_with_an_allowlist(tmp_path):
+    base=tmp_path/'dist';base.mkdir()
+    (base/'index.html').write_text('<!doctype html>')
+    (base/'manifest.webmanifest').write_text('{"name":"JARVIS"}')
+    (base/'icon.svg').write_text('<svg/>')
+    (base/'secret.txt').write_text('Synthetic private file')
+    app=FastAPI();mount(app,base)
+    with TestClient(app) as c:
+        manifest=c.get('/control/manifest.webmanifest')
+        assert manifest.status_code==200 and manifest.headers['content-type'].startswith('application/manifest+json')
+        assert c.get('/control/icon.svg').headers['content-type'].startswith('image/svg+xml')
+        assert c.get('/control/icon-maskable.svg').status_code==404  # allowed name but not built
+        for name in ('secret.txt','index.html','..%2fsecret.txt'):
+            assert c.get('/control/'+name).status_code==404
+
+
+def test_repository_manifest_is_valid_and_scoped_to_the_panel():
+    import json
+    from pathlib import Path
+    data=json.loads((Path(__file__).resolve().parents[1]/'frontend'/'public'/'manifest.webmanifest').read_text(encoding='utf-8'))
+    assert data['scope']=='/control/' and data['start_url'].startswith('/control/') and data['display']=='standalone'
+    assert {item['src'] for item in data['icons']}=={'/control/icon.svg','/control/icon-maskable.svg'}

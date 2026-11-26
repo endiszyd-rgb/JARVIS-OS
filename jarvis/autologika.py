@@ -91,3 +91,173 @@ def capabilities():
                         'Shared upstream PIN is not per-customer authorization',
                         'Snapshot is offline, not synchronization'],
     }
+
+
+# --------------------------------------------------------------------------- live workshop brief (0.12.1)
+# Re-audited 2026-11-26 against Autologika-OS bcdc364 (2026-11-21): electron/main.cjs createMobileServer
+# still serves GET /api/orders (orderSelect, status!='WYDANE', LIMIT 100) and GET /api/order/{id}
+# ({order, notes, diag, parts=job_part_orders+supplier, payments}); schema 18; job-part-workflow.cjs
+# defines the part statuses below and keeps orders.wait_state='CZESCI' while blocking parts exist.
+LIVE_AUDITED_COMMIT = 'bcdc364770ace83675ee7c2c7e6967d15dcf1197'
+PARTS_TO_ORDER = frozenset({'DO_ZAMOWIENIA'})
+PARTS_ON_ORDER = frozenset({'ZAMOWIONE', 'W_DRODZE'})
+ORDER_STATUS_LABELS = {
+    'PRZYJETE': 'przyjęte', 'DIAGNOZA': 'diagnoza', 'WYCENA': 'wycena', 'AKCEPTACJA': 'czeka na akceptację',
+    'NAPRAWA': 'naprawa', 'QC_NAPRAWY': 'kontrola naprawy', 'QC_WYDANIA': 'kontrola wydania',
+    'PLATNOSC': 'płatność', 'GOTOWE': 'gotowe do odbioru', 'WYDANE': 'wydane',
+}
+MAX_DETAIL_READS = 15
+
+from pydantic import BaseModel, ConfigDict, Field, ValidationError  # noqa: E402
+
+SECRET_MASK = '••••••'
+
+
+class ConnectionConfig(BaseModel):
+    """Live read-only connection kept in JARVIS settings (overrides the .env variables when enabled)."""
+    model_config = ConfigDict(extra='forbid')
+    enabled: bool = False
+    url: str = Field(default='http://127.0.0.1:8787', max_length=200)
+    pin: str = Field(default='', max_length=12)
+
+    def masked(self):
+        return {'enabled': self.enabled, 'url': self.url, 'pin': SECRET_MASK if self.pin else '', 'pin_set': bool(self.pin)}
+
+    def adapter(self, transport=None):
+        return AutoLogikaReadOnly(self.url, self.pin, transport=transport)
+
+
+def load_connection(c):
+    row = c.execute("SELECT value,revision FROM device_config WHERE id='autologika'").fetchone()
+    if row is None:
+        return ConnectionConfig(), 0
+    try:
+        return ConnectionConfig.model_validate_json(row[0]), row[1]
+    except ValidationError:
+        return ConnectionConfig(), row[1]
+
+
+def save_connection(c, incoming, expected_revision):
+    import time
+    previous, revision = load_connection(c)
+    if expected_revision != revision:
+        raise HTTPException(409, 'AutoLogika connection changed; reload and retry')
+    if not isinstance(incoming, dict):
+        raise HTTPException(422, 'Invalid AutoLogika connection')
+    incoming = dict(incoming)
+    incoming.pop('pin_set', None)
+    if incoming.get('pin', '') in ('', SECRET_MASK):
+        incoming['pin'] = previous.pin
+    try:
+        config = ConnectionConfig(**incoming)
+        if config.enabled or config.pin:
+            config.adapter()  # validates origin and PIN format
+    except (ValidationError, TypeError, ValueError) as exc:
+        raise HTTPException(422, 'Invalid AutoLogika connection: ' + (str(exc).splitlines()[0] if isinstance(exc, ValueError) and not isinstance(exc, ValidationError) else 'check URL and 6–12 digit PIN')) from None
+    if c.execute("SELECT 1 FROM device_config WHERE id='autologika'").fetchone():
+        c.execute("UPDATE device_config SET value=?,revision=revision+1,updated=? WHERE id='autologika'", (config.model_dump_json(), time.time()))
+    else:
+        c.execute("INSERT INTO device_config VALUES('autologika',?,1,?)", (config.model_dump_json(), time.time()))
+    return config, revision + 1
+
+
+def live_adapter(stored: ConnectionConfig | None, transport=None):
+    """Settings from the panel win; otherwise the legacy .env variables; otherwise 503."""
+    if stored is not None and stored.enabled:
+        try:
+            return stored.adapter(transport)
+        except ValueError:
+            raise HTTPException(503, 'Configure the AutoLogika address and PIN in JARVIS') from None
+    adapter = configured_adapter()
+    if transport is not None:
+        adapter.transport = transport
+    return adapter
+
+
+def _summary(order):
+    keys = ('id', 'title', 'status', 'wait_state', 'due_at', 'plate', 'make', 'model', 'customer', 'opened_at')
+    data = {key: order.get(key) for key in keys}
+    data['status_label'] = ORDER_STATUS_LABELS.get(str(order.get('status') or ''), str(order.get('status') or '').lower())
+    return data
+
+
+def _date(value):
+    """Local calendar day of an AutoLogika date: plain 'YYYY-MM-DD' or ISO timestamps (often UTC 'Z')."""
+    from datetime import datetime
+    text = str(value or '').strip()
+    if len(text) > 10 and ('T' in text or ' ' in text):
+        try:
+            moment = datetime.fromisoformat(text.replace('Z', '+00:00'))
+            if moment.tzinfo is not None:
+                moment = moment.astimezone()
+            return moment.strftime('%Y-%m-%d')
+        except ValueError:
+            pass
+    return text[:10]
+
+
+async def brief(adapter, today: str):
+    """Today's workshop picture from the live read-only API: no writes, at most 1 + 15 GET requests."""
+    orders = (await adapter.read())['data']
+    open_orders = [row for row in orders if row.get('status') != 'WYDANE']
+    by_status = {}
+    for row in open_orders:
+        key = str(row.get('status') or 'NIEZNANY')
+        by_status[key] = by_status.get(key, 0) + 1
+    active = [row for row in open_orders if row.get('status') not in ('GOTOWE', 'WYDANE')]
+    due_today = [_summary(row) for row in active if _date(row.get('due_at')) == today]
+    overdue = [_summary(row) for row in active if row.get('due_at') and _date(row.get('due_at')) < today]
+    ready = [_summary(row) for row in open_orders if row.get('status') == 'GOTOWE']
+    waiting_customer = [_summary(row) for row in open_orders if row.get('wait_state') in ('KLIENT', 'DECYZJA') or row.get('status') == 'AKCEPTACJA']
+    parts_orders = [row for row in open_orders if row.get('wait_state') == 'CZESCI']
+    to_order, on_order = [], []
+    for row in parts_orders[:MAX_DETAIL_READS]:
+        detail = (await adapter.read(row['id']))['data']
+        for part in detail['parts']:
+            status = str(part.get('status') or '').upper()
+            item = {'order_id': row['id'], 'plate': row.get('plate'), 'name': part.get('name'), 'part_no': part.get('part_no'),
+                    'qty': part.get('qty'), 'status': status, 'supplier': part.get('supplier'), 'expected_at': part.get('expected_at')}
+            if status in PARTS_TO_ORDER:
+                to_order.append(item)
+            elif status in PARTS_ON_ORDER:
+                on_order.append(item)
+    return {'mode': 'live_readonly', 'audited_commit': LIVE_AUDITED_COMMIT, 'date': today,
+            'open_orders': len(open_orders), 'by_status': by_status, 'due_today': due_today, 'overdue': overdue,
+            'ready': ready, 'waiting_customer': waiting_customer, 'waiting_parts_orders': len(parts_orders),
+            'to_order': to_order, 'on_order': on_order, 'partial': len(parts_orders) > MAX_DETAIL_READS or len(orders) >= 100,
+            'limitations': 'Live list excludes WYDANE and is capped at 100 orders; parts read only for orders waiting for parts (max 15).'}
+
+
+def _vehicle(item):
+    return ' '.join(str(item.get(key)) for key in ('make', 'model') if item.get(key)) or (item.get('title') or 'zlecenie')
+
+
+def _part(item):
+    label = item.get('name') or item.get('part_no') or 'część'
+    return label + (f" ({item['plate']})" if item.get('plate') else f" (zlecenie {item['order_id']})")
+
+
+def brief_text(data):
+    parts = [f"Otwartych zleceń: {data['open_orders']}."]
+    if data['due_today']:
+        parts.append('Na dziś: ' + ', '.join(f"{_vehicle(item)} {item.get('plate') or ''} — {item['status_label']}".replace('  ', ' ') for item in data['due_today'][:6]) + '.')
+    if data['overdue']:
+        parts.append(f"Po terminie: {len(data['overdue'])}.")
+    if data['ready']:
+        parts.append('Gotowe do odbioru: ' + ', '.join(f"{_vehicle(item)} {item.get('plate') or ''}".strip() for item in data['ready'][:6]) + '.')
+    if data['waiting_customer']:
+        parts.append(f"Czeka na decyzję klienta: {len(data['waiting_customer'])}.")
+    return ' '.join(parts) + ' ' + parts_text(data)
+
+
+def parts_text(data):
+    bits = []
+    if data['to_order']:
+        bits.append('Do zamówienia: ' + ', '.join(_part(item) for item in data['to_order'][:8]) + (f" i {len(data['to_order']) - 8} więcej" if len(data['to_order']) > 8 else '') + '.')
+    if data['on_order']:
+        bits.append('Zamówione, w drodze: ' + ', '.join(_part(item) for item in data['on_order'][:8]) + (f" i {len(data['on_order']) - 8} więcej" if len(data['on_order']) > 8 else '') + '.')
+    if not bits:
+        bits.append('Żadne zlecenie nie czeka na części.')
+    if data.get('partial'):
+        bits.append('(lista może być niepełna)')
+    return ' '.join(bits)

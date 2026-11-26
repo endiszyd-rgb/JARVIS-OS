@@ -8,7 +8,7 @@ import { afterWakeWord, encodeWav16k, looksLikeDeviceCommand, recognitionConstru
 import type { RecognitionLike } from './recognition'
 import './voice.css'
 
-interface Props { credential: string; onUnauthorized: () => void }
+interface Props { credential: string; onUnauthorized: () => void; owner?: boolean }
 type Phase = 'off' | 'listening' | 'armed' | 'processing' | 'speaking' | 'confirming' | 'recording'
 interface Line { id: number; who: 'you' | 'jarvis' | 'system'; text: string }
 const phaseLabel: Record<Phase, string> = { off: 'WYŁĄCZONY', listening: 'NASŁUCH', armed: 'SŁUCHAM POLECENIA', processing: 'PRZETWARZANIE', speaking: 'MÓWIĘ', confirming: 'CZEKAM NA „TAK”', recording: 'NAGRYWANIE' }
@@ -16,7 +16,7 @@ const message = (error: unknown) => error instanceof ApiError ? error.message : 
 
 export function VoicePanel(props: Props) { return <VoiceWorkspace key={props.credential} {...props} /> }
 
-function VoiceWorkspace({ credential, onUnauthorized }: Props) {
+function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
   const [config, setConfig] = useState<VoiceConfig>(defaultVoiceConfig)
   const [revision, setRevision] = useState(0)
   const [wyomingAvailable, setWyomingAvailable] = useState(false)
@@ -46,7 +46,8 @@ function VoiceWorkspace({ credential, onUnauthorized }: Props) {
 
   useEffect(() => {
     const controller = new AbortController()
-    Promise.all([readVoiceConfig(credential, controller.signal), readGate(credential, controller.signal)]).then(([voice, overview]) => {
+    const voiceSettings = owner ? readVoiceConfig(credential, controller.signal) : Promise.resolve({ config: defaultVoiceConfig, revision: 0, wyomingAvailable: false })
+    Promise.all([voiceSettings, readGate(credential, controller.signal)]).then(([voice, overview]) => {
       if (controller.signal.aborted) return
       setConfig(voice.config); setRevision(voice.revision); setWyomingAvailable(voice.wyomingAvailable); setGate(overview.gate)
     }).catch(failure => { if (!controller.signal.aborted) { if (failure instanceof ApiError && failure.status === 401) unauthorized.current(); else setError(message(failure)) } })
@@ -104,7 +105,7 @@ function VoiceWorkspace({ credential, onUnauthorized }: Props) {
     }
     setPhaseBoth('processing'); setBusy(true)
     try {
-      const reply = await sendVoiceMessage(credential, new AbortController().signal, trimmed, session.current)
+      const reply = await sendVoiceMessage(credential, new AbortController().signal, trimmed, session.current, !owner)
       session.current = reply.session_id
       say('jarvis', reply.reply)
       if (reply.device?.gate) setGate(reply.device.gate)
@@ -261,7 +262,7 @@ function VoiceWorkspace({ credential, onUnauthorized }: Props) {
       <p className="voice-caption"><Ear aria-hidden="true" /> Przykłady: „{config.wake_word}, otwórz bramę”, „{config.wake_word}, zamknij bramę”, „{config.wake_word}, brama stop”, „{config.wake_word}, jaki jest stan bramy”. Gdy brama wymaga potwierdzenia, odpowiedz „tak” lub „nie”.</p>
     </section>
 
-    <section className="panel" aria-labelledby="voice-settings-title">
+    {owner && <section className="panel" aria-labelledby="voice-settings-title">
       <div className="voice-head"><div><h2 className="panel-heading" id="voice-settings-title"><Settings2 aria-hidden="true" />Ustawienia głosu</h2><p className="panel-description">Zapisywane w JARVIS dla właściciela. Zmiana silnika wyłącza bieżący nasłuch.</p></div>
         {!draft && <button type="button" className="button subtle" onClick={() => setDraft({ ...config })} disabled={busy}>Edytuj</button>}</div>
       {draft && <div className="voice-form">
@@ -276,6 +277,6 @@ function VoiceWorkspace({ credential, onUnauthorized }: Props) {
         <div className="voice-actions"><button type="button" className="button primary" disabled={busy} onClick={() => { stopAll(); void saveSettings() }}><Save aria-hidden="true" />Zapisz</button><button type="button" className="button secondary" disabled={busy} onClick={() => setDraft(null)}>Anuluj</button></div>
       </div>}
       {!draft && <dl className="voice-summary"><div><dt>Silnik</dt><dd>{config.engine === 'browser' ? 'Przeglądarka' : 'Wyoming'}</dd></div><div><dt>Słowo aktywujące</dt><dd>{config.wake_listening ? config.wake_word : 'wyłączone'}</dd></div><div><dt>Odpowiedzi na głos</dt><dd>{config.speak_replies ? 'tak' : 'nie'}</dd></div><div><dt>Zdania do modelu</dt><dd>{config.send_to_model ? 'tak' : 'tylko urządzenia'}</dd></div></dl>}
-    </section>
+    </section>}
   </div>
 }

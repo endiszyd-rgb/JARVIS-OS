@@ -33,6 +33,10 @@ function server(handler?: Handler) {
     if (path === '/api/v1/status') return response(STATUS)
     if (path === '/health') return response({ status: 'ok', version: '0.8.9' })
     if (path === '/ready') return response(READY)
+    // workshop screen (owner landing): gate tile, cameras and today's AutoLogika brief
+    if (path === '/api/v1/devices/gate') return response({ detail: 'Gate unavailable in this test' }, 503)
+    if (path === '/api/v1/cameras') return response({ enabled: false, refresh_ms: 1000, cameras: [] })
+    if (path === '/api/v1/autologika/today') return response({ detail: 'Read-only integration explicitly disabled' }, 503)
     throw new Error('Unexpected test request: ' + path)
   })
   vi.stubGlobal('fetch', fetcher)
@@ -44,6 +48,8 @@ async function keyLogin() {
   await user.click(screen.getByRole('button', { name: 'Klucz właściciela' }))
   await user.type(screen.getByLabelText('Klucz dostępu', { exact: true }), KEY)
   await user.click(screen.getByRole('button', { name: 'Połącz kluczem' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })  // the owner lands on the workshop screen
+  await user.click(within(document.querySelector('.sidebar-nav') as HTMLElement).getByRole('link', { name: 'Pulpit' }))
   await screen.findByRole('heading', { name: 'Pulpit', level: 1 })
   await screen.findByRole('article', { name: 'Pamięć' })
   return user
@@ -272,4 +278,88 @@ it.each([
   await screen.findByRole('heading', { name: 'Dostęp właściciela' })
   const allowed = new Set(['/api/v1/auth/login', '/api/v1/auth/me', '/api/v1/status', '/health', '/ready'])
   expect(calls.every(call => allowed.has(call.path))).toBe(true)
+})
+
+it('sends the 2FA code with the account login and explains a missing code', async () => {
+  let attempt = 0
+  const calls = server(path => {
+    if (path !== '/api/v1/auth/login') return undefined
+    attempt += 1
+    return attempt === 1 ? response({ detail: 'Second factor required' }, 401) : response({ token: TOKEN, user: { id: SESSION.id } })
+  })
+  render(<App />)
+  const user = userEvent.setup()
+  await user.type(screen.getByLabelText('Login', { exact: true }), 'observer.demo')
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  expect(await screen.findByText('Podaj kod z aplikacji uwierzytelniającej (2FA).')).toBeInTheDocument()
+  expect(JSON.parse(String(calls[0]?.options.body))).toEqual({ username: 'observer.demo', password: PASSWORD })
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.type(screen.getByLabelText(/Kod 2FA/), '123 456')
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  await screen.findByRole('article', { name: 'Pamięć' })
+  const second = calls.filter(call => call.path === '/api/v1/auth/login')[1]
+  expect(JSON.parse(String(second?.options.body))).toEqual({ username: 'observer.demo', password: PASSWORD, otp: '123456' })
+})
+
+it('gives the operator role the workshop screen, gate, voice, cameras and account views only', async () => {
+  const gate = { name: 'Brama warsztatu', driver: 'simulator', live: false, state: 'closed', state_label: 'zamknięta', changed: null, last_action: null, require_confirmation: false, pulse: false }
+  const calls = server(path => path === '/api/v1/auth/me' ? response({ ...SESSION, role: 'operator', scopes: ['status:read', 'gate:control', 'voice:command', 'cameras:view'] })
+    : path === '/api/v1/devices/gate' ? response({ gate, config: { name: gate.name, driver: 'simulator', require_confirmation: false }, events: [] })
+      : path === '/api/v1/cameras' ? response({ enabled: false, refresh_ms: 1000, cameras: [] })
+        : path === '/api/v1/voice/command' ? response({ reply: 'Otwieram: Brama warsztatu.', handled: true, device: { status: 'executed' } }) : undefined)
+  render(<App />)
+  const user = userEvent.setup()
+  await user.type(screen.getByLabelText('Login', { exact: true }), 'mechanik')
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })  // operators land on the workshop screen
+  await user.type(screen.getByLabelText('Polecenie'), 'otwórz bramę')
+  await user.click(screen.getByRole('button', { name: 'Wyślij polecenie' }))
+  expect(await screen.findByText('Otwieram: Brama warsztatu.')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Co dziś?' })).not.toBeInTheDocument()
+  const nav = within(document.querySelector('.sidebar-nav') as HTMLElement)
+  for (const label of ['Warsztat', 'Brama', 'Głos', 'Kamery', 'Moje konto']) expect(nav.getByRole('link', { name: label })).toBeInTheDocument()
+  for (const label of ['Rozmowa', 'Pamięć', 'Bezpieczeństwo', 'Ustawienia']) expect(nav.queryByRole('link', { name: label })).not.toBeInTheDocument()
+  expect(calls.some(call => call.path === '/api/v1/devices/gate')).toBe(true)
+})
+
+it('logs in with a passkey (Face ID) and sends the assertion as JSON', async () => {
+  const raw = new Uint8Array([1, 2, 3]).buffer
+  const assertion = { id: 'AQID', rawId: raw, type: 'public-key', authenticatorAttachment: 'platform', getClientExtensionResults: () => ({}),
+    response: { clientDataJSON: new Uint8Array([123, 125]).buffer, authenticatorData: raw, signature: raw, userHandle: null } }
+  const get = vi.fn(async () => assertion)
+  vi.stubGlobal('PublicKeyCredential', function PublicKeyCredential() { /* marker */ })
+  vi.stubGlobal('isSecureContext', true)
+  Object.defineProperty(navigator, 'credentials', { configurable: true, value: { get } })
+  const calls = server(path => path === '/api/v1/auth/passkeys/login/options' ? response({ ticket: 'ticket-0123456789abcdef', options: { challenge: 'AAEC', rpId: 'localhost', allowCredentials: [], userVerification: 'required' } })
+    : path === '/api/v1/auth/passkeys/login/verify' ? response({ token: TOKEN, user: { id: SESSION.id }, mfa: true }) : undefined)
+  render(<App />)
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Zaloguj przez Face ID / klucz dostępu' }))
+  await screen.findByRole('article', { name: 'Pamięć' })
+  const options = (get.mock.calls[0] as unknown as [CredentialRequestOptions])[0].publicKey!
+  expect(new Uint8Array(options.challenge as ArrayBuffer)).toEqual(new Uint8Array([0, 1, 2]))
+  const verify = calls.find(call => call.path === '/api/v1/auth/passkeys/login/verify')
+  expect(JSON.parse(String(verify?.options.body))).toEqual({ ticket: 'ticket-0123456789abcdef', credential: { id: 'AQID', rawId: 'AQID', type: 'public-key', response: { clientDataJSON: 'e30', authenticatorData: 'AQID', signature: 'AQID', userHandle: null }, clientExtensionResults: {}, authenticatorAttachment: 'platform' } })
+  Object.defineProperty(navigator, 'credentials', { configurable: true, value: undefined })
+})
+
+it('groups the menu: everyday views first, advanced tools folded away, no duplicate log entry', async () => {
+  server()
+  render(<App />)
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Klucz właściciela' }))
+  await user.type(screen.getByLabelText('Klucz dostępu', { exact: true }), KEY)
+  await user.click(screen.getByRole('button', { name: 'Połącz kluczem' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })
+  const nav = document.querySelector('.sidebar-nav') as HTMLElement
+  expect([...nav.querySelectorAll('.nav-group-title')].map(item => item.textContent)).toEqual(['Na co dzień', 'Konto', 'Zaawansowane'])
+  const everyday = [...nav.querySelectorAll('.nav-group:first-child .nav-link')].map(item => item.textContent)
+  expect(everyday).toEqual(['Warsztat', 'Brama', 'Kamery', 'Głos', 'AutoLogika', 'Rozmowa'])
+  const advanced = nav.querySelector('details.nav-advanced') as HTMLDetailsElement
+  expect(advanced.open).toBe(false)
+  expect(within(nav).queryByRole('link', { name: 'Logi' })).not.toBeInTheDocument()
+  await user.click(within(nav).getByRole('link', { name: 'Pulpit' }))
+  await screen.findByRole('heading', { name: 'Pulpit', level: 1 })
+  expect((document.querySelector('details.nav-advanced') as HTMLDetailsElement).open).toBe(true)
 })

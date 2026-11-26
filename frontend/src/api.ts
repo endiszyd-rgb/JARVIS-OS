@@ -1,8 +1,10 @@
+import { credentialJSON, requestOptions } from './webauthn'
 import type { AuthSession, CoreStatus, Health, Identity, LoginInput, Readiness, Snapshot } from './types'
 
 export class ApiError extends Error {
   status: number | null
-  constructor(status: number | null, kind: 'http' | 'network' | 'response' | 'timeout' = 'http') {
+  detail: string | null = null
+  constructor(status: number | null, kind: 'http' | 'network' | 'response' | 'timeout' = 'http', detail: string | null = null) {
     const message = kind === 'timeout' ? 'Serwer nie odpowiedział w wyznaczonym czasie. Spróbuj ponownie.'
       : kind === 'network' ? 'Nie można połączyć się z JARVIS OS. Sprawdź, czy serwer jest uruchomiony.'
         : kind === 'response' ? 'Nie udało się odczytać odpowiedzi serwera. Spróbuj ponownie.'
@@ -11,7 +13,12 @@ export class ApiError extends Error {
               : status === 429 ? 'Zbyt wiele żądań. Odczekaj chwilę i spróbuj ponownie.'
                 : status === 503 ? 'JARVIS OS nie jest jeszcze gotowy. Sprawdź konfigurację serwera.'
                   : 'Nie udało się wykonać żądania. Spróbuj ponownie.'
-    super(message); this.name = 'ApiError'; this.status = status
+    super(detail === 'Passkey cancelled' ? 'Logowanie Face ID / kluczem dostępu przerwane.'
+      : detail === 'Passkey failed' ? 'To urządzenie nie ma klucza dostępu dla JARVIS. Zaloguj się hasłem i dodaj Face ID w „Moje konto”.'
+      : detail === 'Second factor required' ? 'Podaj kod z aplikacji uwierzytelniającej (2FA).'
+      : detail && status === 403 && /Remote access/.test(detail) ? 'Dostęp spoza warsztatu wymaga konta z włączonym 2FA (logowanie kluczem właściciela działa tylko lokalnie).'
+        : message)
+    this.name = 'ApiError'; this.status = status; this.detail = detail
   }
 }
 function object(value: unknown): value is Record<string, unknown> { return value !== null && typeof value === 'object' && !Array.isArray(value) }
@@ -40,7 +47,11 @@ export async function apiRequest(path: string, signal: AbortSignal, credential?:
     const response = await fetch(path, { method: options.method ?? (body === undefined ? 'GET' : 'POST'), headers,
       body: body === undefined ? undefined : JSON.stringify(body), signal: controller.signal,
       cache: 'no-store', credentials: 'omit', redirect: 'error', mode: 'same-origin' })
-    if (!response.ok && !(allowUnready && response.status === 503)) throw new ApiError(response.status)
+    if (!response.ok && !(allowUnready && response.status === 503)) {
+      let detail: string | null = null
+      try { const failure: unknown = await response.json(); if (object(failure) && typeof failure.detail === 'string') detail = failure.detail } catch { /* no JSON body */ }
+      throw new ApiError(response.status, 'http', detail)
+    }
     try { return await response.json() } catch { return invalid() }
   } catch (error) {
     if (signal.aborted) throw new DOMException('Request aborted', 'AbortError')
@@ -54,7 +65,7 @@ async function request(path: string, signal: AbortSignal, credential?: string, b
 }
 function identity(value: unknown): Identity {
   if (!object(value) || typeof value.id !== 'string' || !['owner_key', 'session'].includes(String(value.kind))
-    || !['owner', 'observer', 'home_reader', 'workshop_reader', 'automation_runner'].includes(String(value.role))
+    || !['owner', 'observer', 'home_reader', 'workshop_reader', 'automation_runner', 'operator'].includes(String(value.role))
     || !Array.isArray(value.scopes) || !value.scopes.every(item => typeof item === 'string')
     || !(value.username === null || typeof value.username === 'string')
     || !(value.expires_at === null || finite(value.expires_at))) return invalid()
@@ -73,13 +84,26 @@ function status(value: unknown): CoreStatus {
 }
 export async function connect(input: LoginInput, signal: AbortSignal): Promise<AuthSession> {
   let credential: string
-  if (input.mode === 'account') {
-    const result = await request('/api/v1/auth/login', signal, undefined, { username: input.username, password: input.password })
+  if (input.mode === 'passkey') {
+    const start = await request('/api/v1/auth/passkeys/login/options', signal, undefined, input.username ? { username: input.username } : {})
+    if (!object(start) || typeof start.ticket !== 'string' || !object(start.options)) return invalid()
+    let assertion: Credential | null
+    try { assertion = await navigator.credentials.get({ publicKey: requestOptions(start.options), signal }) }
+    catch (error) {
+      if (signal.aborted) throw new DOMException('Request aborted', 'AbortError')
+      throw new ApiError(null, 'http', error instanceof DOMException && error.name === 'NotAllowedError' ? 'Passkey cancelled' : 'Passkey failed')
+    }
+    if (!assertion) throw new ApiError(null, 'http', 'Passkey cancelled')
+    const result = await request('/api/v1/auth/passkeys/login/verify', signal, undefined, { ticket: start.ticket, credential: credentialJSON(assertion as PublicKeyCredential) })
+    if (!object(result) || typeof result.token !== 'string' || !result.token) return invalid()
+    credential = result.token
+  } else if (input.mode === 'account') {
+    const result = await request('/api/v1/auth/login', signal, undefined, input.otp ? { username: input.username, password: input.password, otp: input.otp } : { username: input.username, password: input.password })
     if (!object(result) || typeof result.token !== 'string' || !result.token) return invalid()
     credential = result.token
   } else credential = input.key
   const principal = identity(await request('/api/v1/auth/me', signal, credential))
-  if ((input.mode === 'account' && principal.kind !== 'session') || (input.mode === 'key' && principal.kind !== 'owner_key')) throw new ApiError(403)
+  if (((input.mode === 'account' || input.mode === 'passkey') && principal.kind !== 'session') || (input.mode === 'key' && principal.kind !== 'owner_key')) throw new ApiError(403)
   return { credential, identity: principal }
 }
 export async function readSnapshot(credential: string, signal: AbortSignal): Promise<Snapshot> {

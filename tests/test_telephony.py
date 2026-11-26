@@ -76,7 +76,7 @@ def test_api_persistence_revision_preview_and_audit_privacy(client):
     assert r.json()['notifications_sent'] is False
     with sqlite3.connect(client.path) as c:
         assert '+48500111222' not in str(c.execute("SELECT detail FROM audit WHERE event='telephony.policy_updated'").fetchall())
-        assert c.execute('PRAGMA user_version').fetchone()[0]==12
+        assert c.execute('PRAGMA user_version').fetchone()[0]==14
 
 @pytest.mark.parametrize('body',[{'at':'2026-10-28T12:00:00'},{'situation':'urgent'},{'at':'bad'}])
 def test_preview_validation(client,body):
@@ -100,7 +100,7 @@ def test_upgrade_from_v05_preserves_policy_and_pre_migration_backup(tmp_path):
     c=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert c.get('/api/memory').json()[0]['text']=='existing note'
     assert c.get('/api/telephony/settings').json()['revision']==0
-    copies=list((tmp_path/'backups').glob('before-schema12-*'))
+    copies=list((tmp_path/'backups').glob('before-schema14-*'))
     assert len(copies)==1
     with sqlite3.connect(copies[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==5

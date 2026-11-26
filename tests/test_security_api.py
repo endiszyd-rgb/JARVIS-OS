@@ -134,10 +134,10 @@ def test_schema11_backup_preserves_private_data_and_old_service_tokens(tmp_path)
         assert c.get('/api/memory',headers=OWNER).json()[0]['id']==note['id']
         assert c.get('/api/v1/status',headers={'X-Jarvis-Key':token['token']}).status_code==200
         assert c.get('/api/security/users',headers=OWNER).json()==[]
-        backup=list((tmp_path/'backups').glob('before-schema12-*.sqlite3'));assert len(backup)==1
+        backup=list((tmp_path/'backups').glob('before-schema14-*.sqlite3'));assert len(backup)==1
         with sqlite3.connect(backup[0]) as db:
             assert db.execute('PRAGMA user_version').fetchone()[0]==11
             assert db.execute('SELECT text FROM memory').fetchone()[0]=='Preserved migration note'
             assert db.execute("SELECT name FROM sqlite_master WHERE name='identity_users'").fetchone() is None
     with TestClient(create_app(path,KEY)) as c:assert c.get('/ready').status_code==200
-    assert len(list((tmp_path/'backups').glob('before-schema12-*.sqlite3')))==1
+    assert len(list((tmp_path/'backups').glob('before-schema14-*.sqlite3')))==1

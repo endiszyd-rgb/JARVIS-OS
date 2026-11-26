@@ -72,3 +72,18 @@ Oddzielny namespace write-lab i stan RAM zapobiegają myleniu zatwierdzenia DEMO
 
 ## 2026-11-06 — M5.1 ograniczony odczyt
 WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług. Filtrowanie encji i atrybutów odbywa się w Core; nie utożsamiamy go z upstream ACL. Brak rzeczywistego konta z potwierdzonymi uprawnieniami pozostawia live M5.1 BLOCKED. Następne niezależne prace MQTT wyłącznie w izolowanym laboratorium.
+
+## 2026-11-26 — dostęp zdalny przez tunel, 2FA, operator, kamery (0.12.0)
+
+- Zamiast osobnej strony internetowej rozbudowano Control Center JARVIS (właściciel wybrał kontynuację JARVIS‑OS). Strona = panel `/control/` + PWA; logika urządzeń pozostaje w jednym rdzeniu.
+- JARVIS nadal słucha na loopback; dostęp z internetu wyłącznie przez tunel uruchomiony na PC (Cloudflare Tunnel lub Tailscale). Polityka po stronie serwera: tunel bez `JARVIS_REMOTE_ACCESS=true` → 403; zdalnie tylko sesje kont otwarte z TOTP; klucz właściciela i tokeny usługowe tylko lokalnie. Rozpoznanie „zdalne” po nagłówkach tunelu lub nielokalnym Host — lokalny proces jest zaufany (jak dotąd).
+- TOTP RFC 6238 zaimplementowany bez zależności (hmac/sha1), ochrona przed powtórzeniem przez `last_step`, kody zapasowe tylko jako SHA‑256. Sekret TOTP musi być odwracalny, więc leży w SQLite — ta sama klasa ochrony co plik bazy.
+- Rola `operator` (status, brama, komendy głosowe, kamery) zamiast rozszerzania `owner`; czat z modelem i pamięć pozostają właścicielskie. Głos operatora idzie do `/voice/command` (tylko deterministyczny parser).
+- Kamery przez go2rtc zamiast własnej obsługi RTSP: hasła kamer zostają w go2rtc.yaml, JARVIS proxuje pojedyncze klatki JPEG (limit 4 MiB, 8 s, allowlista sieci). Płynne wideo (WebRTC) odłożone — wymagałoby przepuszczenia mediów przez tunel.
+- Schemat SQLite 13: CHECK ról wymaga przebudowy tabeli `identity_users` (procedura SQLite przy `foreign_keys=OFF` w jednej transakcji, z kopią `before-schema13-*`).
+
+## 2026-11-26 — passkeys (0.14.0)
+
+- Logowanie WebAuthn z wymaganą weryfikacją użytkownika traktujemy jak dwa składniki (posiadanie urządzenia + biometria/PIN), więc sesja ma `mfa=1` i działa zdalnie. Konto z TOTP może dodać klucz tylko w sesji otwartej kodem — hasło samo nie wystarcza do „przeniesienia” konta na nowe urządzenie.
+- Biblioteka `webauthn` (Duo Labs) zamiast własnej weryfikacji CBOR/COSE/podpisów. Klucz zapisujemy z rp_id i wymagamy zgodności przy logowaniu (obrona w głąb obok ochrony przeglądarki).
+- Origin akceptujemy, gdy to `https://` + nagłówek Host (domena tunelu — Cloudflare kieruje ruch po nazwie hosta, a przeglądarka wiąże klucz z domeną), `http://localhost` lub jawna lista. Klucz z witryny phishingowej nie może zostać użyty dla naszej domeny.

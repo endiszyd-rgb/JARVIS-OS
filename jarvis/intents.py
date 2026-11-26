@@ -10,13 +10,21 @@ CLOSE = r'(?:zamknij|zamykaj|zamkniecie|zamykac|opusc\w*|close)'
 STOP = r'(?:zatrzymaj|stop|stoj|przerwij|wstrzymaj)'
 STATUS = r'(?:stan|status|czy .*(?:otwart|zamkniet)|jak(?:i|a)? (?:jest )?stan|sprawdz)'
 YES = re.compile(r'^(?:tak|potwierdzam|potwierdz|zrob to|dawaj|jasne|oczywiscie|ok|okej|zgoda|wykonaj|pewnie)[.!]?$')
+PARTS = re.compile(r'\b(?:czesc\w*|zamowien\w*)\b.*\b(?:zamow\w*|brak\w*|potrzeb\w*|drodze|list\w*|jakie|ktore|status)\b'
+                   r'|\b(?:co|czego|jakie|ktore)\b.*\b(?:trzeba|musze|mam|musimy|brakuje|nalezy)\b.*\b(?:zamowic|domowic|zamawiac)\b'
+                   r'|\b(?:czego|co)\b.*\bbrak\w*\b.*\bzamow\w*'
+                   r'|\b(?:jakie|ktore)\b.*\bczesc\w*\b')
+TODAY = re.compile(r'^(?:co|a co)\b(?: \w+){0,3} (?:dzis|dzisiaj|na dzis|na dzisiaj)$'
+                   r'|\b(?:jakie|ile)\b.*\bzlecen\w*'
+                   r'|\b(?:raport|podsumowanie|plan)\b.*\b(?:dnia|dzienn\w*|warsztatu|dzis|dzisiaj)\b'
+                   r'|\bstan warsztatu\b|\bco (?:jest )?gotowe\b|\bco w warsztacie\b')
 NO = re.compile(r'^(?:nie|anuluj|odwolaj|rezygnuje|stop|zostaw|nie trzeba)[.!]?$')
 
 
 @dataclass(frozen=True)
 class Intent:
-    kind: str            # gate | confirm | cancel
-    action: str = ''     # open | close | stop | status
+    kind: str            # gate | parts | today | confirm | cancel
+    action: str = ''     # open | close | stop | status | list
     wake: bool = False
     text: str = ''
 
@@ -37,7 +45,7 @@ def strip_wake(text: str) -> tuple[str, bool]:
 
 
 def parse(message: str) -> Intent | None:
-    """Return a gate/confirm/cancel intent or None when the message should go to the model."""
+    """Return a gate/parts/confirm/cancel intent or None when the message should go to the model."""
     if not isinstance(message, str) or len(message) > 400:
         return None
     text = normalize(message)
@@ -48,9 +56,13 @@ def parse(message: str) -> Intent | None:
         return Intent('confirm', wake=wake, text=text)
     if NO.fullmatch(text):
         return Intent('cancel', wake=wake, text=text)
-    if not re.search(r'\b' + GATE_NOUNS + r'\b', text) and not re.search(r'\bgaraz', text):
-        return None
     words = len(text.split())
+    if not re.search(r'\b' + GATE_NOUNS + r'\b', text) and not re.search(r'\bgaraz', text):
+        if words <= 12 and PARTS.search(text):
+            return Intent('parts', 'list', wake, text)
+        if words <= 10 and TODAY.search(text):
+            return Intent('today', 'brief', wake, text)
+        return None
     if words > 12:
         return None
     if re.search(r'\b' + STOP + r'\b', text):

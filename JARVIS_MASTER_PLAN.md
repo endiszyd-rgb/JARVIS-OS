@@ -23,16 +23,16 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 ## Snapshot (aktualizuj po każdej sesji)
 
-- Data ostatniej aktualizacji: 2026-11-13
+- Data ostatniej aktualizacji: 2026-11-26
 - Bieżący etap: M5 — dom i urządzenia
-- Aktualne zadanie: M5.4 symulator VERIFIED; M5.5 sterowniki bramy DONE (HTTP/Tuya/HA) — realny sprzęt do sprawdzenia przez właściciela na warsztacie
+- Aktualne zadanie: M6.2 IN_PROGRESS (0.13.0 raport dnia na żywo z AutoLogiki); M5.5 sterowniki bramy DONE (realny sprzęt do sprawdzenia przez właściciela); M8.1 IN_PROGRESS — 0.12.0: dostęp zdalny z 2FA, rola operatora, kamery go2rtc, PWA (polecenie właściciela 2026-11-26)
 - Zadania VERIFIED: 24 / 45
 - Zadania DONE: 1 / 45
-- Ostatni commit źródeł: bieżący commit 0.11.0 (brama + głos); poprzednio M5.1
+- Ostatni commit źródeł: bieżący commit 0.12.0 (dostęp zdalny, 2FA, operator, kamery, PWA); poprzednio 0.11.0 (brama + głos)
 - Testy: 2026-11-13 920 pytest PASS /75skip/2warnings w115.36s (26 nowych test_gate); pip check PASS; frontend 161 testów PASS (GatePanel5, VoicePanel6), typecheck/build PASS; Chrome headless: logowanie z zapamiętanym kluczem, widoki Brama/Głos/Pulpit/390px PASS; launcher smoke PASS (Linux).
 - Co działa rzeczywiście: Core0.11.0/SQLite12/PGfoundation1/memoryfeature4: pamięć/profile/GUI, bounded zadania read-only; sterowanie bramą z panelu i głosem (parser intencji PL, cooldown, potwierdzenie, audyt), konfiguracja sterownika z aplikacji; M3.1–M3.5, M5.4 VERIFIED
 - Co działa tylko jako mock/demo: odpowiedzi modeli w testach są syntetyczne; MQTT/n8n/Twilio mają adaptery DEMO; telefonia jako laboratorium; sterowniki bramy HTTP/Tuya/HA przetestowane na lokalnym serwerze testowym i według kontraktów — prawdziwy sterownik, konto Tuya, HA i mikrofon NOT_RUN.
-- Następny krok: właściciel wykonuje Etap 0 z docs/PLAN-ROZWOJU.md (realna brama + głos) → M5.5 VERIFIED; potem M5.2 MQTT/katalog urządzeń. Realne M4.4/M5.1 i M4.5 nadal nieweryfikowane.
+- Następny krok: właściciel wykonuje Etap 0 z docs/PLAN-ROZWOJU.md (realna brama + głos) → M5.5 VERIFIED, potem test z telefonu przez tunel z 2FA (docs/DOSTEP-ZDALNY.md); potem M5.2 MQTT/katalog urządzeń. Realne M4.4/M5.1 i M4.5 nadal nieweryfikowane.
 
 ### Potwierdzone wyniki i granice bieżącego stanu
 
@@ -351,12 +351,12 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** —
 
 #### M6.2 — Raport poranny AutoLogika, przypomnienia części, opóźnienia zleceń, raport dnia.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** IN_PROGRESS
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-26
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Wykonano / dowody (pliki, commit):** 0.13.0: raport dnia na żywo z desktopowej AutoLogiki OS (ponowny audyt Autologika-OS bcdc364: te same GET /api/orders i /api/order/{id}, schemat 18, statusy części z job-part-workflow.cjs) — `jarvis/autologika.py` (`brief`, `brief_text`, `parts_text`, ustawienia połączenia w JARVIS z maskowanym PIN-em), `GET /api/v1/autologika/today`, `GET/PUT /autologika/connection`, `POST /autologika/connection/test`; intencja „co dziś / jakie zlecenia / co jest gotowe” i części na żywo (fallback: kopia); karta „Dziś w warsztacie” i formularz połączenia w widoku AutoLogika. Kontrakt: `scripts/autologika_contract_harness.cjs` uruchamia prawdziwe migracje db.cjs i prawdziwe zapytanie orderSelect; zrzuty w `tests/fixtures/autologika_bcdc364/`.
+- **Testy (komenda, wynik):** 2026-11-26 `.venv/bin/python -m pytest -q` 980 PASS/75 skip (nowe `tests/test_autologika_live.py` 20); pip check PASS; vitest 172 PASS, typecheck/build PASS; JARVIS ↔ harness AutoLogiki (prawdziwy schemat 18 + SQL) przez HTTP: test połączenia, raport dnia, głos „co dziś”/„co trzeba zamówić” PASS; Chrome 390 px karta „Dziś w warsztacie” PASS. Prawdziwa instalacja AutoLogiki u właściciela NOT_RUN.
+- **Blokady / dalsze kroki:** brak harmonogramu (raport poranny o stałej godzinie) i przypomnień — po M6.1/M8.2; terminarz (appointments) niedostępny przez HTTP AutoLogiki; test właściciela na jego instalacji.
 
 #### M6.3 — Automatyzacje światła, statusu bramy, alertów o połączeniach i godzin dostępności.
 - **Status:** TODO
@@ -427,12 +427,13 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 ### M8 — Urządzenia, stabilizacja i wdrożenie
 
 #### M8.1 — Panel mobilny PWA na iPhone/Android; integracja z Android AutoLogika po audycie.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** IN_PROGRESS
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-26
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Wykonano / dowody (pliki, commit):** 0.12.0 na polecenie właściciela (dostęp z telefonu spoza warsztatu): PWA (`frontend/public/manifest.webmanifest`, ikony, trasy allowlisty w `jarvis/control_ui.py`, bez service workera); 2FA TOTP + kody zapasowe (`jarvis/totp.py`, `jarvis/identity.py`, `jarvis/security_api.py`, widok „Moje konto”); rola `operator` (brama, `/voice/command`, kamery); polityka dostępu zdalnego (`jarvis/remote_access.py`: tunel bez `JARVIS_REMOTE_ACCESS` → 403, zdalnie tylko sesje kont z 2FA, klucz właściciela/tokeny tylko lokalnie, limit logowań per `CF-Connecting-IP`); kamery przez go2rtc (`jarvis/cameras.py`, widok Kamery); komenda „co trzeba zamówić” z kopii AutoLogiki; schemat SQLite 13 (przebudowa CHECK ról z zachowaniem kont i sesji, `identity_mfa`, `identity_sessions.mfa`). Instrukcja: `docs/DOSTEP-ZDALNY.md`.
+- **Testy (komenda, wynik):** 2026-11-26 `.venv/bin/python -m pytest -q` PASS (wynik w README/CHANGELOG 0.12.0; nowe `tests/test_remote_access.py` 26, `tests/test_cameras.py` 12, `tests/test_control_ui.py` +2); `pip check` PASS; frontend `vitest run` 169 PASS, typecheck/build PASS. Telefon, tunel Cloudflare/Tailscale, go2rtc z prawdziwymi kamerami, Windows NOT_RUN.
+- **Blokady / dalsze kroki:** właściciel: test PWA na telefonie przez tunel z 2FA (docs/DOSTEP-ZDALNY.md); integracja z Android AutoLogika nadal po audycie (TODO).
+- **Aktualizacja 2026-11-26 (0.14.0):** logowanie passkey (Face ID/Touch ID/Windows Hello) — `jarvis/passkeys.py`, `identity_passkeys` (schemat 14), `frontend/src/webauthn.ts`, przycisk na ekranie logowania i sekcja w „Moje konto”. Testy: 990 pytest PASS (test_passkeys 10), 174 vitest PASS, Chrome + wirtualny uwierzytelniacz WebAuthn (CDP) PASS. Prawdziwy iPhone NOT_RUN.
 
 #### M8.2 — Powiadomienia, monitoring, health checks, retry i alerty.
 - **Status:** TODO

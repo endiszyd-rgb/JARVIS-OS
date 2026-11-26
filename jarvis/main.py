@@ -16,19 +16,21 @@ from typing import Annotated, Literal
 
 import httpx
 from dotenv import load_dotenv
-from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Response, Request, Query
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Response, Request, Query, Path as FastAPIPath
 from fastapi.responses import FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
 from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
-from .autologika import AUDITED_COMMIT, configured_adapter, capabilities as autologika_capabilities
-from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents
+from .autologika import AUDITED_COMMIT, capabilities as autologika_capabilities
+from . import autologika as autologika_live
+from datetime import datetime
+from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
 from .security_limits import SecurityConfig, RateLimit
-from . import identity, security_api, postgres_api, postgres_memory_api, postgres_context_api, postgres_profiles_api, control_ui
+from . import identity, passkeys, remote_access, security_api, postgres_api, postgres_memory_api, postgres_context_api, postgres_profiles_api, control_ui
 from .postgres_store import PostgresConfig, PostgresStore
 from .postgres_memory import PostgresMemory
 from .postgres_context import PostgresContext
@@ -145,6 +147,13 @@ class Retention(Strict):
     dry_run: bool = True
 
 
+SCHEMA_VERSION = 14  # 13: operator role, second factor (identity_mfa), session mfa flag, camera config; 14: passkeys
+
+
+class VoiceCommand(Strict):
+    text: str = Field(min_length=1, max_length=500)
+
+
 class GateCommand(Strict):
     action: Literal['open','close','stop','status']
     source: Literal['panel','voice','api'] = 'panel'
@@ -172,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.11.0', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.14.1', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -183,6 +192,8 @@ def create_app(db_path=None, api_key=None):
     config = RuntimeConfig.from_env(db_path=db_path, api_key=api_key)
     app.state.runtime_config = config
     security_config = SecurityConfig.from_env()
+    remote_config = remote_access.RemoteConfig.from_env()
+    app.state.remote_config = remote_config
     app.state.security_config = security_config
     postgres_store = PostgresStore(PostgresConfig.from_env())
     app.state.postgres_store = postgres_store
@@ -213,12 +224,12 @@ def create_app(db_path=None, api_key=None):
 
     with db() as c:
         schema_version = c.execute('PRAGMA user_version').fetchone()[0]
-        if schema_version > 12:
+        if schema_version > SCHEMA_VERSION:
             raise RuntimeError('Database schema is newer than this release')
-        if schema_version < 12 and c.execute("SELECT 1 FROM sqlite_master WHERE name='plugins'").fetchone():
+        if schema_version < SCHEMA_VERSION and c.execute("SELECT 1 FROM sqlite_master WHERE name='plugins'").fetchone():
             folder = dbfile.parent / 'backups'
             folder.mkdir(exist_ok=True)
-            with closing(sqlite3.connect(folder / ('before-schema12-'+str(uuid.uuid4())+'.sqlite3'))) as dst:
+            with closing(sqlite3.connect(folder / ('before-schema'+str(SCHEMA_VERSION)+'-'+str(uuid.uuid4())+'.sqlite3'))) as dst:
                 c.backup(dst)
         c.executescript('''
         PRAGMA journal_mode=WAL;
@@ -249,8 +260,9 @@ def create_app(db_path=None, api_key=None):
         telephony_transport.install(c)
         identity.install(c)
         gate.install(c)
+        cameras.install(c)
         c.execute('INSERT OR IGNORE INTO device_config VALUES(?,?,?,?)', ('voice', VoiceConfig().model_dump_json(), 0, time.time()))
-        c.execute('PRAGMA user_version=12')
+        c.execute('PRAGMA user_version='+str(SCHEMA_VERSION))
         c.execute('INSERT OR IGNORE INTO settings VALUES(1,?)', (Settings().model_dump_json(),))
         for pid in BUILTINS:
             m = Manifest(id=pid, name=pid.replace('_', ' ').title(), description='Built-in demonstration adapter; no external transport')
@@ -314,18 +326,25 @@ def create_app(db_path=None, api_key=None):
         # even if a client sends an expired credential with its health request.
         principal=None if public else await run_in_threadpool(resolve_identity,request.headers.get('x-jarvis-key'))
         actor=principal.kind+':'+principal.id if principal else 'anonymous'
-        marker=AUDIT_ACTOR.set(actor)
-        try:
-            response=await call_next(request)
-        finally:
-            AUDIT_ACTOR.reset(marker)
-        if response.status_code in (401,403) and request.scope.get('route') is not None:
+        refusal=None
+        if remote_access.is_remote(request.headers,remote_config) and request.url.path!='/health':
+            refusal=remote_access.decide(request.url.path,principal,remote_config)
+        if refusal is not None:
+            response=JSONResponse({'detail':refusal[1]},status_code=refusal[0])
+            await run_in_threadpool(record_denial,actor,request.method,'remote:'+request.url.path[:120],refusal[0])
+        else:
+            marker=AUDIT_ACTOR.set(actor)
+            try:
+                response=await call_next(request)
+            finally:
+                AUDIT_ACTOR.reset(marker)
+        if refusal is None and response.status_code in (401,403) and request.scope.get('route') is not None:
             # Store only the matched route template, never the URL/query, key or body.
             await run_in_threadpool(record_denial,actor,request.method,request.scope['route'].path,response.status_code)
         response.headers['X-Content-Type-Options']='nosniff'
         response.headers['Cache-Control']='no-store'
         response.headers['X-Frame-Options']='DENY'
-        response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; media-src 'self' blob:; frame-ancestors 'none'"
+        response.headers['Content-Security-Policy']="default-src 'self'; script-src 'self'; style-src 'self'; connect-src 'self'; img-src 'self' blob: data:; media-src 'self' blob:; frame-ancestors 'none'"
         return response
 
     control_ui.mount(app)
@@ -340,12 +359,12 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.11.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.14.1', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
     def ready():
-        report = readiness(config, expected_schema=12)
+        report = readiness(config, expected_schema=SCHEMA_VERSION)
         return JSONResponse(report, status_code=200 if report['status']=='ready' else 503)
 
     @api.get('/schema', dependencies=[Depends(auth)])
@@ -365,7 +384,7 @@ def create_app(db_path=None, api_key=None):
     async def read_orders():
         with db() as c:
             audit(c, 'autologika.read_requested', {'route': 'orders'})
-        return await configured_adapter().read()
+        return await live_adapter().read()
 
     @api.get('/autologika/readonly/orders/{order_id}', dependencies=[Depends(require('workshop:read'))])
     async def read_order(order_id: int):
@@ -373,7 +392,49 @@ def create_app(db_path=None, api_key=None):
             raise HTTPException(422, 'Positive order ID required')
         with db() as c:
             audit(c, 'autologika.read_requested', {'route': 'order', 'order_id': order_id})
-        return await configured_adapter().read(order_id)
+        return await live_adapter().read(order_id)
+
+    # ---- AutoLogika live connection (settings in JARVIS) and today's brief ----
+    def live_adapter():
+        with db() as c: stored,_=autologika_live.load_connection(c)
+        return autologika_live.live_adapter(stored,transport=getattr(app.state,'autologika_transport',None))
+
+    def live_configured():
+        with db() as c: stored,_=autologika_live.load_connection(c)
+        return stored.enabled or os.getenv('AUTOLOGIKA_READONLY_ENABLED','false').lower()=='true'
+
+    class AutoLogikaConnectionUpdate(Strict):
+        revision:int=Field(ge=0,strict=True)
+        config:dict
+
+    @api.get('/autologika/connection',dependencies=[Depends(auth)])
+    def autologika_connection_read():
+        with db() as c: config,revision=autologika_live.load_connection(c)
+        return {'config':config.masked(),'revision':revision,'env_enabled':os.getenv('AUTOLOGIKA_READONLY_ENABLED','false').lower()=='true',
+                'audited_commit':autologika_live.LIVE_AUDITED_COMMIT}
+
+    @api.put('/autologika/connection',dependencies=[Depends(auth)])
+    def autologika_connection_write(body:AutoLogikaConnectionUpdate):
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            config,revision=autologika_live.save_connection(c,body.config,body.revision)
+            audit(c,'autologika.connection_changed',{'enabled':config.enabled,'revision':revision})
+        return {'config':config.masked(),'revision':revision}
+
+    @api.post('/autologika/connection/test',dependencies=[Depends(auth)])
+    async def autologika_connection_test():
+        result=await live_adapter().read()
+        with db() as c: audit(c,'autologika.connection_tested',{'orders':len(result['data'])})
+        return {'status':'connected','open_orders':len(result['data'])}
+
+    def today_local():
+        return datetime.now().strftime('%Y-%m-%d')
+
+    @api.get('/autologika/today',dependencies=[Depends(require('workshop:read'))])
+    async def autologika_today():
+        data=await autologika_live.brief(live_adapter(),today_local())
+        with db() as c: audit(c,'autologika.brief_read',{'open_orders':data['open_orders']})
+        return data
 
     @api.get('/autologika/snapshot', dependencies=[Depends(require('workshop:read'))])
     def snapshot_status():
@@ -571,15 +632,49 @@ def create_app(db_path=None, api_key=None):
         with db() as c: config,revision=gate.load(c)
         return await gate_controller.execute(config,revision,action,source=source,actor=AUDIT_ACTOR.get(),c_factory=db,audit=audit,confirm_key=confirm_key,confirm_token=confirm_token)
 
-    @api.get('/devices/gate', dependencies=[Depends(auth)])
-    def gate_overview():
+    @api.get('/devices/gate')
+    def gate_overview(principal=Depends(require('gate:control'))):
         with db() as c:
             config,revision=gate.load(c)
-            return {'gate':gate_controller.describe(config),'config':config.masked(),'revision':revision,'events':gate.events(c),'drivers':list(gate.DRIVERS)+['disabled']}
+            data={'gate':gate_controller.describe(config),'events':gate.events(c)}
+        if principal.is_owner:
+            data.update(config=config.masked(),revision=revision,drivers=list(gate.DRIVERS)+['disabled'])
+        else:
+            data.update(config={'name':config.name,'driver':config.driver,'require_confirmation':config.require_confirmation})
+        return data
 
-    @api.post('/devices/gate/command', dependencies=[Depends(auth)])
-    async def gate_command(body:GateCommand):
-        return await run_gate(body.action,body.source,confirm_key=body.source,confirm_token=body.confirm_token)
+    # ---- Cameras (go2rtc frame proxy) ----
+    class CameraConfigUpdate(Strict):
+        revision:int=Field(ge=0,strict=True)
+        config:dict
+
+    @api.get('/cameras',dependencies=[Depends(require('cameras:view'))])
+    def camera_list():
+        with db() as c: config,_=cameras.load(c)
+        return config.public()
+
+    @api.get('/cameras/config',dependencies=[Depends(auth)])
+    def camera_config_read():
+        with db() as c: config,revision=cameras.load(c)
+        return {'config':config.model_dump(),'revision':revision}
+
+    @api.put('/cameras/config',dependencies=[Depends(auth)])
+    def camera_config_write(body:CameraConfigUpdate):
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            config,revision=cameras.save(c,body.config,body.revision)
+            audit(c,'cameras.config_changed',{'revision':revision,'enabled':config.enabled,'count':len(config.cameras)})
+        return {'config':config.model_dump(),'revision':revision}
+
+    @api.get('/cameras/{ident}/frame.jpg',dependencies=[Depends(require('cameras:view'))])
+    async def camera_frame(ident:Annotated[str,FastAPIPath(pattern=r'^[a-z0-9][a-z0-9_-]{0,31}$')]):
+        with db() as c: config,_=cameras.load(c)
+        data=await cameras.frame(config,config.camera(ident),transport=getattr(app.state,'camera_transport',None))
+        return Response(data,media_type='image/jpeg',headers={'Cache-Control':'no-store'})
+
+    @api.post('/devices/gate/command')
+    async def gate_command(body:GateCommand,principal=Depends(require('gate:control'))):
+        return await run_gate(body.action,body.source,confirm_key=body.source+':'+principal.id,confirm_token=body.confirm_token)
 
     @api.post('/devices/gate/test', dependencies=[Depends(auth)])
     async def gate_test():
@@ -990,10 +1085,8 @@ def create_app(db_path=None, api_key=None):
             if isinstance(exc,TimeoutError):raise HTTPException(504,'Model request timed out')
             raise
 
-    async def gate_intent(intent, body: Chat):
-        """Owner device commands from chat or voice. Deterministic; never produced by the model."""
-        key='chat:'+(body.session_id or 'none')
-        source='voice' if body.input_mode=='voice' else 'chat'
+    async def gate_intent(intent, key, source):
+        """Device commands from chat or voice. Deterministic; never produced by the model."""
         with db() as c: config,_=gate.load(c)
         name=config.name
         if intent.kind in ('confirm','cancel'):
@@ -1025,10 +1118,70 @@ def create_app(db_path=None, api_key=None):
             if config.driver=='simulator': reply+=' (symulator — bez fizycznego sterowania)'
         return {'reply':reply,'model':'parser','ai_generated':False,'device':result}
 
+    @api.post('/voice/command')
+    async def voice_command(body:VoiceCommand,principal=Depends(require('voice:command'))):
+        """Command-only voice endpoint (operator role): gate and parts intents, no model, no memory."""
+        intent=intents.parse(body.text)
+        if intent is None:
+            return {'reply':'Nie znam tego polecenia. Powiedz na przykład: „Jarvis, otwórz bramę” albo „co trzeba zamówić”.','model':'parser','ai_generated':False,'handled':False}
+        if intent.kind in ('parts','today'):
+            if not (principal.is_owner or 'workshop:read' in principal.scopes):
+                return {'reply':'To konto nie ma dostępu do danych warsztatu.' if intent.kind=='today' else 'To konto nie ma dostępu do części.','model':'parser','ai_generated':False,'handled':False}
+            return dict(await (parts_reply() if intent.kind=='parts' else today_reply()),handled=True)
+        if intent.kind=='gate' and not (principal.is_owner or 'gate:control' in principal.scopes):
+            return {'reply':'To konto nie może sterować bramą.','model':'parser','ai_generated':False,'handled':False}
+        result=await gate_intent(intent,'voice:'+principal.id,'voice')
+        if result is None:
+            return {'reply':'Nie ma polecenia do potwierdzenia.','model':'parser','ai_generated':False,'handled':False}
+        return dict(result,handled=True)
+
+
+    async def parts_reply():
+        """Parts from the live read-only AutoLogika API when connected, otherwise from the snapshot."""
+        if live_configured():
+            try:
+                data=await autologika_live.brief(live_adapter(),today_local())
+                return {'reply':autologika_live.parts_text(data),'model':'parser','ai_generated':False,
+                        'parts':{'to_order':data['to_order'],'on_order':data['on_order'],'source':'live'}}
+            except HTTPException:
+                pass  # fall back to the snapshot below
+        return await run_in_threadpool(parts_intent)
+
+    async def today_reply():
+        if not live_configured():
+            return {'reply':'Nie mam połączenia z AutoLogiką. Włącz je w widoku AutoLogika (adres i PIN serwera mobilnego).','model':'parser','ai_generated':False,'brief':None}
+        try:
+            data=await autologika_live.brief(live_adapter(),today_local())
+        except HTTPException:
+            return {'reply':'AutoLogika nie odpowiada. Sprawdź, czy program jest uruchomiony z włączonym serwerem mobilnym.','model':'parser','ai_generated':False,'brief':None}
+        return {'reply':autologika_live.brief_text(data),'model':'parser','ai_generated':False,'brief':data}
+
+    def parts_intent():
+        """Read-only parts summary from the audited AutoLogika snapshot (never live writes)."""
+        try:
+            data=configured_snapshot().read('parts',200,0)['data']
+        except (HTTPException,ValueError,sqlite3.DatabaseError,OSError,KeyError):
+            return {'reply':'Nie mam dostępu do danych części — kopia AutoLogiki nie jest skonfigurowana albo nie pasuje do kontraktu.','model':'parser','ai_generated':False,'parts':None}
+        statuses=lambda item:str(item.get('status') or '').upper()
+        ordered=[item for item in data['job_part_orders']['items'] if statuses(item) in autologika_live.PARTS_ON_ORDER]
+        low=[item for item in data['job_part_orders']['items'] if statuses(item) in autologika_live.PARTS_TO_ORDER]
+        low+=[item for item in data['inventory_parts']['items'] if item.get('min_stock') is not None and item.get('stock') is not None and item['stock']<item['min_stock']]
+        def label(item):return (item.get('name') or item.get('part_no') or 'część')+(' ('+str(item['part_no'])+')' if item.get('part_no') and item.get('name') else '')
+        parts=[]
+        if low:parts.append('Do zamówienia (z zleceń i poniżej stanu minimalnego): '+', '.join(label(item) for item in low[:8])+(f' i {len(low)-8} więcej' if len(low)>8 else '')+'.')
+        if ordered:parts.append('Zamówione, jeszcze nie dotarły: '+', '.join(label(item)+(' — zlecenie '+str(item['order_id']) if item.get('order_id') else '') for item in ordered[:8])+(f' i {len(ordered)-8} więcej' if len(ordered)>8 else '')+'.')
+        reply=' '.join(parts) if parts else 'Nic nie czeka na zamówienie i brak braków magazynowych w kopii AutoLogiki.'
+        return {'reply':reply+' (dane z kopii AutoLogiki, nie na żywo)','model':'parser','ai_generated':False,
+                'parts':{'to_order':low[:50],'on_order':ordered[:50]}}
+
     async def respond(body: Chat, history):
         intent=intents.parse(body.message)
+        if intent is not None and intent.kind=='parts':
+            return await parts_reply()
+        if intent is not None and intent.kind=='today':
+            return await today_reply()
         if intent is not None:
-            handled=await gate_intent(intent,body)
+            handled=await gate_intent(intent,'chat:'+(body.session_id or 'none'),'voice' if body.input_mode=='voice' else 'chat')
             if handled is not None: return handled
         with db() as c:
             s = settings(c)
@@ -1189,6 +1342,7 @@ def create_app(db_path=None, api_key=None):
         return {'filename': target.name, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest()}
 
     security_api.mount(api,db,auth,require('identity:self'),audit,security_config,lambda:config.owner_key_configured)
+    passkeys.mount(api,db,require('identity:self'),audit,security_config,lambda:config.owner_key_configured)
     postgres_api.mount(api,postgres_store,auth)
     postgres_profiles=PostgresProfiles(postgres_store)
     app.state.postgres_profiles=postgres_profiles

@@ -45,6 +45,21 @@ Mapuje się na M7.3 i część M5.2.
 - Instalator: podpis kodu (certyfikat OV lub self‑signed + instrukcja), autostart z Windows (zadanie harmonogramu, opcja w launcherze), tray‑ikona zamiast okna Tk, automatyczne sprawdzanie nowej wersji z GitHub Releases i aktualizacja z zachowaniem danych.
 - Ustawienia instalacji z aplikacji: edycja `.env` (modele Ollama, allowlista sieci, Wyoming) przez panel z podglądem i restartem serwera z launchera — dziś zmienia się to ręcznie.
 
+## Etap 4a — Dostęp z telefonu spoza warsztatu (0.12.0, kod gotowy)
+
+Zrobione w kodzie 2026-11-26 (M8.1 IN_PROGRESS): 2FA TOTP, rola `operator`, polityka tunelu, kamery przez go2rtc, komenda „co trzeba zamówić”, PWA. Do zrobienia przez właściciela, po Etapie 0:
+
+1. Konto `endi` (Właściciel) + 2FA w widoku *Moje konto*; konto pracownika z rolą *Operator* + 2FA.
+2. Cloudflare Tunnel (`jarvis.nitropoint.pl`) albo Tailscale — `docs/DOSTEP-ZDALNY.md`; w `.env` `JARVIS_REMOTE_ACCESS=true`.
+3. Test z telefonu na danych komórkowych: logowanie z kodem, „Otwórz” w widoku Brama, komenda głosowa, PWA na ekranie głównym.
+4. go2rtc z rejestratorem (substreamy) → widok *Kamery*.
+
+Następnie: WebRTC dla płynnego wideo (go2rtc), powiadomienia push o otwarciu bramy, części na żywo po kontrakcie AutoLogiki.
+
+## Etap 4b — AutoLogika na żywo (0.13.0, kod gotowy)
+
+W AutoLogice: Ustawienia → włącz serwer mobilny (zapamiętaj PIN). W JARVIS: AutoLogika → *Połączenie z AutoLogiką* → `http://127.0.0.1:8787` + PIN → *Zapisz i sprawdź*. Potem „Jarvis, co dziś?”. Dalej: raport poranny o stałej godzinie, logowanie Face ID (passkeys), tryb warsztatowy (jeden ekran).
+
 ## Etap 5 — Telefonia i klienci (M7.1, M7.2, M7.4, M7.5)
 
 - WhatsApp Business (Twilio): wysyłka po weryfikacji konta; przyjmowanie zgłoszeń z podsumowaniem do właściciela; brak automatycznego potwierdzania terminów/cen (zasada z AGENTS.md).
@@ -70,6 +85,6 @@ Mapuje się na M7.3 i część M5.2.
 | 2 | Katalog urządzeń + sterownik MQTT + czujnik stanu bramy | M5.2 | 2–3 sesje |
 | 3 | Wyoming w instalatorze (whisper + piper) i auto‑wybór silnika | M7.3 | 2 sesje |
 | 4 | Reguły bramy/światła z zatwierdzeniem i powiadomienia lokalne | M6.3, M8.2 | 2 sesje |
-| 5 | PWA + rola `operator` + HTTPS w LAN | M8.1 | 2 sesje |
+| 5 | ~~PWA + rola `operator`~~ (0.12.0) — test właściciela przez tunel z 2FA | M8.1 | 1 dzień właściciela |
 | 6 | Raport poranny i dyktowanie notatek (snapshot AutoLogiki) | M6.2 | 2 sesje |
 | 7 | Tray + autostart + auto‑aktualizacja instalatora | M8.5 | 1–2 sesje |
