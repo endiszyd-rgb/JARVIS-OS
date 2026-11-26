@@ -52,12 +52,12 @@ def test_schema_migration_preserves_existing_data(tmp_path):
         db.executescript('CREATE TABLE plugins(id TEXT PRIMARY KEY,manifest TEXT NOT NULL,enabled INTEGER NOT NULL);CREATE TABLE memory(id TEXT PRIMARY KEY,text TEXT,created REAL);INSERT INTO memory VALUES ("m","old note",0);')
     c=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert c.get('/api/memory').json()[0]['text']=='old note'
-    backups=list((tmp_path/'backups').glob('before-schema12-*.sqlite3'))
+    backups=list((tmp_path/'backups').glob('before-schema13-*.sqlite3'))
     assert len(backups)==1
     with sqlite3.connect(backups[0]) as db: assert db.execute('SELECT text FROM memory').fetchone()[0]=='old note'
-    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==12
+    with sqlite3.connect(path) as db: assert db.execute('PRAGMA user_version').fetchone()[0]==13
     create_app(path,KEY)
-    assert len(list((tmp_path/'backups').glob('before-schema12-*.sqlite3')))==1
+    assert len(list((tmp_path/'backups').glob('before-schema13-*.sqlite3')))==1
 
 
 @pytest.mark.parametrize('ip',['169.254.169.254','::ffff:169.254.169.254','0.0.0.0','224.0.0.1','100.100.100.200','fd00:ec2::254'])

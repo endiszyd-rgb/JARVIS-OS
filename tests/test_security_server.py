@@ -45,7 +45,9 @@ def test_packaged_uvicorn_command_limits_real_peer_despite_forwarded_headers(tmp
             results=[request(path,{'X-Jarvis-Key':KEY,'X-Forwarded-For':f'203.0.113.{index}',
                                   'Forwarded':f'for=198.51.100.{index}'})[0]
                      for index,path in enumerate(('/api/status','/api/v1/status','/api/status'),1)]
-            assert results==[200,200,429]
+            # Forwarded headers mark a request as remote: refused while JARVIS_REMOTE_ACCESS is off
+            # (0.12.0), yet still counted against the real loopback peer's rate limit.
+            assert results==[403,403,429]
         finally:
             process.terminate()
             try:process.wait(timeout=5)

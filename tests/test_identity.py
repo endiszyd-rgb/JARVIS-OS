@@ -11,8 +11,8 @@ import pytest
 from jarvis import identity
 
 PASSWORD = 'Synthetic Password! 123'
-USER_FIELDS = {'id', 'username', 'role', 'enabled', 'revision', 'created', 'updated'}
-SESSION_FIELDS = {'id', 'user_id', 'username', 'role', 'expires_at', 'revoked', 'created'}
+USER_FIELDS = {'id', 'username', 'role', 'enabled', 'revision', 'created', 'updated', 'mfa_enabled'}
+SESSION_FIELDS = {'id', 'user_id', 'username', 'role', 'expires_at', 'revoked', 'created', 'mfa'}
 
 
 @pytest.fixture
@@ -56,7 +56,7 @@ def test_passwords_are_salted_and_public_user_data_has_no_hash(db):
     assert PASSWORD not in '\n'.join(connection.iterdump())
     listed = identity.list_users(connection)
     assert {item['id'] for item in listed} == {first['id'], second['id']}
-    assert all(set(item) == USER_FIELDS for item in listed)
+    assert all(set(item) == USER_FIELDS and item['mfa_enabled'] is False for item in listed)
     assert 'password_hash' not in json.dumps(listed)
 
 
@@ -100,7 +100,7 @@ def test_session_resolves_current_identity_and_only_its_role_scopes(db, role, sc
     assert principal.scopes == frozenset(scopes)
     assert principal.is_owner is (role == 'owner')
     assert principal.expires_at == issued['expires_at'] == 160.0
-    assert set(issued) == {'session_id', 'token', 'expires_at', 'user'}
+    assert set(issued) == {'session_id', 'token', 'expires_at', 'user', 'mfa'} and issued['mfa'] is False
     assert set(issued['user']) == USER_FIELDS
     assert issued['user']['id'] == user['id']
 

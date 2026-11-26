@@ -1,0 +1,23 @@
+.cameras-feature { display: grid; gap: 20px; min-width: 0; }
+.camera-head { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.camera-actions { display: flex; flex-wrap: wrap; gap: 10px; }
+.camera-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin-top: 18px; }
+.camera-grid.is-single { grid-template-columns: 1fr; }
+.camera-tile { margin: 0; display: grid; gap: 8px; min-width: 0; }
+.camera-frame { position: relative; display: block; width: 100%; aspect-ratio: 16 / 9; padding: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: #070d13; cursor: zoom-in; }
+.camera-frame img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.camera-placeholder { display: grid; place-items: center; width: 100%; height: 100%; color: var(--subtle); }
+.camera-placeholder svg { width: 32px; height: 32px; }
+.camera-problem { position: absolute; left: 10px; bottom: 10px; display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border-radius: 6px; background: rgba(45, 36, 21, 0.92); color: #f1ce8f; font-size: 12px; }
+.camera-problem svg { width: 13px; height: 13px; }
+.camera-tile figcaption { display: flex; justify-content: space-between; gap: 10px; font-size: 13px; }
+.camera-tile figcaption span { color: var(--subtle); font: 11px Consolas, monospace; }
+.camera-note { margin-top: 14px; }
+.camera-config { display: grid; gap: 16px; margin-top: 16px; }
+.camera-config-grid { display: grid; grid-template-columns: minmax(220px, 2fr) minmax(120px, 1fr); gap: 16px; }
+.camera-rows { list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.camera-row { display: grid; grid-template-columns: repeat(3, minmax(110px, 1fr)) auto auto; gap: 12px; align-items: end; padding: 14px; border: 1px solid var(--border); border-radius: 9px; background: #101923; }
+@media (max-width: 720px) {
+  .camera-config-grid, .camera-row { grid-template-columns: 1fr; }
+  .camera-grid { grid-template-columns: 1fr; }
+}

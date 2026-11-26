@@ -1,0 +1,22 @@
+{
+  "name": "JARVIS OS — warsztat",
+  "short_name": "JARVIS",
+  "description": "Brama, głos i kamery warsztatu",
+  "lang": "pl",
+  "id": "/control/",
+  "start_url": "/control/#/dashboard",
+  "scope": "/control/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0c1017",
+  "theme_color": "#0c1017",
+  "icons": [
+    { "src": "/control/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/control/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Brama", "url": "/control/#/gate" },
+    { "name": "Głos", "url": "/control/#/voice" },
+    { "name": "Kamery", "url": "/control/#/cameras" }
+  ]
+}

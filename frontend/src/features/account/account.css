@@ -1,0 +1,19 @@
+.account-feature { display: grid; gap: 20px; min-width: 0; }
+.account-notice { display: flex; align-items: center; gap: 9px; margin: 0; padding: 12px 15px; border: 1px solid #2d6e5e; border-radius: 9px; background: #11302d; color: var(--good); font-size: 13px; }
+.account-notice svg, .account-state svg { width: 15px; height: 15px; flex-shrink: 0; }
+.account-state { display: flex; align-items: center; gap: 9px; margin: 16px 0; font-size: 14px; }
+.account-state.is-on { color: var(--good); }
+.account-setup { display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; margin-top: 18px; }
+.account-qr { width: 220px; height: 220px; border-radius: 8px; flex-shrink: 0; }
+.account-steps { flex: 1 1 260px; min-width: 0; }
+.account-steps ol { margin: 0 0 16px; padding-left: 20px; line-height: 1.9; font-size: 13px; color: var(--muted); }
+.account-secret { overflow-wrap: anywhere; font-size: 13px; letter-spacing: 1px; }
+.account-form { display: grid; gap: 14px; max-width: 360px; margin-top: 14px; }
+.account-disable { margin-top: 12px; }
+.account-disable summary { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; color: var(--muted); font-size: 13px; }
+.account-disable summary svg { width: 15px; height: 15px; }
+.account-backup { margin-top: 22px; padding: 18px; border: 1px solid #7a5a2a; border-radius: 10px; background: #2d2415; }
+.account-backup h3 { margin: 0 0 6px; font-size: 15px; }
+.account-backup p { margin: 0 0 12px; font-size: 13px; color: var(--muted); }
+.account-backup ul { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 8px; padding: 0; margin: 0 0 14px; list-style: none; }
+.account-backup code { font-size: 14px; letter-spacing: 1px; }

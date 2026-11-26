@@ -19,6 +19,19 @@ def mount(app, directory=DEFAULT_DIST):
             raise HTTPException(503,'Control Center is unavailable')
         return FileResponse(path,media_type='text/html')
 
+    # PWA: installable on a phone/tablet ("Dodaj do ekranu początkowego"); no service worker,
+    # so nothing is cached offline and every request still goes through the server's auth.
+    PWA={'manifest.webmanifest':'application/manifest+json','icon.svg':'image/svg+xml','icon-maskable.svg':'image/svg+xml'}
+
+    @app.get('/control/{name}',include_in_schema=False)
+    def pwa_file(name:str):
+        if name not in PWA:
+            raise HTTPException(404,'Asset missing')
+        path=base/name
+        if not path.is_file():
+            raise HTTPException(404,'Asset missing')
+        return FileResponse(path,media_type=PWA[name])
+
     @app.get('/control/assets/{asset:path}',include_in_schema=False)
     def asset_file(asset:str):
         if not ASSET.fullmatch(asset):

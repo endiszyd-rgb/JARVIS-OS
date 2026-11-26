@@ -6,7 +6,7 @@ import { DRIVERS, driverLabels, emptyHomeAssistant, emptyHttp, emptyTuya, readGa
 import type { CommandResult, GateAction, GateConfig, GateDriver, GateEvent, GateOverview, GateStatus } from './api'
 import './gate.css'
 
-interface Props { credential: string; onUnauthorized: () => void }
+interface Props { credential: string; onUnauthorized: () => void; owner?: boolean }
 const message = (error: unknown) => error instanceof ApiError ? error.message : 'Nie udało się wykonać żądania. Spróbuj ponownie.'
 const actionLabel: Record<string, string> = { open: 'Otwarcie', close: 'Zamknięcie', stop: 'Zatrzymanie', status: 'Odczyt stanu' }
 const sourceLabel: Record<string, string> = { panel: 'panel', voice: 'głos', chat: 'rozmowa', api: 'API' }
@@ -17,7 +17,7 @@ export function stateTone(state: GateStatus['state']): string {
 
 export function GatePanel(props: Props) { return <GateWorkspace key={props.credential} {...props} /> }
 
-function GateWorkspace({ credential, onUnauthorized }: Props) {
+function GateWorkspace({ credential, onUnauthorized, owner = true }: Props) {
   const [overview, setOverview] = useState<GateOverview | null>(null)
   const [draft, setDraft] = useState<GateConfig | null>(null)
   const [busy, setBusy] = useState<string | null>(null)
@@ -130,7 +130,7 @@ function GateWorkspace({ credential, onUnauthorized }: Props) {
       <p className="gate-caption">Komenda głosowa: „Jarvis, otwórz bramę” / „zamknij bramę” / „brama stop” — w widoku <a href="#/voice">Głos</a>.</p>
     </section>
 
-    <section className="panel" aria-labelledby="gate-config-title">
+    {owner && <section className="panel" aria-labelledby="gate-config-title">
       <div className="gate-head"><div><h2 className="panel-heading" id="gate-config-title"><Settings2 aria-hidden="true" />Konfiguracja sterownika</h2>
         <p className="panel-description">Zapisywana lokalnie w JARVIS. Hasła i klucze nie są pokazywane po zapisaniu; puste pole zachowuje poprzednią wartość.</p></div>
         <button type="button" className="button subtle" onClick={() => setShowConfig(value => !value)} aria-expanded={showConfig}>{showConfig ? 'Zwiń' : 'Edytuj'}</button></div>
@@ -188,7 +188,7 @@ function GateWorkspace({ credential, onUnauthorized }: Props) {
           <button type="button" className="button secondary" disabled={disabled || overview?.config.driver === 'disabled'} onClick={() => { void test() }}><Radar aria-hidden="true" />Testuj połączenie (bez ruchu bramy)</button>
           <button type="button" className="button subtle" disabled={disabled} onClick={() => overview && setDraft(structuredClone(overview.config))}>Przywróć</button></div>
       </form>}
-    </section>
+    </section>}
 
     <section className="panel" aria-labelledby="gate-events-title">
       <h2 className="panel-heading" id="gate-events-title"><Radar aria-hidden="true" />Ostatnie polecenia</h2>

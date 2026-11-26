@@ -273,3 +273,37 @@ it.each([
   const allowed = new Set(['/api/v1/auth/login', '/api/v1/auth/me', '/api/v1/status', '/health', '/ready'])
   expect(calls.every(call => allowed.has(call.path))).toBe(true)
 })
+
+it('sends the 2FA code with the account login and explains a missing code', async () => {
+  let attempt = 0
+  const calls = server(path => {
+    if (path !== '/api/v1/auth/login') return undefined
+    attempt += 1
+    return attempt === 1 ? response({ detail: 'Second factor required' }, 401) : response({ token: TOKEN, user: { id: SESSION.id } })
+  })
+  render(<App />)
+  const user = userEvent.setup()
+  await user.type(screen.getByLabelText('Login', { exact: true }), 'observer.demo')
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  expect(await screen.findByText('Podaj kod z aplikacji uwierzytelniającej (2FA).')).toBeInTheDocument()
+  expect(JSON.parse(String(calls[0]?.options.body))).toEqual({ username: 'observer.demo', password: PASSWORD })
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.type(screen.getByLabelText(/Kod 2FA/), '123 456')
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  await screen.findByRole('article', { name: 'Pamięć' })
+  const second = calls.filter(call => call.path === '/api/v1/auth/login')[1]
+  expect(JSON.parse(String(second?.options.body))).toEqual({ username: 'observer.demo', password: PASSWORD, otp: '123456' })
+})
+
+it('gives the operator role gate, voice, cameras and account views only', async () => {
+  const gate = { name: 'Brama warsztatu', driver: 'simulator', live: false, state: 'closed', state_label: 'zamknięta', changed: null, last_action: null, require_confirmation: false, pulse: false }
+  const calls = server(path => path === '/api/v1/auth/me' ? response({ ...SESSION, role: 'operator', scopes: ['status:read', 'gate:control', 'voice:command', 'cameras:view'] })
+    : path === '/api/v1/devices/gate' ? response({ gate, config: { name: gate.name, driver: 'simulator', require_confirmation: false }, events: [] }) : undefined)
+  render(<App />)
+  await accountLogin()
+  const nav = within(document.querySelector('.sidebar-nav') as HTMLElement)
+  for (const label of ['Brama', 'Głos', 'Kamery', 'Moje konto']) expect(nav.getByRole('link', { name: label })).toBeInTheDocument()
+  for (const label of ['Rozmowa', 'Pamięć', 'Bezpieczeństwo', 'Ustawienia']) expect(nav.queryByRole('link', { name: label })).not.toBeInTheDocument()
+  expect(calls.some(call => call.path === '/api/v1/devices/gate')).toBe(true)
+})

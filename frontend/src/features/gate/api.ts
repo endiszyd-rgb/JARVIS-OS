@@ -42,8 +42,9 @@ function status(value: unknown): GateStatus {
 
 export async function readGate(credential: string, signal: AbortSignal): Promise<GateOverview> {
   const value = await apiRequest('/api/v1/devices/gate', signal, credential)
-  if (!object(value) || !object(value.config) || !Array.isArray(value.events) || !Number.isSafeInteger(value.revision)) return invalid()
-  return { gate: status(value.gate), config: value.config as unknown as GateConfig, revision: value.revision as number, events: value.events as GateEvent[], drivers: value.drivers as string[] }
+  // Operators receive only the gate state, a short config summary and events (no revision/drivers).
+  if (!object(value) || !object(value.config) || !Array.isArray(value.events) || (value.revision !== undefined && !Number.isSafeInteger(value.revision))) return invalid()
+  return { gate: status(value.gate), config: value.config as unknown as GateConfig, revision: (value.revision as number | undefined) ?? 0, events: value.events as GateEvent[], drivers: Array.isArray(value.drivers) ? value.drivers as string[] : [] }
 }
 
 export async function sendCommand(credential: string, signal: AbortSignal, action: GateAction, source: 'panel' | 'voice', confirmToken?: string): Promise<CommandResult> {
@@ -85,7 +86,13 @@ export async function saveVoiceConfig(credential: string, signal: AbortSignal, r
 }
 
 export interface VoiceReply { reply: string; session_id: string; model: string; device?: { status: string; action?: string; confirm_token?: string; prompt?: string; gate?: GateStatus } }
-export async function sendVoiceMessage(credential: string, signal: AbortSignal, message: string, sessionId: string | null): Promise<VoiceReply> {
+export async function sendVoiceMessage(credential: string, signal: AbortSignal, message: string, sessionId: string | null, commandOnly = false): Promise<VoiceReply> {
+  if (commandOnly) {
+    // Operator accounts: deterministic commands only (gate, parts); no model, no memory.
+    const reply = await apiRequest('/api/v1/voice/command', signal, credential, { timeoutMs: 30000, body: { text: message.slice(0, 500) } })
+    if (!object(reply) || typeof reply.reply !== 'string') return invalid()
+    return { ...(reply as unknown as VoiceReply), session_id: '' }
+  }
   const value = await apiRequest('/api/v1/chat', signal, credential, { timeoutMs: 95000, body: { message, input_mode: 'voice', session_id: sessionId, do_not_remember: true } })
   if (!object(value) || typeof value.reply !== 'string' || typeof value.session_id !== 'string') return invalid()
   return value as unknown as VoiceReply

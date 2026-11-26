@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Activity, ArrowRight, ArrowUpRight, AudioLines, Bell, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, Wrench, X } from 'lucide-react'
+import { Activity, ArrowRight, ArrowUpRight, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
 import { ApiError, connect, endSession, readSnapshot } from './api'
 import type { AuthSession, LoginInput, Role, Snapshot } from './types'
 import { roleLabels } from './types'
@@ -20,9 +20,11 @@ import { TelephonyPanel } from './features/telephony/TelephonyPanel'
 import { NotificationsPanel } from './features/notifications/NotificationsPanel'
 import { SecurityPanel } from './features/security/SecurityPanel'
 import { ChangesPanel } from './features/changes/ChangesPanel'
+import { CamerasPanel } from './features/cameras/CamerasPanel'
+import { AccountPanel } from './features/account/AccountPanel'
 
 const viewLabels = {
-  dashboard: 'Pulpit', system: 'System', chat: 'Rozmowa', voice: 'Głos', gate: 'Brama', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
+  dashboard: 'Pulpit', system: 'System', chat: 'Rozmowa', voice: 'Głos', gate: 'Brama', cameras: 'Kamery', account: 'Moje konto', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
   workshop: 'AutoLogika', home: 'Dom', devices: 'Urządzenia', automations: 'Automatyzacje', memory: 'Pamięć',
   telephony: 'Telefonia', notifications: 'Powiadomienia', security: 'Bezpieczeństwo', logs: 'Logi', changes: 'Zmiany i zgody',
 } as const
@@ -32,6 +34,8 @@ const viewDescriptions: Record<View, string> = {
   chat: 'Twoje rozmowy, zapisane sesje i wybór skonfigurowanego modelu.', settings: 'Ustawienia asystenta z podglądem przed zatwierdzeniem.',
   voice: 'Komendy głosowe: nasłuch słowa aktywującego lub przytrzymaj i mów. Polecenia urządzeń wykonuje serwer.',
   gate: 'Sterowanie bramą warsztatu, konfiguracja sterownika i historia poleceń.',
+  cameras: 'Podgląd kamer warsztatu przez lokalny serwer go2rtc. Obraz nie opuszcza JARVIS bez logowania.',
+  account: 'Twoje konto: weryfikacja dwuetapowa (2FA) wymagana do dostępu spoza warsztatu.',
   activity: 'Ostatnie zdarzenia zapisane przez JARVIS OS.', plugins: 'Konfiguracja integracji, uprawnienia odczytu i jawne testy połączenia.',
   workshop: 'Kopia danych warsztatu oraz jawny odczyt skonfigurowanej AutoLogiki.', home: 'Stany dozwolonych encji Home Assistant, bez sterowania.',
   devices: 'Konfiguracja integracji i zakres dostępnych odczytów.', automations: 'Lokalne przypomnienia z osobnym zatwierdzeniem zmian.',
@@ -42,15 +46,16 @@ const viewDescriptions: Record<View, string> = {
 }
 const navItems: { view: View; icon: ReactNode }[] = [
   { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Activity /> },
-  { view: 'chat', icon: <MessageSquare /> }, { view: 'voice', icon: <AudioLines /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'memory', icon: <Database /> },
+  { view: 'chat', icon: <MessageSquare /> }, { view: 'voice', icon: <AudioLines /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'cameras', icon: <Camera /> }, { view: 'memory', icon: <Database /> },
   { view: 'settings', icon: <Cpu /> }, { view: 'activity', icon: <Activity /> }, { view: 'plugins', icon: <Plug /> },
   { view: 'workshop', icon: <Wrench /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
   { view: 'automations', icon: <RefreshCw /> }, { view: 'telephony', icon: <Phone /> }, { view: 'notifications', icon: <Bell /> },
   { view: 'changes', icon: <GitPullRequest /> },
-  { view: 'security', icon: <ShieldCheck /> }, { view: 'logs', icon: <Activity /> },
+  { view: 'security', icon: <ShieldCheck /> }, { view: 'account', icon: <UserRound /> }, { view: 'logs', icon: <Activity /> },
 ]
 function canAccess(view: View, role: Role): boolean {
-  if (view === 'dashboard' || view === 'system' || role === 'owner') return true
+  if (view === 'dashboard' || view === 'system' || view === 'account' || role === 'owner') return true
+  if (role === 'operator') return view === 'gate' || view === 'voice' || view === 'cameras'
   return view === 'home' && role === 'home_reader' || view === 'workshop' && role === 'workshop_reader'
 }
 const currentView = (): View => {
@@ -71,15 +76,17 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
   const [mode, setMode] = useState<'account' | 'key'>('account')
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const [otp, setOtp] = useState('')
   const [key, setKey] = useState(() => rememberedKey() ?? '')
   const [remember, setRemember] = useState(() => rememberedKey() !== null)
   const choose = (next: 'account' | 'key') => { setMode(next); setPassword(''); setKey('') }
   const submit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     if (busy) return
-    const input: LoginInput = mode === 'account' ? { mode, username: username.trim(), password } : { mode, key }
+    const code = otp.replace(/\s/g, '')
+    const input: LoginInput = mode === 'account' ? { mode, username: username.trim(), password, ...(code ? { otp: code } : {}) } : { mode, key }
     if (mode === 'key') rememberKey(remember ? key : null)
-    setPassword(''); setKey('')
+    setPassword(''); setKey(''); setOtp('')
     onSubmit(input)
   }
   return <main className="login-page">
@@ -102,6 +109,7 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
           {mode === 'account' ? <>
             <div className="form-field"><label htmlFor="login-name">Login</label><input id="login-name" name="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Twoja nazwa użytkownika" /></div>
             <div className="form-field"><label htmlFor="login-password">Hasło</label><input id="login-password" name="password" type="password" value={password} onChange={event => setPassword(event.target.value)} autoComplete="current-password" required disabled={busy} placeholder="Wprowadź hasło" /></div>
+            <div className="form-field"><label htmlFor="login-otp">Kod 2FA <small>(jeśli włączony)</small></label><input id="login-otp" name="otp" value={otp} onChange={event => setOtp(event.target.value)} autoComplete="one-time-code" inputMode="text" autoCapitalize="none" spellCheck={false} maxLength={16} disabled={busy} placeholder="6 cyfr z aplikacji lub kod zapasowy" /></div>
           </> : <div className="form-field"><label htmlFor="login-key">Klucz dostępu</label><input id="login-key" name="key" type="password" value={key} onChange={event => setKey(event.target.value)} autoComplete="off" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Klucz właściciela" /><small>Użyj klucza skonfigurowanego dla tej instalacji.</small><label className="remember-key"><input type="checkbox" checked={remember} disabled={busy} onChange={event => setRemember(event.target.checked)} />Zapamiętaj klucz na tym komputerze (tylko zaufane stanowisko, np. PC na warsztacie)</label></div>}
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="button primary" type="submit" disabled={busy}>{busy ? <RefreshCw className="spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}{mode === 'account' ? 'Zaloguj się' : 'Połącz kluczem'}</button>
@@ -157,7 +165,7 @@ function Dashboard({ snapshot, role, credential, onUnauthorized }: { snapshot: S
       <Metric label="Powiadomienia" value={status.counts.notifications} icon={<Bell />} caption="Wszystkie zapisane powiadomienia" />
     </section>
     <div className="dashboard-grid">
-      {role === 'owner' && <GateTile credential={credential} onUnauthorized={onUnauthorized} />}
+      {(role === 'owner' || role === 'operator') && <GateTile credential={credential} onUnauthorized={onUnauthorized} />}
       <section className="panel" aria-labelledby="current-state-title"><h2 className="panel-heading" id="current-state-title"><Activity aria-hidden="true" />Stan systemu</h2><p className="panel-description">Gotowość Core i bieżące ustawienia. To nie jest potwierdzenie połączenia z usługami zewnętrznymi.</p><ul className="status-list">
         <StatusRow title="Core" description="Konfiguracja i lokalna baza danych" badge={ready ? 'Gotowy' : 'Wymaga uwagi'} tone={ready ? 'tone-good' : 'tone-warning'} />
         <StatusRow title="Tryb rozmów" description={status.settings.model === 'demo' ? 'Odpowiedzi demonstracyjne' : 'Wybrany dostawca '+(status.settings.model === 'openai' ? 'OpenAI (chmura)' : 'Ollama')+'; model wymaga sprawdzenia'} badge={status.settings.model === 'demo' ? 'DEMO' : status.settings.model === 'openai' ? 'OpenAI' : 'Ollama'} tone="tone-warning" />
@@ -334,8 +342,10 @@ export default function App() {
           view === 'workshop' ? <WorkshopPanel credential={session.credential} onUnauthorized={privateUnauthorized} canReadPrivate={isOwner} /> :
           view === 'home' ? <HomePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'devices' ? <DevicesPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
-          view === 'gate' ? <GatePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
-          view === 'voice' ? <VoicePanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
+          view === 'gate' ? <GatePanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
+          view === 'voice' ? <VoicePanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
+          view === 'cameras' ? <CamerasPanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
+          view === 'account' ? <AccountPanel credential={session.credential} onUnauthorized={privateUnauthorized} accountSession={session.identity.kind === 'session'} /> :
           view === 'automations' ? <AutomationsPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'memory' ? <MemoryPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'telephony' ? <TelephonyPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :

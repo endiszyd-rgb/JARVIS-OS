@@ -1,11 +1,11 @@
 import { ApiError, apiRequest } from '../../api'
 import type { Role } from '../../types'
 
-export const roles: Role[] = ['owner', 'observer', 'home_reader', 'workshop_reader', 'automation_runner']
+export const roles: Role[] = ['owner', 'operator', 'observer', 'home_reader', 'workshop_reader', 'automation_runner']
 export const scopes = ['status:read', 'scheduler:tick', 'home:read', 'plugins:read', 'plugins:invoke', 'messages:read', 'messages:draft'] as const
 export type Scope = typeof scopes[number]
-export interface User { id: string; username: string; role: Role; enabled: boolean; revision: number; created: number; updated: number }
-export interface Session { id: string; user_id: string; username: string; role: Role; expires_at: number; revoked: boolean; created: number }
+export interface User { id: string; username: string; role: Role; enabled: boolean; revision: number; created: number; updated: number; mfa_enabled?: boolean }
+export interface Session { id: string; user_id: string; username: string; role: Role; expires_at: number; revoked: boolean; created: number; mfa?: boolean }
 export interface ServiceToken { id: string; name: string; scopes: Scope[]; expires: number; revoked: boolean }
 export interface Snapshot { users: User[]; sessions: Session[]; tokens: ServiceToken[] }
 export interface IssuedToken { id: string; token: string }
@@ -48,6 +48,11 @@ export async function changeUser(credential: string, signal: AbortSignal, curren
   const value = user(await apiRequest('/api/v1/security/users/' + current.id, signal, credential, { method: 'PATCH', body: { revision: current.revision, role, enabled } }))
   if (value.id !== current.id || value.revision <= current.revision || value.role !== role || value.enabled !== enabled) return bad()
   return value
+}
+export async function resetMfa(credential: string, signal: AbortSignal, current: User): Promise<void> {
+  if (!id(current.id)) return bad()
+  const value = await apiRequest('/api/v1/security/users/' + current.id + '/mfa', signal, credential, { method: 'DELETE' })
+  if (!object(value) || typeof value.reset !== 'boolean') return bad()
 }
 export async function revoke(credential: string, signal: AbortSignal, kind: 'sessions' | 'tokens', ident: string): Promise<void> {
   if (!id(ident)) return bad()

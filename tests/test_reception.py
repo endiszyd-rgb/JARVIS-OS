@@ -155,5 +155,5 @@ def test_migration_v06_preserves_settings_and_backup(tmp_path):
     client=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert client.get('/api/reception/calls').json()==[]
     assert client.get('/api/telephony/settings').json()['revision']==0
-    copies=list((tmp_path/'backups').glob('before-schema12-*.sqlite3'));assert len(copies)==1
+    copies=list((tmp_path/'backups').glob('before-schema13-*.sqlite3'));assert len(copies)==1
     with sqlite3.connect(copies[0]) as c:assert c.execute('PRAGMA user_version').fetchone()[0]==6

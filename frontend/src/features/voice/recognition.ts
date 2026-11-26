@@ -30,7 +30,7 @@ export function afterWakeWord(text: string, wakeWord: string): string | null {
   return spoken.slice(index + wake.length).trim()
 }
 
-const DEVICE = /\b(bram|garaz|szlaban|wjazd)/
+const DEVICE = /\b(bram|garaz|szlaban|wjazd|czesc|zamow)/
 const CONTROL = /^(tak|nie|anuluj|stop|potwierdzam|ok|okej|zgoda|dawaj|zrob to)\b/
 export function looksLikeDeviceCommand(text: string): boolean {
   const spoken = normalize(text)

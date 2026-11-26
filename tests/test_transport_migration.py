@@ -18,7 +18,7 @@ def test_schema10_backup_preserves_reception_memory_and_voice_history(tmp_path):
     assert upgraded.get('/api/memory').json()[0]['id']==note
     assert upgraded.get('/api/chat/sessions/'+voice).json()['input_mode']=='voice'
     assert upgraded.get('/api/telephony/transport/calls').json()==[]
-    backups=list((tmp_path/'backups').glob('before-schema12-*.sqlite3'));assert len(backups)==1
+    backups=list((tmp_path/'backups').glob('before-schema13-*.sqlite3'));assert len(backups)==1
     with sqlite3.connect(backups[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==10
         assert db.execute('SELECT id FROM reception_calls').fetchone()[0]==old['id']
@@ -29,5 +29,5 @@ def test_schema10_backup_preserves_reception_memory_and_voice_history(tmp_path):
     assert started.status_code==201 and started.json()['caller_token']
     restarted=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert len(restarted.get('/api/telephony/transport/calls').json())==1
-    assert len(list((tmp_path/'backups').glob('before-schema12-*.sqlite3')))==1
-    with sqlite3.connect(path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==12
+    assert len(list((tmp_path/'backups').glob('before-schema13-*.sqlite3')))==1
+    with sqlite3.connect(path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==13

@@ -1,8 +1,8 @@
 {
   "format_version": 1,
-  "application_version": "0.11.0",
+  "application_version": "0.12.0",
   "handoff_revision": "0.10.4-handoff.1",
-  "snapshot_date": "2026-11-13",
+  "snapshot_date": "2026-11-26",
   "language": "pl",
   "owner": "Andreas Szydłowski",
   "first_read": "JARVIS_MASTER_PLAN.txt",
@@ -10,13 +10,13 @@
   "next_tasks_file": "JARVIS_MASTER_PLAN.txt",
   "decisions_file": "docs/DECISIONS.md",
   "database": {
-    "core_schema": 12,
+    "core_schema": 13,
     "autologika_schema": 18,
     "postgres_schema": 1,
     "postgres_memory_feature_schema": 4
   },
   "verification": {
-    "pytest_passed": 920,
+    "pytest_passed": 960,
     "python": "3.12",
     "pip_check": "passed",
     "js_syntax": "passed",
@@ -32,7 +32,7 @@
     "transport": "chromium_owner_caller_isolation_full_lab_flow_390px_no_carrier",
     "transport_panel": "6_controlled_dom_api_checks",
     "api_v1": "canonical_and_compatibility_routes_shared_auth_state_limits",
-    "readiness": "owner_key_and_readonly_local_schema12_no_optional_network",
+    "readiness": "owner_key_and_readonly_local_schema13_no_optional_network",
     "docker_report": "docs/evals/docker-m35.json",
     "identity": "local_roles_revocable_sessions_peer_limits_cors_audit_verified",
     "pytest_skipped_without_postgres": 75,
@@ -95,7 +95,7 @@
       "status": "implemented",
       "entry_point": "jarvis/main.py",
       "available": [
-        "FastAPI/SQLite schema12",
+        "FastAPI/SQLite schema13",
         "konta/role/sesje PBKDF2+SHA256",
         "limity API/login, jawny CORS, audyt aktora, backup",
         "opcjonalny PostgreSQL/RLS migration1 i APIrecords"
@@ -227,7 +227,8 @@
         "React Plugin Manager: config/reviewedreads/enable-disable/explicit transport test",
         "React:9widoków modułów, role home/workshop reader, lokalne zapisy z rewizjami i zgodami",
         "Zmiany i zgody: decisions/rollback, sprawdzona struktura16widoków i keyboard/mobilefocus",
-        "0.11.0: widoki Brama i Głos, kafelek bramy na pulpicie, zapamiętany klucz na zaufanym PC"
+        "0.11.0: widoki Brama i Głos, kafelek bramy na pulpicie, zapamiętany klucz na zaufanym PC",
+        "0.12.0: 2FA TOTP, rola operatora, dostęp zdalny przez tunel tylko z 2FA, kamery go2rtc, komenda części, PWA"
       ],
       "pending": [
         "pełny WCAG/czytnik/Safari",
@@ -382,8 +383,8 @@
   },
   "windows_delivery": {
     "status": "build_pipeline_added_not_run",
-    "version": "0.11.0",
-    "installer": "JARVIS-OS-0.11.0-Setup-x64.exe",
+    "version": "0.12.0",
+    "installer": "JARVIS-OS-0.12.0-Setup-x64.exe",
     "sha256": "not_built_yet",
     "bytes": 28223337,
     "release_url": "",
