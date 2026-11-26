@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Activity, ArrowRight, ArrowUpRight, Fingerprint, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
+import { Activity, ArrowRight, ArrowUpRight, ClipboardList, Fingerprint, Gauge, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
 import { ApiError, connect, endSession, readSnapshot } from './api'
 import type { AuthSession, LoginInput, Role, Snapshot } from './types'
 import { roleLabels } from './types'
@@ -47,15 +47,20 @@ const viewDescriptions: Record<View, string> = {
   changes: 'Przegląd propozycji, osobne decyzje i cofanie zastosowanych zmian.',
   logs: 'Ostatnie zdarzenia audytu. Logi systemu i Dockera nie są udostępniane przez ten panel.',
 }
-const navItems: { view: View; icon: ReactNode }[] = [
-  { view: 'kiosk', icon: <Wrench /> }, { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Activity /> },
-  { view: 'chat', icon: <MessageSquare /> }, { view: 'voice', icon: <AudioLines /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'cameras', icon: <Camera /> }, { view: 'memory', icon: <Database /> },
-  { view: 'settings', icon: <Cpu /> }, { view: 'activity', icon: <Activity /> }, { view: 'plugins', icon: <Plug /> },
-  { view: 'workshop', icon: <Wrench /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
-  { view: 'automations', icon: <RefreshCw /> }, { view: 'telephony', icon: <Phone /> }, { view: 'notifications', icon: <Bell /> },
-  { view: 'changes', icon: <GitPullRequest /> },
-  { view: 'security', icon: <ShieldCheck /> }, { view: 'account', icon: <UserRound /> }, { view: 'logs', icon: <Activity /> },
+const navGroups: { title: string; advanced?: boolean; items: { view: View; icon: ReactNode }[] }[] = [
+  { title: 'Na co dzień', items: [
+    { view: 'kiosk', icon: <Wrench /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'cameras', icon: <Camera /> },
+    { view: 'voice', icon: <AudioLines /> }, { view: 'workshop', icon: <ClipboardList /> }, { view: 'chat', icon: <MessageSquare /> },
+  ] },
+  { title: 'Konto', items: [{ view: 'account', icon: <UserRound /> }, { view: 'security', icon: <ShieldCheck /> }] },
+  { title: 'Zaawansowane', advanced: true, items: [
+    { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Gauge /> }, { view: 'settings', icon: <Cpu /> },
+    { view: 'memory', icon: <Database /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
+    { view: 'automations', icon: <RefreshCw /> }, { view: 'notifications', icon: <Bell /> }, { view: 'telephony', icon: <Phone /> },
+    { view: 'plugins', icon: <Plug /> }, { view: 'changes', icon: <GitPullRequest /> }, { view: 'activity', icon: <Activity /> },
+  ] },
 ]
+// 'logs' stays a valid address (old links) but shows the same history as 'activity', so it has no menu entry.
 function canAccess(view: View, role: Role): boolean {
   if (view === 'dashboard' || view === 'system' || view === 'account' || role === 'owner') return true
   if (role === 'operator') return view === 'kiosk' || view === 'gate' || view === 'voice' || view === 'cameras'
@@ -271,7 +276,7 @@ export default function App() {
     try {
       const authenticated = await connect(input, controller.signal)
       if (epoch.current !== id || controller.signal.aborted) return
-      const target = keepView ? currentView() : authenticated.identity.role === 'operator' ? 'kiosk' : 'dashboard'
+      const target = keepView ? currentView() : authenticated.identity.role === 'operator' || authenticated.identity.role === 'owner' ? 'kiosk' : 'dashboard'
       setSession(authenticated); setView(target); setMenuOpen(false)
       window.history.replaceState(null, '', '#/' + target)
       setBusyRefresh(true)
@@ -332,8 +337,20 @@ export default function App() {
     <a className="skip-link" href="#main-content" onClick={event => { event.preventDefault(); document.getElementById('main-content')?.focus() }}>Przejdź do treści</a>
     {menuOpen && <button type="button" className="mobile-backdrop" tabIndex={-1} aria-label="Zamknij nawigację" onClick={() => { setMenuOpen(false); menuButton.current?.focus() }} />}
     <aside className="sidebar" id="control-navigation" ref={sidebar} aria-label="Nawigacja główna">
-      <Brand /><p className="workspace-label">Twoja przestrzeń</p>
-      <nav className="sidebar-nav">{navItems.filter(item => canAccess(item.view, session.identity.role)).map((item, index) => <a key={item.view} ref={index === 0 ? firstLink : undefined} className="nav-link" href={'#/' + item.view} aria-current={view === item.view ? 'page' : undefined} onClick={() => navigate(item.view)}><span className="nav-icon" aria-hidden="true">{item.icon}</span>{viewLabels[item.view]}</a>)}</nav>
+      <Brand />
+      <nav className="sidebar-nav">{(() => {
+        let first = true
+        const link = (item: { view: View; icon: ReactNode }) => {
+          const ref = first ? firstLink : undefined
+          first = false
+          return <a key={item.view} ref={ref} className="nav-link" href={'#/' + item.view} aria-current={view === item.view ? 'page' : undefined} onClick={() => navigate(item.view)}><span className="nav-icon" aria-hidden="true">{item.icon}</span>{viewLabels[item.view]}</a>
+        }
+        const groups = navGroups.map(group => ({ ...group, items: group.items.filter(item => canAccess(item.view, session.identity.role)) })).filter(group => group.items.length > 0)
+        const everyday = groups.some(group => !group.advanced && group.title === 'Na co dzień')
+        return groups.map(group => group.advanced
+          ? <details key={group.title} className="nav-group nav-advanced" open={!everyday || group.items.some(item => item.view === view) || undefined}><summary className="nav-group-title">{group.title}</summary>{group.items.map(link)}</details>
+          : <div key={group.title} className="nav-group"><p className="nav-group-title">{group.title}</p>{group.items.map(link)}</div>)
+      })()}</nav>
       <div className="sidebar-bottom"><a href="/">Dotychczasowy panel<ArrowUpRight aria-hidden="true" /></a><p className="sidebar-footer">JARVIS OS {snapshot?.health.version || ''}<br />Osobisty asystent · Twoje zasady</p></div>
     </aside>
     <div className="main-wrap"><header className="topbar"><div className="topbar-left"><button ref={menuButton} type="button" className="icon-button menu-button" aria-label={menuOpen ? 'Zamknij menu' : 'Otwórz menu'} aria-controls="control-navigation" aria-expanded={menuOpen} onClick={() => setMenuOpen(value => !value)}>{menuOpen ? <X aria-hidden="true" /> : <Menu aria-hidden="true" />}</button><p className="breadcrumb"><span>Control Center</span><ChevronRight aria-hidden="true" /><strong>{title}</strong></p></div><div className="topbar-right"><span className={'connection-pill ' + (snapshot && !ready ? 'tone-warning' : '')}>{snapshot ? ready ? 'Core gotowy' : 'Wymaga uwagi' : 'Odczyt danych'}</span><span className="user-avatar" aria-hidden="true">{(session.identity.username || snapshot?.status.settings.name || 'J').slice(0, 2).toUpperCase()}</span><span className="user-meta"><strong>{session.identity.username || snapshot?.status.settings.name || 'Właściciel'}</strong><span>{roleLabels[session.identity.role]}</span></span><button className="icon-button logout-button" type="button" aria-label="Wyloguj" onClick={() => { void logout() }}><LogOut aria-hidden="true" /></button></div></header>

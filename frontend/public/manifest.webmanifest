@@ -4,7 +4,7 @@
   "description": "Brama, głos i kamery warsztatu",
   "lang": "pl",
   "id": "/control/",
-  "start_url": "/control/#/dashboard",
+  "start_url": "/control/#/kiosk",
   "scope": "/control/",
   "display": "standalone",
   "orientation": "any",
@@ -15,6 +15,7 @@
     { "src": "/control/icon-maskable.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
   ],
   "shortcuts": [
+    { "name": "Warsztat", "url": "/control/#/kiosk" },
     { "name": "Brama", "url": "/control/#/gate" },
     { "name": "Głos", "url": "/control/#/voice" },
     { "name": "Kamery", "url": "/control/#/cameras" }

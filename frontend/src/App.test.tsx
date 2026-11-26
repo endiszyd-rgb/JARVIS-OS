@@ -33,6 +33,10 @@ function server(handler?: Handler) {
     if (path === '/api/v1/status') return response(STATUS)
     if (path === '/health') return response({ status: 'ok', version: '0.8.9' })
     if (path === '/ready') return response(READY)
+    // workshop screen (owner landing): gate tile, cameras and today's AutoLogika brief
+    if (path === '/api/v1/devices/gate') return response({ detail: 'Gate unavailable in this test' }, 503)
+    if (path === '/api/v1/cameras') return response({ enabled: false, refresh_ms: 1000, cameras: [] })
+    if (path === '/api/v1/autologika/today') return response({ detail: 'Read-only integration explicitly disabled' }, 503)
     throw new Error('Unexpected test request: ' + path)
   })
   vi.stubGlobal('fetch', fetcher)
@@ -44,6 +48,8 @@ async function keyLogin() {
   await user.click(screen.getByRole('button', { name: 'Klucz właściciela' }))
   await user.type(screen.getByLabelText('Klucz dostępu', { exact: true }), KEY)
   await user.click(screen.getByRole('button', { name: 'Połącz kluczem' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })  // the owner lands on the workshop screen
+  await user.click(within(document.querySelector('.sidebar-nav') as HTMLElement).getByRole('link', { name: 'Pulpit' }))
   await screen.findByRole('heading', { name: 'Pulpit', level: 1 })
   await screen.findByRole('article', { name: 'Pamięć' })
   return user
@@ -336,4 +342,24 @@ it('logs in with a passkey (Face ID) and sends the assertion as JSON', async () 
   const verify = calls.find(call => call.path === '/api/v1/auth/passkeys/login/verify')
   expect(JSON.parse(String(verify?.options.body))).toEqual({ ticket: 'ticket-0123456789abcdef', credential: { id: 'AQID', rawId: 'AQID', type: 'public-key', response: { clientDataJSON: 'e30', authenticatorData: 'AQID', signature: 'AQID', userHandle: null }, clientExtensionResults: {}, authenticatorAttachment: 'platform' } })
   Object.defineProperty(navigator, 'credentials', { configurable: true, value: undefined })
+})
+
+it('groups the menu: everyday views first, advanced tools folded away, no duplicate log entry', async () => {
+  server()
+  render(<App />)
+  const user = userEvent.setup()
+  await user.click(screen.getByRole('button', { name: 'Klucz właściciela' }))
+  await user.type(screen.getByLabelText('Klucz dostępu', { exact: true }), KEY)
+  await user.click(screen.getByRole('button', { name: 'Połącz kluczem' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })
+  const nav = document.querySelector('.sidebar-nav') as HTMLElement
+  expect([...nav.querySelectorAll('.nav-group-title')].map(item => item.textContent)).toEqual(['Na co dzień', 'Konto', 'Zaawansowane'])
+  const everyday = [...nav.querySelectorAll('.nav-group:first-child .nav-link')].map(item => item.textContent)
+  expect(everyday).toEqual(['Warsztat', 'Brama', 'Kamery', 'Głos', 'AutoLogika', 'Rozmowa'])
+  const advanced = nav.querySelector('details.nav-advanced') as HTMLDetailsElement
+  expect(advanced.open).toBe(false)
+  expect(within(nav).queryByRole('link', { name: 'Logi' })).not.toBeInTheDocument()
+  await user.click(within(nav).getByRole('link', { name: 'Pulpit' }))
+  await screen.findByRole('heading', { name: 'Pulpit', level: 1 })
+  expect((document.querySelector('details.nav-advanced') as HTMLDetailsElement).open).toBe(true)
 })

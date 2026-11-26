@@ -106,6 +106,21 @@ streams:
   # Dahua: rtsp://admin:HASLO@192.168.1.108:554/cam/realmonitor?channel=1&subtype=1
 ```
 
+#### Kamery Setti (Setti+, ekosystem Tuya)
+
+Kamery Setti działają w chmurze Tuya i zwykle nie mają RTSP. go2rtc od wersji **1.9.13** ma źródło `tuya`:
+
+- **Tuya Smart API** (prościej): w go2rtc (http://127.0.0.1:1984) *Add → Tuya* → region + e-mail i hasło konta **Tuya Smart**. Konta Smart Life i aplikacji OEM (Setti+) nie są obsługiwane — kamery trzeba usunąć z aplikacji Setti+ i dodać w aplikacji Tuya Smart.
+- **Tuya Cloud API** (bez przenoszenia kamer, jeśli konto Setti+ da się powiązać z projektem Tuya IoT — tym samym co dla sterownika bramy): w `go2rtc.yaml`
+
+```yaml
+streams:
+  kamera_zewn: tuya://openapi.tuyaeu.com?device_id=ID_KAMERY&uid=UID&client_id=ACCESS_ID&client_secret=ACCESS_SECRET&resolution=sd
+  kamera_wewn: tuya://openapi.tuyaeu.com?device_id=ID_KAMERY_2&uid=UID&client_id=ACCESS_ID&client_secret=ACCESS_SECRET&resolution=sd
+```
+
+Podgląd klatek z kamer Tuya wymaga **ffmpeg** obok go2rtc (go2rtc dekoduje obraz do JPEG). W JARVIS dodaj kamery `zewnetrzna` → strumień `kamera_zewn` i `wewnetrzna` → `kamera_wewn`. Nie testowane na kamerach Setti — jeśli go2rtc nie pokaże obrazu, sprawdź podgląd w samym go2rtc, zanim szukasz problemu w JARVIS.
+
 Hasła kamer zostają w `go2rtc.yaml`; JARVIS zna tylko nazwy strumieni. W panelu: **Kamery** → *Konfiguracja kamer* → adres `http://127.0.0.1:1984`, dodaj kamery (identyfikator, nazwa, strumień `nvr_ch1`). Podgląd to klatki JPEG odświeżane co `refresh_ms` (domyślnie 1 s) — działa przez każdy tunel i na słabym LTE; to nie jest płynne wideo. Używaj substreamów (niższa rozdzielczość).
 
 ### 6. Komendy głosowe

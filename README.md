@@ -1,3 +1,13 @@
+## 0.14.1 — porządki w interfejsie i kamery Setti (2026-11-26)
+
+- **Menu w trzech grupach** zamiast 21 pozycji jedna pod drugą: *Na co dzień* (Warsztat, Brama, Kamery, Głos, AutoLogika, Rozmowa), *Konto* (Moje konto, Bezpieczeństwo) i zwinięte *Zaawansowane* (Pulpit, System, Ustawienia, Pamięć, Dom, Urządzenia, Automatyzacje, Powiadomienia, Telefonia, Pluginy, Zmiany, Historia działań). Grupa zaawansowana rozwija się sama, gdy otwarty jest jej widok. Usunięto zdublowaną pozycję „Logi” (ta sama historia co „Historia działań”; adres `#/logs` nadal działa).
+- **Właściciel po zalogowaniu trafia na ekran „Warsztat”** (jak operator); pozostałe role — na Pulpit. Aplikacja z ekranu głównego telefonu (PWA) też otwiera Warsztat; skrót „Warsztat” w menu ikony.
+- **Kamery Setti (Tuya)**: instrukcja w `docs/DOSTEP-ZDALNY.md` — go2rtc ≥ 1.9.13 ma źródło `tuya` (Tuya Smart API lub Tuya Cloud API z tym samym projektem co sterownik bramy); JARVIS bez zmian w kodzie pobiera klatki przez go2rtc.
+
+Wykonane kontrole: **176 testów UI PASS** (nowy test grup menu; pomocnik logowania kluczem przechodzi teraz z Warsztatu na Pulpit), typecheck/build PASS; Chrome 1280 px i 390 px (menu mobilne): grupy, zwinięte Zaawansowane, przejście do Pulpitu, 0 błędów konsoli. Backend bez zmian poza numerem wersji (990 pytest PASS w 0.14.0).
+
+Ograniczenia: kamery Setti przez go2rtc/Tuya **nie testowane** (brak sprzętu i konta); podgląd klatek z kamer Tuya wymaga ffmpeg obok go2rtc (dekodowanie WebRTC → JPEG).
+
 ## 0.14.0 — logowanie Face ID / Touch ID (passkeys) i ekran „Warsztat” (2026-11-26)
 
 Na iPhonie sesja znika po zamknięciu aplikacji, więc logowanie hasłem i kodem 2FA za każdym razem było uciążliwe. Teraz:
@@ -92,7 +102,7 @@ Właściciel autoryzował M4 i dalsze etapy. Adapter używa wyłącznie potwierd
 
 Testy kontraktów i snapshot:36 PASS; pip check PASS. Produkcyjna AutoLogika/Supabase i realne urządzenia NOT_RUN. Schemat bazy i instalator HUD3 bez zmian; ten commit rozwija źródła backendu.
 
-# JARVIS OS · 0.14.0
+# JARVIS OS · 0.14.1
 
 ## Instalator Windows — obecna wersja M3
 
