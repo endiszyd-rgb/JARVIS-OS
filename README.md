@@ -1,3 +1,16 @@
+## 0.13.0 — AutoLogika OS na żywo: raport dnia i części (2026-11-26)
+
+Właściciel używa desktopowej AutoLogiki OS. Ponowny audyt repozytorium Autologika-OS (bcdc364, 21.11.2026, 201 commitów po poprzednim audycie): serwer mobilny nadal udostępnia te same trasy GET `/api/orders` i `/api/order/{id}` (PIN w `X-Autologika-Pin`, port 8787), schemat bazy 18; statusy części pochodzą z `electron/job-part-workflow.cjs` (DO_ZAMOWIENIA / ZAMOWIONE / W_DRODZE …), a zlecenie z brakującymi częściami ma `wait_state=CZESCI`.
+
+- **Połączenie ustawiane w panelu** (widok AutoLogika → *Połączenie z AutoLogiką*): adres i PIN serwera mobilnego, PIN maskowany i zachowywany przy ponownym zapisie, przycisk *Zapisz i sprawdź połączenie*. Zmienne `.env` działają jak dotąd jako zapas.
+- **„Dziś w warsztacie”** (`GET /api/v1/autologika/today`, karta w widoku AutoLogika — odczyt na żądanie): termin dziś, gotowe do odbioru, czeka na klienta, po terminie, części do zamówienia i w drodze. Maksymalnie 1 + 15 zapytań GET; JARVIS nic nie zapisuje.
+- **Głos / czat**: „Jarvis, co dziś?”, „jakie są zlecenia?”, „co jest gotowe?” → raport dnia; „co trzeba zamówić?” → części na żywo (gdy AutoLogika nie odpowiada — kopia). Operator nie ma dostępu do danych warsztatu.
+- **Kontrakt**: `scripts/autologika_contract_harness.cjs` uruchamia prawdziwe migracje `db.cjs` (schemat 18) i prawdziwe zapytanie `orderSelect` z repozytorium AutoLogiki na danych syntetycznych; zrzuty odpowiedzi w `tests/fixtures/autologika_bcdc364/`.
+
+Wykonane kontrole: **980 pytest PASS / 75 skip** (nowe `tests/test_autologika_live.py` 20), pip check PASS, `node --check jarvis/app.js` PASS, **172 testy UI PASS** (TodayCard 3), typecheck/build PASS. JARVIS uruchomiony przeciw harnessowi AutoLogiki przez HTTP: zapis połączenia, test (4 otwarte zlecenia), raport dnia, głos „co dziś” i „co trzeba zamówić” PASS; Chrome 390 px: karta „Dziś w warsztacie” z danymi, 0 błędów konsoli.
+
+Ograniczenia: **prawdziwa instalacja AutoLogiki u właściciela NOT_RUN**. Serwer mobilny AutoLogiki musi być włączony (Ustawienia → serwer mobilny); lista z API pomija wydane i ma limit 100 zleceń; terminarz (wizyty) nie jest dostępny przez HTTP AutoLogiki. Serwer mobilny AutoLogiki słucha na wszystkich interfejsach (0.0.0.0) bez HTTPS i z 6‑cyfrowym PIN-em — w sieci warsztatu zalecane ograniczenie zapory Windows do 127.0.0.1/tabletu. Brak raportu porannego o stałej godzinie (M6.2 IN_PROGRESS).
+
 ## 0.12.0 — dostęp z telefonu: 2FA, rola operatora, kamery, PWA (2026-11-26)
 
 Właściciel chciał używać JARVIS „jak strony”: zalogować się z telefonu spoza warsztatu i mieć komendy głosowe (brama), części do zamówienia i podgląd kamer. Zamiast osobnej strony rozbudowano Control Center:
@@ -65,7 +78,7 @@ Właściciel autoryzował M4 i dalsze etapy. Adapter używa wyłącznie potwierd
 
 Testy kontraktów i snapshot:36 PASS; pip check PASS. Produkcyjna AutoLogika/Supabase i realne urządzenia NOT_RUN. Schemat bazy i instalator HUD3 bez zmian; ten commit rozwija źródła backendu.
 
-# JARVIS OS · 0.12.0
+# JARVIS OS · 0.13.0
 
 ## Instalator Windows — obecna wersja M3
 

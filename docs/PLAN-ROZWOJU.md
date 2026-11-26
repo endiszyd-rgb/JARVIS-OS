@@ -56,6 +56,10 @@ Zrobione w kodzie 2026-11-26 (M8.1 IN_PROGRESS): 2FA TOTP, rola `operator`, poli
 
 Następnie: WebRTC dla płynnego wideo (go2rtc), powiadomienia push o otwarciu bramy, części na żywo po kontrakcie AutoLogiki.
 
+## Etap 4b — AutoLogika na żywo (0.13.0, kod gotowy)
+
+W AutoLogice: Ustawienia → włącz serwer mobilny (zapamiętaj PIN). W JARVIS: AutoLogika → *Połączenie z AutoLogiką* → `http://127.0.0.1:8787` + PIN → *Zapisz i sprawdź*. Potem „Jarvis, co dziś?”. Dalej: raport poranny o stałej godzinie, logowanie Face ID (passkeys), tryb warsztatowy (jeden ekran).
+
 ## Etap 5 — Telefonia i klienci (M7.1, M7.2, M7.4, M7.5)
 
 - WhatsApp Business (Twilio): wysyłka po weryfikacji konta; przyjmowanie zgłoszeń z podsumowaniem do właściciela; brak automatycznego potwierdzania terminów/cen (zasada z AGENTS.md).

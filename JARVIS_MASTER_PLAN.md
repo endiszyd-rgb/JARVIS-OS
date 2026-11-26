@@ -25,7 +25,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 
 - Data ostatniej aktualizacji: 2026-11-26
 - Bieżący etap: M5 — dom i urządzenia
-- Aktualne zadanie: M5.5 sterowniki bramy DONE (realny sprzęt do sprawdzenia przez właściciela); M8.1 IN_PROGRESS — 0.12.0: dostęp zdalny z 2FA, rola operatora, kamery go2rtc, PWA (polecenie właściciela 2026-11-26)
+- Aktualne zadanie: M6.2 IN_PROGRESS (0.13.0 raport dnia na żywo z AutoLogiki); M5.5 sterowniki bramy DONE (realny sprzęt do sprawdzenia przez właściciela); M8.1 IN_PROGRESS — 0.12.0: dostęp zdalny z 2FA, rola operatora, kamery go2rtc, PWA (polecenie właściciela 2026-11-26)
 - Zadania VERIFIED: 24 / 45
 - Zadania DONE: 1 / 45
 - Ostatni commit źródeł: bieżący commit 0.12.0 (dostęp zdalny, 2FA, operator, kamery, PWA); poprzednio 0.11.0 (brama + głos)
@@ -351,12 +351,12 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** —
 
 #### M6.2 — Raport poranny AutoLogika, przypomnienia części, opóźnienia zleceń, raport dnia.
-- **Status:** TODO
-- **Rozpoczęto / aktualizacja UTC:** —
+- **Status:** IN_PROGRESS
+- **Rozpoczęto / aktualizacja UTC:** 2026-11-26
 - **Kryterium akceptacji:** działająca, udokumentowana implementacja lub potwierdzony audyt; testy adekwatne do zadania.
-- **Wykonano / dowody (pliki, commit):** —
-- **Testy (komenda, wynik):** NOT_RUN
-- **Blokady / dalsze kroki:** —
+- **Wykonano / dowody (pliki, commit):** 0.13.0: raport dnia na żywo z desktopowej AutoLogiki OS (ponowny audyt Autologika-OS bcdc364: te same GET /api/orders i /api/order/{id}, schemat 18, statusy części z job-part-workflow.cjs) — `jarvis/autologika.py` (`brief`, `brief_text`, `parts_text`, ustawienia połączenia w JARVIS z maskowanym PIN-em), `GET /api/v1/autologika/today`, `GET/PUT /autologika/connection`, `POST /autologika/connection/test`; intencja „co dziś / jakie zlecenia / co jest gotowe” i części na żywo (fallback: kopia); karta „Dziś w warsztacie” i formularz połączenia w widoku AutoLogika. Kontrakt: `scripts/autologika_contract_harness.cjs` uruchamia prawdziwe migracje db.cjs i prawdziwe zapytanie orderSelect; zrzuty w `tests/fixtures/autologika_bcdc364/`.
+- **Testy (komenda, wynik):** 2026-11-26 `.venv/bin/python -m pytest -q` 980 PASS/75 skip (nowe `tests/test_autologika_live.py` 20); pip check PASS; vitest 172 PASS, typecheck/build PASS; JARVIS ↔ harness AutoLogiki (prawdziwy schemat 18 + SQL) przez HTTP: test połączenia, raport dnia, głos „co dziś”/„co trzeba zamówić” PASS; Chrome 390 px karta „Dziś w warsztacie” PASS. Prawdziwa instalacja AutoLogiki u właściciela NOT_RUN.
+- **Blokady / dalsze kroki:** brak harmonogramu (raport poranny o stałej godzinie) i przypomnień — po M6.1/M8.2; terminarz (appointments) niedostępny przez HTTP AutoLogiki; test właściciela na jego instalacji.
 
 #### M6.3 — Automatyzacje światła, statusu bramy, alertów o połączeniach i godzin dostępności.
 - **Status:** TODO

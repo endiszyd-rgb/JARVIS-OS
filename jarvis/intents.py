@@ -14,12 +14,16 @@ PARTS = re.compile(r'\b(?:czesc\w*|zamowien\w*)\b.*\b(?:zamow\w*|brak\w*|potrzeb
                    r'|\b(?:co|czego|jakie|ktore)\b.*\b(?:trzeba|musze|mam|musimy|brakuje|nalezy)\b.*\b(?:zamowic|domowic|zamawiac)\b'
                    r'|\b(?:czego|co)\b.*\bbrak\w*\b.*\bzamow\w*'
                    r'|\b(?:jakie|ktore)\b.*\bczesc\w*\b')
+TODAY = re.compile(r'^(?:co|a co)\b(?: \w+){0,3} (?:dzis|dzisiaj|na dzis|na dzisiaj)$'
+                   r'|\b(?:jakie|ile)\b.*\bzlecen\w*'
+                   r'|\b(?:raport|podsumowanie|plan)\b.*\b(?:dnia|dzienn\w*|warsztatu|dzis|dzisiaj)\b'
+                   r'|\bstan warsztatu\b|\bco (?:jest )?gotowe\b|\bco w warsztacie\b')
 NO = re.compile(r'^(?:nie|anuluj|odwolaj|rezygnuje|stop|zostaw|nie trzeba)[.!]?$')
 
 
 @dataclass(frozen=True)
 class Intent:
-    kind: str            # gate | parts | confirm | cancel
+    kind: str            # gate | parts | today | confirm | cancel
     action: str = ''     # open | close | stop | status | list
     wake: bool = False
     text: str = ''
@@ -56,6 +60,8 @@ def parse(message: str) -> Intent | None:
     if not re.search(r'\b' + GATE_NOUNS + r'\b', text) and not re.search(r'\bgaraz', text):
         if words <= 12 and PARTS.search(text):
             return Intent('parts', 'list', wake, text)
+        if words <= 10 and TODAY.search(text):
+            return Intent('today', 'brief', wake, text)
         return None
     if words > 12:
         return None

@@ -23,7 +23,9 @@ from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.concurrency import run_in_threadpool
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
-from .autologika import AUDITED_COMMIT, configured_adapter, capabilities as autologika_capabilities
+from .autologika import AUDITED_COMMIT, capabilities as autologika_capabilities
+from . import autologika as autologika_live
+from datetime import datetime
 from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
@@ -179,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.12.0', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.13.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -357,7 +359,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.12.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.13.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -382,7 +384,7 @@ def create_app(db_path=None, api_key=None):
     async def read_orders():
         with db() as c:
             audit(c, 'autologika.read_requested', {'route': 'orders'})
-        return await configured_adapter().read()
+        return await live_adapter().read()
 
     @api.get('/autologika/readonly/orders/{order_id}', dependencies=[Depends(require('workshop:read'))])
     async def read_order(order_id: int):
@@ -390,7 +392,49 @@ def create_app(db_path=None, api_key=None):
             raise HTTPException(422, 'Positive order ID required')
         with db() as c:
             audit(c, 'autologika.read_requested', {'route': 'order', 'order_id': order_id})
-        return await configured_adapter().read(order_id)
+        return await live_adapter().read(order_id)
+
+    # ---- AutoLogika live connection (settings in JARVIS) and today's brief ----
+    def live_adapter():
+        with db() as c: stored,_=autologika_live.load_connection(c)
+        return autologika_live.live_adapter(stored,transport=getattr(app.state,'autologika_transport',None))
+
+    def live_configured():
+        with db() as c: stored,_=autologika_live.load_connection(c)
+        return stored.enabled or os.getenv('AUTOLOGIKA_READONLY_ENABLED','false').lower()=='true'
+
+    class AutoLogikaConnectionUpdate(Strict):
+        revision:int=Field(ge=0,strict=True)
+        config:dict
+
+    @api.get('/autologika/connection',dependencies=[Depends(auth)])
+    def autologika_connection_read():
+        with db() as c: config,revision=autologika_live.load_connection(c)
+        return {'config':config.masked(),'revision':revision,'env_enabled':os.getenv('AUTOLOGIKA_READONLY_ENABLED','false').lower()=='true',
+                'audited_commit':autologika_live.LIVE_AUDITED_COMMIT}
+
+    @api.put('/autologika/connection',dependencies=[Depends(auth)])
+    def autologika_connection_write(body:AutoLogikaConnectionUpdate):
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            config,revision=autologika_live.save_connection(c,body.config,body.revision)
+            audit(c,'autologika.connection_changed',{'enabled':config.enabled,'revision':revision})
+        return {'config':config.masked(),'revision':revision}
+
+    @api.post('/autologika/connection/test',dependencies=[Depends(auth)])
+    async def autologika_connection_test():
+        result=await live_adapter().read()
+        with db() as c: audit(c,'autologika.connection_tested',{'orders':len(result['data'])})
+        return {'status':'connected','open_orders':len(result['data'])}
+
+    def today_local():
+        return datetime.now().strftime('%Y-%m-%d')
+
+    @api.get('/autologika/today',dependencies=[Depends(require('workshop:read'))])
+    async def autologika_today():
+        data=await autologika_live.brief(live_adapter(),today_local())
+        with db() as c: audit(c,'autologika.brief_read',{'open_orders':data['open_orders']})
+        return data
 
     @api.get('/autologika/snapshot', dependencies=[Depends(require('workshop:read'))])
     def snapshot_status():
@@ -1080,10 +1124,10 @@ def create_app(db_path=None, api_key=None):
         intent=intents.parse(body.text)
         if intent is None:
             return {'reply':'Nie znam tego polecenia. Powiedz na przykład: „Jarvis, otwórz bramę” albo „co trzeba zamówić”.','model':'parser','ai_generated':False,'handled':False}
-        if intent.kind=='parts':
+        if intent.kind in ('parts','today'):
             if not (principal.is_owner or 'workshop:read' in principal.scopes):
-                return {'reply':'To konto nie ma dostępu do części.','model':'parser','ai_generated':False,'handled':False}
-            return dict(await run_in_threadpool(parts_intent),handled=True)
+                return {'reply':'To konto nie ma dostępu do danych warsztatu.' if intent.kind=='today' else 'To konto nie ma dostępu do części.','model':'parser','ai_generated':False,'handled':False}
+            return dict(await (parts_reply() if intent.kind=='parts' else today_reply()),handled=True)
         if intent.kind=='gate' and not (principal.is_owner or 'gate:control' in principal.scopes):
             return {'reply':'To konto nie może sterować bramą.','model':'parser','ai_generated':False,'handled':False}
         result=await gate_intent(intent,'voice:'+principal.id,'voice')
@@ -1091,7 +1135,26 @@ def create_app(db_path=None, api_key=None):
             return {'reply':'Nie ma polecenia do potwierdzenia.','model':'parser','ai_generated':False,'handled':False}
         return dict(result,handled=True)
 
-    DONE_PART_STATUSES=frozenset({'DOSTARCZONE','DOSTARCZONO','ODEBRANE','ODEBRANO','PRZYJETE','PRZYJĘTE','RECEIVED','DELIVERED','ANULOWANE','CANCELLED','CANCELED','ZWROCONE','ZWRÓCONE','RETURNED'})
+
+    async def parts_reply():
+        """Parts from the live read-only AutoLogika API when connected, otherwise from the snapshot."""
+        if live_configured():
+            try:
+                data=await autologika_live.brief(live_adapter(),today_local())
+                return {'reply':autologika_live.parts_text(data),'model':'parser','ai_generated':False,
+                        'parts':{'to_order':data['to_order'],'on_order':data['on_order'],'source':'live'}}
+            except HTTPException:
+                pass  # fall back to the snapshot below
+        return await run_in_threadpool(parts_intent)
+
+    async def today_reply():
+        if not live_configured():
+            return {'reply':'Nie mam połączenia z AutoLogiką. Włącz je w widoku AutoLogika (adres i PIN serwera mobilnego).','model':'parser','ai_generated':False,'brief':None}
+        try:
+            data=await autologika_live.brief(live_adapter(),today_local())
+        except HTTPException:
+            return {'reply':'AutoLogika nie odpowiada. Sprawdź, czy program jest uruchomiony z włączonym serwerem mobilnym.','model':'parser','ai_generated':False,'brief':None}
+        return {'reply':autologika_live.brief_text(data),'model':'parser','ai_generated':False,'brief':data}
 
     def parts_intent():
         """Read-only parts summary from the audited AutoLogika snapshot (never live writes)."""
@@ -1099,11 +1162,13 @@ def create_app(db_path=None, api_key=None):
             data=configured_snapshot().read('parts',200,0)['data']
         except (HTTPException,ValueError,sqlite3.DatabaseError,OSError,KeyError):
             return {'reply':'Nie mam dostępu do danych części — kopia AutoLogiki nie jest skonfigurowana albo nie pasuje do kontraktu.','model':'parser','ai_generated':False,'parts':None}
-        ordered=[item for item in data['job_part_orders']['items'] if str(item.get('status') or '').upper() not in DONE_PART_STATUSES]
-        low=[item for item in data['inventory_parts']['items'] if item.get('min_stock') is not None and item.get('stock') is not None and item['stock']<item['min_stock']]
+        statuses=lambda item:str(item.get('status') or '').upper()
+        ordered=[item for item in data['job_part_orders']['items'] if statuses(item) in autologika_live.PARTS_ON_ORDER]
+        low=[item for item in data['job_part_orders']['items'] if statuses(item) in autologika_live.PARTS_TO_ORDER]
+        low+=[item for item in data['inventory_parts']['items'] if item.get('min_stock') is not None and item.get('stock') is not None and item['stock']<item['min_stock']]
         def label(item):return (item.get('name') or item.get('part_no') or 'część')+(' ('+str(item['part_no'])+')' if item.get('part_no') and item.get('name') else '')
         parts=[]
-        if low:parts.append('Do domówienia (stan poniżej minimum): '+', '.join(label(item) for item in low[:8])+(f' i {len(low)-8} więcej' if len(low)>8 else '')+'.')
+        if low:parts.append('Do zamówienia (z zleceń i poniżej stanu minimalnego): '+', '.join(label(item) for item in low[:8])+(f' i {len(low)-8} więcej' if len(low)>8 else '')+'.')
         if ordered:parts.append('Zamówione, jeszcze nie dotarły: '+', '.join(label(item)+(' — zlecenie '+str(item['order_id']) if item.get('order_id') else '') for item in ordered[:8])+(f' i {len(ordered)-8} więcej' if len(ordered)>8 else '')+'.')
         reply=' '.join(parts) if parts else 'Nic nie czeka na zamówienie i brak braków magazynowych w kopii AutoLogiki.'
         return {'reply':reply+' (dane z kopii AutoLogiki, nie na żywo)','model':'parser','ai_generated':False,
@@ -1112,7 +1177,9 @@ def create_app(db_path=None, api_key=None):
     async def respond(body: Chat, history):
         intent=intents.parse(body.message)
         if intent is not None and intent.kind=='parts':
-            return await run_in_threadpool(parts_intent)
+            return await parts_reply()
+        if intent is not None and intent.kind=='today':
+            return await today_reply()
         if intent is not None:
             handled=await gate_intent(intent,'chat:'+(body.session_id or 'none'),'voice' if body.input_mode=='voice' else 'chat')
             if handled is not None: return handled

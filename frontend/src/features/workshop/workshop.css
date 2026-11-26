@@ -26,3 +26,14 @@
 .workshop-finances dt { color: var(--muted); font-size: 12px; line-height: 1.8; }
 .workshop-finances dd { color: var(--accent); font-size: 22px; font-weight: 600; margin: 8px 0 0; overflow-wrap: anywhere; }
 @media (max-width: 650px) { .workshop-source-heading { align-items: start; flex-direction: column; } .workshop-form, .workshop-live-form { display: grid; grid-template-columns: minmax(0,1fr); } .workshop-form .form-field { flex-basis: auto; } .workshop-form .button, .workshop-live-form .button { justify-self: start; } .workshop-finances { grid-template-columns: minmax(0,1fr); } }
+.today-head { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; }
+.today-summary { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin: 14px 0 4px; font-size: 14px; color: var(--muted); }
+.today-summary svg, .today-problem svg { width: 15px; height: 15px; flex-shrink: 0; }
+.today-problem { display: flex; align-items: flex-start; gap: 8px; margin: 14px 0 0; color: #f1ce8f; font-size: 13px; line-height: 1.6; }
+.today-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 14px; margin-top: 16px; }
+.today-group { padding: 14px 16px; border: 1px solid var(--border); border-radius: 9px; background: #101923; min-width: 0; }
+.today-group h3 { display: flex; justify-content: space-between; align-items: center; margin: 0 0 8px; font-size: 14px; }
+.today-group ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.today-group li { display: grid; gap: 2px; font-size: 13px; overflow-wrap: anywhere; }
+.today-group li span { color: var(--subtle); font-size: 12px; }
+.today-form { display: grid; gap: 14px; max-width: 460px; margin-top: 12px; }
