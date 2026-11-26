@@ -1,3 +1,11 @@
+## 0.14.2 — wszystkie ustawienia w jednym miejscu, podpowiedzi „?” (2026-11-26)
+
+- **Zaawansowane → Ustawienia** ma teraz zakładki: *Brama*, *AutoLogika*, *Kamery*, *Głos*, *Asystent AI*. Konfiguracja zniknęła z widoków codziennych (Brama, Głos, Kamery, AutoLogika) — tam zostały tylko przyciski i podgląd oraz link „Ustawienia → …”. Adresy `#/settings/gate`, `#/settings/autologika`, `#/settings/cameras`, `#/settings/voice`, `#/settings/assistant` otwierają od razu właściwą zakładkę. *Bezpieczeństwo* (konta, tokeny, sesje) przeniesione do grupy *Zaawansowane*, zaraz pod *Ustawienia*.
+- **Uproszczone formularze**: na wierzchu tylko to, co trzeba wpisać; reszta w zwijanym „Więcej opcji” / „Zachowanie bramy”. Brama: sterownik *Setti / Tuya* na pierwszym miejscu, prostsze nazwy (np. „Adres otwarcia”, „ID urządzenia”, „Pytaj „czy na pewno?” przed ruchem bramy”); kody Tuya, impuls, przerwa i czas ruchu schowane. Głos: słowo aktywujące, język, czytanie odpowiedzi; silnik i reszta w „Więcej opcji”.
+- **Znak „?” przy każdym polu** (`frontend/src/components/HelpTip.tsx`): podpowiedź po najechaniu myszką, po przejściu klawiszem Tab albo po dotknięciu na telefonie; zawsze mieści się na ekranie; Esc ją zamyka. Podpowiedzi mówią, skąd wziąć wartość (np. Access ID z iot.tuya.com, PIN z AutoLogiki, nazwa strumienia z go2rtc).
+
+Wykonane kontrole: **179 testów UI PASS** (nowe: zakładki i link do zakładki, podpowiedź „?” z rolą tooltip, brak konfiguracji w widoku Brama; testy formularzy przeniesione do nowych komponentów), typecheck/build PASS. Chrome 1280 px i 390 px: zakładki, Setti/Tuya → najechanie / dotknięcie „?” przy Access ID pokazuje podpowiedź w granicach ekranu, zakładka Kamery, 0 błędów konsoli. Backend bez zmian poza numerem wersji.
+
 ## 0.14.1 — porządki w interfejsie i kamery Setti (2026-11-26)
 
 - **Menu w trzech grupach** zamiast 21 pozycji jedna pod drugą: *Na co dzień* (Warsztat, Brama, Kamery, Głos, AutoLogika, Rozmowa), *Konto* (Moje konto, Bezpieczeństwo) i zwinięte *Zaawansowane* (Pulpit, System, Ustawienia, Pamięć, Dom, Urządzenia, Automatyzacje, Powiadomienia, Telefonia, Pluginy, Zmiany, Historia działań). Grupa zaawansowana rozwija się sama, gdy otwarty jest jej widok. Usunięto zdublowaną pozycję „Logi” (ta sama historia co „Historia działań”; adres `#/logs` nadal działa).

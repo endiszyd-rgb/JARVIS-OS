@@ -1,7 +1,7 @@
 import { act, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { SettingsPanel } from './SettingsPanel'
+import { AssistantSettings as SettingsPanel } from './SettingsPanel'
 
 const CREDENTIAL = 'synthetic-settings-session-token'
 const PROPOSAL = '20000000-0000-4000-8000-000000000001'

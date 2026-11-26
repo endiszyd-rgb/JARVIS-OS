@@ -1,7 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-import { CamerasPanel } from './CamerasPanel'
+import { CameraSettings, CamerasPanel } from './CamerasPanel'
 
 const TOKEN = 'synthetic-camera-session-token-0123456789'
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
@@ -43,9 +43,8 @@ describe('Cameras panel', () => {
       if (path === '/api/v1/cameras/config') return json({ config: { enabled: false, go2rtc_url: 'http://127.0.0.1:1984', refresh_ms: 1000, cameras: [] }, revision: 0 })
       return json({ detail: 'unexpected' }, 404)
     }))
-    render(<CamerasPanel credential={TOKEN} onUnauthorized={vi.fn()} owner />)
+    render(<CameraSettings credential={TOKEN} onUnauthorized={vi.fn()} />)
     const user = userEvent.setup()
-    await user.click(await screen.findByRole('button', { name: 'Edytuj' }))
     await user.click(await screen.findByLabelText('Podgląd kamer włączony'))
     await user.click(screen.getByRole('button', { name: 'Dodaj kamerę' }))
     await user.type(screen.getByLabelText('Strumień go2rtc'), 'nvr_ch1')

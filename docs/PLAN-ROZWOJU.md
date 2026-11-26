@@ -58,7 +58,7 @@ Następnie: WebRTC dla płynnego wideo (go2rtc), powiadomienia push o otwarciu b
 
 ## Etap 4b — AutoLogika na żywo (0.13.0, kod gotowy)
 
-W AutoLogice: Ustawienia → włącz serwer mobilny (zapamiętaj PIN). W JARVIS: AutoLogika → *Połączenie z AutoLogiką* → `http://127.0.0.1:8787` + PIN → *Zapisz i sprawdź*. Potem „Jarvis, co dziś?”. Dalej: raport poranny o stałej godzinie, logowanie Face ID (passkeys), tryb warsztatowy (jeden ekran).
+W AutoLogice: Ustawienia → włącz serwer mobilny (zapamiętaj PIN). W JARVIS: Zaawansowane → Ustawienia → *AutoLogika* → `http://127.0.0.1:8787` + PIN → *Zapisz i sprawdź połączenie*. Potem „Jarvis, co dziś?”. Dalej: raport poranny o stałej godzinie, logowanie Face ID (passkeys), tryb warsztatowy (jeden ekran).
 
 ## Etap 5 — Telefonia i klienci (M7.1, M7.2, M7.4, M7.5)
 

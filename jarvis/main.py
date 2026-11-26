@@ -181,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.14.1', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.14.2', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -359,7 +359,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.14.1', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.14.2', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')

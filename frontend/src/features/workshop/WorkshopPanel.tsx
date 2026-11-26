@@ -6,7 +6,7 @@ import { useRead } from '../home/useRead'
 import type { ReadProps } from '../home/useRead'
 import './workshop.css'
 import { WriteLab } from './WriteLab'
-import { ConnectionSettings, TodayCard } from './TodayCard'
+import { TodayCard } from './TodayCard'
 
 interface Props extends ReadProps { canReadPrivate: boolean }
 const LABELS: Record<Domain, string> = { calendar: 'Terminarz', orders: 'Zlecenia', vehicles: 'Pojazdy', parts: 'Części', customers: 'Klienci', diagnostics: 'Diagnostyka', qc: 'Kontrola jakości', finances: 'Finanse', reports: 'Raporty', notifications: 'Powiadomienia' }
@@ -36,7 +36,6 @@ function SnapshotData({ value }: { value: SnapshotDomain }) {
 export function WorkshopPanel(props: Props) { return <WorkshopWorkspace key={props.credential + ':' + props.canReadPrivate} {...props} /> }
 function WorkshopWorkspace(props: Props) {
   const read = useRead<WorkshopRead>(props)
-  const [todayKey, setTodayKey] = useState(0)
   const [domain, setDomain] = useState<Domain>('orders'), [offset, setOffset] = useState(0)
   const [requestSource, setRequestSource] = useState<'snapshot' | 'live'>('snapshot')
   const [month, setMonth] = useState(new Date().toISOString().slice(0, 7)), [orderId, setOrderId] = useState('')
@@ -54,8 +53,8 @@ function WorkshopWorkspace(props: Props) {
   const pageable = snapshot && !['finances', 'reports'].includes(snapshot.domain)
 
   return <div className="workshop-workspace">
-    <TodayCard credential={props.credential} onUnauthorized={props.onUnauthorized} refreshKey={todayKey} />
-    {props.canReadPrivate && <ConnectionSettings credential={props.credential} onUnauthorized={props.onUnauthorized} onSaved={() => setTodayKey(value => value + 1)} />}
+    <TodayCard credential={props.credential} onUnauthorized={props.onUnauthorized} />
+    {props.canReadPrivate && <p className="workshop-caption">Adres i PIN AutoLogiki: <a href="#/settings/autologika">Ustawienia → AutoLogika</a>.</p>}
     <section className="panel" aria-labelledby="workshop-title" aria-busy={read.busy}>
       <h2 className="panel-heading" id="workshop-title"><Car aria-hidden="true" />AutoLogika · kopia i odczyt</h2>
       <p className="panel-description">Dane z przygotowanej kopii albo jawny odczyt skonfigurowanej usługi. Ten panel nie zapisuje do AutoLogiki i nie synchronizuje kopii. Na otwarciu nie wykonuje żadnego odczytu.</p>
