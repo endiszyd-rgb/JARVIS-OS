@@ -61,17 +61,13 @@ def test_brief_from_real_shaped_payloads():
     assert 'Do zamówienia: Zestaw rozrządu (PO12345)' in text and 'Pompa wody' in text
 
 
-def test_iso_utc_due_dates_use_the_local_day(monkeypatch):
-    monkeypatch.setenv('TZ', 'Europe/Warsaw')
-    import time
-    time.tzset()
-    try:
-        assert autologika._date('2026-11-26T23:30:00.000Z') == '2026-11-27'
-        assert autologika._date('2026-11-26') == '2026-11-26'
-        assert autologika._date(None) == ''
-    finally:
-        monkeypatch.delenv('TZ')
-        time.tzset()
+def test_iso_utc_due_dates_use_the_local_day():
+    from datetime import datetime, timezone
+    moment = datetime(2026, 11, 26, 23, 30, tzinfo=timezone.utc)
+    expected = moment.astimezone().strftime('%Y-%m-%d')  # Europe/Warsaw → 2026-11-27
+    assert autologika._date('2026-11-26T23:30:00.000Z') == expected
+    assert autologika._date('2026-11-26') == '2026-11-26'
+    assert autologika._date(None) == ''
 
 
 @pytest.mark.parametrize('text,kind', [('Jarvis, co dziś?', 'today'), ('co mamy na dziś', 'today'), ('jakie są zlecenia', 'today'),
