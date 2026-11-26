@@ -87,3 +87,8 @@ WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług.
 - Logowanie WebAuthn z wymaganą weryfikacją użytkownika traktujemy jak dwa składniki (posiadanie urządzenia + biometria/PIN), więc sesja ma `mfa=1` i działa zdalnie. Konto z TOTP może dodać klucz tylko w sesji otwartej kodem — hasło samo nie wystarcza do „przeniesienia” konta na nowe urządzenie.
 - Biblioteka `webauthn` (Duo Labs) zamiast własnej weryfikacji CBOR/COSE/podpisów. Klucz zapisujemy z rp_id i wymagamy zgodności przy logowaniu (obrona w głąb obok ochrony przeglądarki).
 - Origin akceptujemy, gdy to `https://` + nagłówek Host (domena tunelu — Cloudflare kieruje ruch po nazwie hosta, a przeglądarka wiąże klucz z domeną), `http://localhost` lub jawna lista. Klucz z witryny phishingowej nie może zostać użyty dla naszej domeny.
+
+## 2026-11-26 — program desktopowy (0.15.0)
+
+- Okno programu = Edge/Chrome w trybie `--app` z własnym profilem, a nie WebView2 (pywebview) ani Electron. WebView2 nie obsługuje Web Speech API (rozpoznawanie mowy, na którym opiera się widok Głos i ekran Warsztat), a Electron dodałby ~150 MB i drugi runtime. Edge jest częścią Windows 10/11; fallback: domyślna przeglądarka.
+- Serwer pozostaje jeden (launcher z oknem „serwer”), więc program i strona (PC, telefon przez tunel) zawsze pokazują te same dane i uprawnienia.

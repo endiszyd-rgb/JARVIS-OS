@@ -1,3 +1,15 @@
+## 0.15.0 — program desktopowy obok strony (2026-11-26)
+
+- **JARVIS otwiera się jak zwykły program**: po uruchomieniu skrótu „JARVIS OS” panel pokazuje się w osobnym oknie aplikacji — bez paska adresu i kart, z własną ikoną na pasku zadań, od razu na ekranie *Warsztat*. Pod spodem to Microsoft Edge (albo Chrome) w trybie aplikacji z osobnym profilem (`dane\desktop-window`); dzięki temu w oknie działają mikrofon, rozpoznawanie mowy i Windows Hello (wbudowany WebView2 nie obsługuje rozpoznawania mowy). Gdy na komputerze nie ma Edge ani Chrome — otwiera się zwykła przeglądarka.
+- **Strona działa równolegle** z tego samego serwera: w przeglądarce na tym komputerze (`http://localhost:17321/control/`, nowy skrót „JARVIS OS w przeglądarce” w menu Start) i na telefonie przez tunel. Zamknięcie okna programu nie wyłącza JARVIS; serwer zatrzymuje dopiero okno „JARVIS OS — serwer”.
+- **Ponowne kliknięcie skrótu**, gdy JARVIS już działa, otwiera kolejne okno programu zamiast komunikatu „już uruchomiony”.
+- **Autostart (opcja w instalatorze, domyślnie wyłączona)**: „Uruchamiaj JARVIS razem z Windows” — serwer startuje po zalogowaniu do Windows w tle (`--minimized`), więc brama, telefon i Face ID działają bez otwierania programu.
+- Okno programu używa adresu `localhost` (nie `127.0.0.1`), więc logowanie Face ID / Windows Hello działa także w programie. Klucza ani haseł nie ma w poleceniu uruchomienia.
+
+Wykonane kontrole: `tests/test_windows_launcher.py` 8 PASS lokalnie (wybór Edge → Chrome → przeglądarka, polecenie bez sekretów z `localhost`, ponowne użycie portu) + test tylko na Windows, który na runnerze CI sprawdza, że Edge/Chrome zostaje znaleziony; `scripts/check_windows_installer.py` przestawiony na okno programu. Interfejs bez zmian.
+
+Ograniczenia: okno programu **nie było otwierane na prawdziwym pulpicie Windows** w tej sesji (CI sprawdza tylko instalację, serwer i znalezienie Edge). Okno programu ma osobny profil przeglądarki — przy pierwszym uruchomieniu trzeba zalogować się raz (najlepiej z „Zapamiętaj klucz na tym komputerze” albo przez Windows Hello).
+
 ## 0.14.2 — wszystkie ustawienia w jednym miejscu, podpowiedzi „?” (2026-11-26)
 
 - **Zaawansowane → Ustawienia** ma teraz zakładki: *Brama*, *AutoLogika*, *Kamery*, *Głos*, *Asystent AI*. Konfiguracja zniknęła z widoków codziennych (Brama, Głos, Kamery, AutoLogika) — tam zostały tylko przyciski i podgląd oraz link „Ustawienia → …”. Adresy `#/settings/gate`, `#/settings/autologika`, `#/settings/cameras`, `#/settings/voice`, `#/settings/assistant` otwierają od razu właściwą zakładkę. *Bezpieczeństwo* (konta, tokeny, sesje) przeniesione do grupy *Zaawansowane*, zaraz pod *Ustawienia*.
@@ -110,7 +122,7 @@ Właściciel autoryzował M4 i dalsze etapy. Adapter używa wyłącznie potwierd
 
 Testy kontraktów i snapshot:36 PASS; pip check PASS. Produkcyjna AutoLogika/Supabase i realne urządzenia NOT_RUN. Schemat bazy i instalator HUD3 bez zmian; ten commit rozwija źródła backendu.
 
-# JARVIS OS · 0.14.2
+# JARVIS OS · 0.15.0
 
 ## Instalator Windows — obecna wersja M3
 
