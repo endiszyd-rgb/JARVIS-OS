@@ -121,7 +121,7 @@ streams:
 
 Podgląd klatek z kamer Tuya wymaga **ffmpeg** obok go2rtc (go2rtc dekoduje obraz do JPEG). W JARVIS dodaj kamery `zewnetrzna` → strumień `kamera_zewn` i `wewnetrzna` → `kamera_wewn`. Nie testowane na kamerach Setti — jeśli go2rtc nie pokaże obrazu, sprawdź podgląd w samym go2rtc, zanim szukasz problemu w JARVIS.
 
-Hasła kamer zostają w `go2rtc.yaml`; JARVIS zna tylko nazwy strumieni. W panelu: **Kamery** → *Konfiguracja kamer* → adres `http://127.0.0.1:1984`, dodaj kamery (identyfikator, nazwa, strumień `nvr_ch1`). Podgląd to klatki JPEG odświeżane co `refresh_ms` (domyślnie 1 s) — działa przez każdy tunel i na słabym LTE; to nie jest płynne wideo. Używaj substreamów (niższa rozdzielczość).
+Hasła kamer zostają w `go2rtc.yaml`; JARVIS zna tylko nazwy strumieni. W panelu: **Zaawansowane → Ustawienia → Kamery** → adres `http://127.0.0.1:1984`, dodaj kamery (identyfikator, nazwa, strumień `nvr_ch1`). Podgląd to klatki JPEG odświeżane co `refresh_ms` (domyślnie 1 s) — działa przez każdy tunel i na słabym LTE; to nie jest płynne wideo. Używaj substreamów (niższa rozdzielczość).
 
 ### 6. Komendy głosowe
 

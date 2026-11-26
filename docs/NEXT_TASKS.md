@@ -1,3 +1,5 @@
+2026-11-26: 0.14.2 — ustawienia w zakładkach (Zaawansowane → Ustawienia), podpowiedzi „?” przy polach.
+
 2026-11-26: 0.14.1 — menu w grupach, start na ekranie Warsztat, instrukcja kamer Setti (Tuya) przez go2rtc.
 
 2026-11-26: 0.14.0 — logowanie Face ID / passkeys (schemat 14) i ekran „Warsztat”. Następne: raport poranny (harmonogram), powiadomienia o bramie, test właściciela na iPhonie przez tunel.

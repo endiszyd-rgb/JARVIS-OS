@@ -41,7 +41,6 @@ describe('Today in the workshop', () => {
     const saved = vi.fn()
     render(<ConnectionSettings credential={KEY} onUnauthorized={vi.fn()} onSaved={saved} />)
     const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: 'Ustaw' }))
     await user.click(await screen.findByLabelText('Połączenie na żywo włączone'))
     await user.type(screen.getByLabelText('PIN'), '246810')
     await user.click(screen.getByRole('button', { name: 'Zapisz i sprawdź połączenie' }))

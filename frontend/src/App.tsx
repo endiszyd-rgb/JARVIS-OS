@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Activity, ArrowRight, ArrowUpRight, ClipboardList, Fingerprint, Gauge, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
+import { Activity, ArrowRight, ArrowUpRight, ClipboardList, Fingerprint, Gauge, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, Settings2, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
 import { ApiError, connect, endSession, readSnapshot } from './api'
 import type { AuthSession, LoginInput, Role, Snapshot } from './types'
 import { roleLabels } from './types'
@@ -34,7 +34,7 @@ type View = keyof typeof viewLabels
 const viewDescriptions: Record<View, string> = {
   dashboard: 'Podgląd Twojej instalacji. Zawsze z jasnym stanem i zakresem działania.',
   kiosk: 'Jeden ekran na warsztat i telefon: polecenia głosowe, brama, kamery i dzisiejsze zlecenia.', system: 'Gotowość instalacji i informacje o bieżącym dostępie.',
-  chat: 'Twoje rozmowy, zapisane sesje i wybór skonfigurowanego modelu.', settings: 'Ustawienia asystenta z podglądem przed zatwierdzeniem.',
+  chat: 'Twoje rozmowy, zapisane sesje i wybór skonfigurowanego modelu.', settings: 'Wszystkie ustawienia w jednym miejscu: brama, AutoLogika, kamery, głos i asystent AI. Najedź na „?”, aby zobaczyć podpowiedź.',
   voice: 'Komendy głosowe: nasłuch słowa aktywującego lub przytrzymaj i mów. Polecenia urządzeń wykonuje serwer.',
   gate: 'Sterowanie bramą warsztatu, konfiguracja sterownika i historia poleceń.',
   cameras: 'Podgląd kamer warsztatu przez lokalny serwer go2rtc. Obraz nie opuszcza JARVIS bez logowania.',
@@ -52,9 +52,10 @@ const navGroups: { title: string; advanced?: boolean; items: { view: View; icon:
     { view: 'kiosk', icon: <Wrench /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'cameras', icon: <Camera /> },
     { view: 'voice', icon: <AudioLines /> }, { view: 'workshop', icon: <ClipboardList /> }, { view: 'chat', icon: <MessageSquare /> },
   ] },
-  { title: 'Konto', items: [{ view: 'account', icon: <UserRound /> }, { view: 'security', icon: <ShieldCheck /> }] },
+  { title: 'Konto', items: [{ view: 'account', icon: <UserRound /> }] },
   { title: 'Zaawansowane', advanced: true, items: [
-    { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Gauge /> }, { view: 'settings', icon: <Cpu /> },
+    { view: 'settings', icon: <Settings2 /> }, { view: 'security', icon: <ShieldCheck /> },
+    { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Gauge /> },
     { view: 'memory', icon: <Database /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
     { view: 'automations', icon: <RefreshCw /> }, { view: 'notifications', icon: <Bell /> }, { view: 'telephony', icon: <Phone /> },
     { view: 'plugins', icon: <Plug /> }, { view: 'changes', icon: <GitPullRequest /> }, { view: 'activity', icon: <Activity /> },
@@ -67,7 +68,7 @@ function canAccess(view: View, role: Role): boolean {
   return view === 'home' && role === 'home_reader' || view === 'workshop' && role === 'workshop_reader'
 }
 const currentView = (): View => {
-  const route = window.location.hash.slice(2)
+  const route = window.location.hash.slice(2).split('/')[0] ?? ''  // '#/settings/gate' → settings (tab handled by the view)
   return Object.hasOwn(viewLabels, route) ? route as View : 'dashboard'
 }
 const message = (error: unknown) => error instanceof ApiError ? error.message : 'Nie udało się wykonać żądania. Spróbuj ponownie.'

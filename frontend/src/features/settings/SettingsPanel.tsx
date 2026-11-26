@@ -1,7 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import type { FormEvent } from 'react'
-import { Check, CircleAlert, Eye, RefreshCw, Settings2, X } from 'lucide-react'
+import { AudioLines, Bot, Camera, Check, CircleAlert, ClipboardList, DoorOpen, Eye, RefreshCw, Settings2, X } from 'lucide-react'
+import type { ReactNode } from 'react'
 import { ApiError } from '../../api'
+import { FieldLabel } from '../../components/HelpTip'
+import { GateSettings } from '../gate/GateSettings'
+import { VoiceSettings } from '../voice/VoiceSettings'
+import { CameraSettings } from '../cameras/CamerasPanel'
+import { ConnectionSettings } from '../workshop/TodayCard'
 import { decideSettings, proposeSettings, readCatalog, readSettings, sameSettings } from './api'
 import type { ModelCatalog, Settings, SettingsProposal } from './api'
 import './settings.css'
@@ -115,11 +121,11 @@ function SettingsEditor({ credential, onUnauthorized, onStatusChanged }: Props) 
     {error && <div className="app-error" role="alert"><CircleAlert aria-hidden="true" /><span>{error}</span></div>}
     {notice && <p className="settings-notice" role="status"><Check aria-hidden="true" />{notice}</p>}
     <section className="panel" aria-labelledby="settings-form-title">
-      <div className="settings-section-heading"><div><h2 className="panel-heading" id="settings-form-title"><Settings2 aria-hidden="true" />Ustawienia asystenta</h2><p className="panel-description">Zmianę najpierw zobaczysz w podglądzie. Zapis nastąpi dopiero po osobnym zatwierdzeniu.</p></div><button type="button" className="button subtle" onClick={() => { void refresh() }} disabled={busy || preview !== null}><RefreshCw aria-hidden="true" />Odśwież ustawienia</button></div>
+      <div className="settings-section-heading"><div><h2 className="panel-heading" id="settings-form-title"><Settings2 aria-hidden="true" />Ustawienia asystenta</h2><p className="panel-description">Zmianę najpierw zobaczysz w podglądzie, zapis po osobnym zatwierdzeniu.</p></div><button type="button" className="button subtle" onClick={() => { void refresh() }} disabled={busy || preview !== null}><RefreshCw aria-hidden="true" />Odśwież ustawienia</button></div>
       {!draft ? <p className="settings-loading" role="status">{busy ? 'Odczytywanie ustawień…' : 'Ustawienia są chwilowo niedostępne.'}</p> : <form className="settings-form" onSubmit={event => { void prepare(event) }} aria-busy={busy}>
-        <div className="form-field"><label htmlFor="assistant-name">Imię</label><input id="assistant-name" value={draft.name} minLength={1} maxLength={80} required disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, name: event.target.value })} autoComplete="off" /></div>
-        <div className="form-field"><label htmlFor="assistant-tone">Styl odpowiedzi</label><select id="assistant-tone" value={draft.tone} disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, tone: event.target.value as Settings['tone'] })}><option value="casual">Swobodny</option><option value="formal">Formalny</option></select></div>
-        <div className="form-field"><label htmlFor="assistant-provider">Domyślny dostawca</label><select id="assistant-provider" value={draft.model} disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, model: event.target.value as Settings['model'] })}><option value="demo">DEMO</option><option value="ollama">Ollama</option><option value="openai">OpenAI · chmura</option></select><small>Dotyczy nowych rozmów. Wybór nie instaluje modelu ani nie sprawdza połączenia.</small></div>
+        <div className="form-field"><FieldLabel htmlFor="assistant-name" help="Jak JARVIS ma się do Ciebie zwracać w rozmowie.">Imię</FieldLabel><input id="assistant-name" value={draft.name} minLength={1} maxLength={80} required disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, name: event.target.value })} autoComplete="off" /></div>
+        <div className="form-field"><FieldLabel htmlFor="assistant-tone" help="Swobodny — krótko, po koleżeńsku. Formalny — grzecznościowo, jak do klienta.">Styl odpowiedzi</FieldLabel><select id="assistant-tone" value={draft.tone} disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, tone: event.target.value as Settings['tone'] })}><option value="casual">Swobodny</option><option value="formal">Formalny</option></select></div>
+        <div className="form-field"><FieldLabel htmlFor="assistant-provider" help="Model AI do rozmów. DEMO — bez AI, tylko polecenia. Ollama — model na własnym komputerze. OpenAI — model w chmurze (wymaga klucza w pliku .env). Polecenia bramy i części działają zawsze, bez AI.">Model AI</FieldLabel><select id="assistant-provider" value={draft.model} disabled={busy || preview !== null} onChange={event => setDraft({ ...draft, model: event.target.value as Settings['model'] })}><option value="demo">DEMO</option><option value="ollama">Ollama</option><option value="openai">OpenAI · chmura</option></select></div>
         <div className="settings-actions"><button type="submit" className="button primary" disabled={busy || preview !== null || current !== null && sameSettings(current, draft)}><Eye aria-hidden="true" />Podgląd zmiany</button></div>
       </form>}
     </section>
@@ -133,7 +139,44 @@ function SettingsEditor({ credential, onUnauthorized, onStatusChanged }: Props) 
   </div>
 }
 
-export function SettingsPanel(props: Props) {
+export function AssistantSettings(props: Props) {
   // A new authenticated identity receives a new editor before its first paint.
   return <SettingsEditor key={props.credential} {...props} />
+}
+
+const TABS = [
+  { id: 'gate', label: 'Brama', icon: <DoorOpen /> },
+  { id: 'autologika', label: 'AutoLogika', icon: <ClipboardList /> },
+  { id: 'cameras', label: 'Kamery', icon: <Camera /> },
+  { id: 'voice', label: 'Głos', icon: <AudioLines /> },
+  { id: 'assistant', label: 'Asystent AI', icon: <Bot /> },
+] as const satisfies readonly { id: string; label: string; icon: ReactNode }[]
+type Tab = typeof TABS[number]['id']
+const tabFromHash = (): Tab => {
+  const wanted = window.location.hash.split('/')[2] ?? ''
+  return (TABS.find(item => item.id === wanted)?.id) ?? 'gate'
+}
+
+/** All configuration in one place, one topic per tab; addresses like #/settings/gate open a tab directly. */
+export function SettingsPanel(props: Props) {
+  const [tab, setTab] = useState<Tab>(tabFromHash)
+  useEffect(() => {
+    const changed = () => setTab(tabFromHash())
+    window.addEventListener('hashchange', changed)
+    return () => window.removeEventListener('hashchange', changed)
+  }, [])
+  const choose = (next: Tab) => { setTab(next); try { window.history.replaceState(null, '', '#/settings/' + next) } catch { /* history unavailable */ } }
+  return <div className="settings-hub">
+    <div className="settings-tabs" role="tablist" aria-label="Kategorie ustawień">{TABS.map(item =>
+      <button key={item.id} type="button" role="tab" id={'settings-tab-' + item.id} aria-selected={tab === item.id} aria-controls="settings-tabpanel"
+        className={'settings-tab' + (tab === item.id ? ' is-active' : '')} onClick={() => choose(item.id)}><span aria-hidden="true">{item.icon}</span>{item.label}</button>)}</div>
+    <section className="panel settings-tabpanel" id="settings-tabpanel" role="tabpanel" aria-labelledby={'settings-tab-' + tab}>
+      {tab === 'gate' ? <GateSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
+        : tab === 'autologika' ? <ConnectionSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} onSaved={() => undefined} />
+          : tab === 'cameras' ? <CameraSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
+            : tab === 'voice' ? <VoiceSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
+              : <AssistantSettings {...props} />}
+    </section>
+    <p className="settings-footnote">Konta użytkowników, tokeny i sesje: <a href="#/security">Bezpieczeństwo</a>. Twoje 2FA i Face ID: <a href="#/account">Moje konto</a>.</p>
+  </div>
 }

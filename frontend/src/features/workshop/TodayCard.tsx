@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { CalendarCheck, CircleAlert, PackageSearch, RefreshCw, Save, Settings2, Wrench } from 'lucide-react'
 import { ApiError, apiRequest } from '../../api'
+import { FieldLabel } from '../../components/HelpTip'
 
 interface OrderSummary { id: number; title: string | null; status: string; status_label: string; wait_state: string | null; due_at: string | null; plate: string | null; make: string | null; model: string | null; customer: string | null }
 interface PartItem { order_id: number; plate: string | null; name: string | null; part_no: string | null; qty: number | null; status: string; supplier: string | null; expected_at: string | null }
@@ -76,21 +77,19 @@ export function TodayCard({ credential, onUnauthorized, compact = false, refresh
 
 /** Owner-only: address and PIN of the AutoLogika mobile server, kept in JARVIS (PIN never shown again). */
 export function ConnectionSettings({ credential, onUnauthorized, onSaved }: { credential: string; onUnauthorized: () => void; onSaved: () => void }) {
-  const [open, setOpen] = useState(false)
   const [config, setConfig] = useState<Connection | null>(null)
   const [revision, setRevision] = useState(0)
   const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
   const [message, setMessage] = useState<string | null>(null)
   useEffect(() => {
-    if (!open) return
     const controller = new AbortController()
     apiRequest('/api/v1/autologika/connection', controller.signal, credential).then(value => {
       if (!object(value) || !object(value.config) || !Number.isSafeInteger(value.revision)) return invalid()
       setConfig(value.config as unknown as Connection); setRevision(value.revision as number)
     }).catch(failure => { if (!controller.signal.aborted) { if (failure instanceof ApiError && failure.status === 401) onUnauthorized(); else setMessage(problem(failure)) } })
     return () => controller.abort()
-  }, [open, credential, onUnauthorized])
+  }, [credential, onUnauthorized])
   async function save(test: boolean) {
     if (!config || busy) return
     setBusy(true); setMessage(null)
@@ -108,17 +107,16 @@ export function ConnectionSettings({ credential, onUnauthorized, onSaved }: { cr
       else setMessage(failure instanceof ApiError && failure.status === 422 ? 'Sprawdź adres (np. http://127.0.0.1:8787) i PIN (6–12 cyfr).' : problem(failure))
     } finally { setBusy(false) }
   }
-  return <section className="panel" aria-labelledby="autologika-connection-title">
-    <div className="today-head"><h2 className="panel-heading" id="autologika-connection-title"><Settings2 aria-hidden="true" />Połączenie z AutoLogiką</h2>
-      <button type="button" className="button subtle" aria-expanded={open} onClick={() => setOpen(value => !value)}>{open ? 'Zwiń' : 'Ustaw'}</button></div>
-    <p className="panel-description">W AutoLogice: Ustawienia → serwer mobilny (port i PIN). JARVIS tylko odczytuje zlecenia i części — nic nie zapisuje.</p>
-    {open && (config ? <div className="today-form">
+  return <div className="settings-block" aria-labelledby="autologika-connection-title">
+    <h2 className="panel-heading" id="autologika-connection-title"><Settings2 aria-hidden="true" />AutoLogika</h2>
+    <p className="panel-description">JARVIS tylko odczytuje zlecenia i części z AutoLogiki — nic w niej nie zmienia.</p>
+    {(config ? <div className="today-form">
       <label className="voice-check"><input type="checkbox" checked={config.enabled} onChange={event => setConfig({ ...config, enabled: event.target.checked })} />Połączenie na żywo włączone</label>
-      <div className="form-field"><label htmlFor="autologika-url">Adres serwera mobilnego</label><input id="autologika-url" value={config.url} onChange={event => setConfig({ ...config, url: event.target.value })} placeholder="http://127.0.0.1:8787" /></div>
-      <div className="form-field"><label htmlFor="autologika-pin">PIN</label><input id="autologika-pin" type="password" inputMode="numeric" value={pin} onChange={event => setPin(event.target.value)} placeholder={config.pin_set ? 'zapisany — zostaw puste, aby nie zmieniać' : '6 cyfr z AutoLogiki'} autoComplete="off" /></div>
+      <div className="form-field"><FieldLabel htmlFor="autologika-url" help={<>Gdy AutoLogika działa na tym samym komputerze: <code>http://127.0.0.1:8787</code>. Port widać w AutoLogice: Ustawienia → serwer mobilny (musi być włączony).</>}>Adres AutoLogiki</FieldLabel><input id="autologika-url" value={config.url} onChange={event => setConfig({ ...config, url: event.target.value })} placeholder="http://127.0.0.1:8787" /></div>
+      <div className="form-field"><FieldLabel htmlFor="autologika-pin" help="6-cyfrowy PIN serwera mobilnego z AutoLogiki (Ustawienia → serwer mobilny). Po zapisaniu nie jest pokazywany.">PIN</FieldLabel><input id="autologika-pin" type="password" inputMode="numeric" value={pin} onChange={event => setPin(event.target.value)} placeholder={config.pin_set ? 'zapisany — zostaw puste, aby nie zmieniać' : '6 cyfr z AutoLogiki'} autoComplete="off" /></div>
       <div className="camera-actions"><button type="button" className="button primary" disabled={busy} onClick={() => { void save(true) }}><PackageSearch aria-hidden="true" />Zapisz i sprawdź połączenie</button>
         <button type="button" className="button secondary" disabled={busy} onClick={() => { void save(false) }}><Save aria-hidden="true" />Tylko zapisz</button></div>
     </div> : <p role="status">Odczytywanie ustawień…</p>)}
     {message && <p className="workshop-caption" role="status">{message}</p>}
-  </section>
+  </div>
 }

@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { GateSettings } from './GateSettings'
 import { GatePanel } from './GatePanel'
 import { GateTile } from './GateTile'
 
@@ -54,7 +55,7 @@ describe('Gate panel', () => {
     await waitFor(() => expect(executed).toBe(true))
   })
 
-  it('shows driver fields for the selected driver and saves configuration with the revision', async () => {
+  it('settings: shows driver fields for the selected driver and saves configuration with the revision', async () => {
     let saved: Record<string, unknown> | null = null
     vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
       const path = String(input)
@@ -63,13 +64,11 @@ describe('Gate panel', () => {
       return json({}, 404)
     }))
     const user = userEvent.setup()
-    render(<GatePanel credential={KEY} onUnauthorized={vi.fn()} />)
-    await screen.findByText('ZAMKNIĘTA')
-    await user.click(screen.getByRole('button', { name: 'Edytuj' }))
-    await user.selectOptions(screen.getByLabelText('Sterownik'), 'http')
-    await user.type(screen.getByLabelText('URL otwarcia'), 'http://192.168.1.50/relay/0?turn=on')
-    await user.click(screen.getByRole('button', { name: 'Zapisz konfigurację' }))
-    await screen.findByText('Konfiguracja bramy zapisana.')
+    render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.selectOptions(await screen.findByLabelText('Sterownik'), 'http')
+    await user.type(screen.getByLabelText('Adres otwarcia'), 'http://192.168.1.50/relay/0?turn=on')
+    await user.click(screen.getByRole('button', { name: 'Zapisz' }))
+    await screen.findByText('Ustawienia bramy zapisane.')
     expect(saved).not.toBeNull()
     expect(saved!.revision).toBe(1)
     expect((saved!.config as { driver: string; http: { open_url: string } }).http.open_url).toBe('http://192.168.1.50/relay/0?turn=on')
@@ -94,5 +93,33 @@ describe('Gate dashboard tile', () => {
     await userEvent.setup().click(screen.getByRole('button', { name: 'Zamknij' }))
     expect(await screen.findByText('ZAMYKA SIĘ')).toBeInTheDocument()
     expect(JSON.parse(String(fetch.mock.calls[1][1]?.body)).action).toBe('close')
+  })
+})
+
+describe('Gate settings hints and placement', () => {
+  it('offers Setti/Tuya first, explains fields with a "?" hint and keeps driver settings out of the gate view', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(overview())))
+    const user = userEvent.setup()
+    render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
+    const driver = await screen.findByLabelText('Sterownik') as HTMLSelectElement
+    expect([...driver.options].map(item => item.value)[0]).toBe('tuya_cloud')
+    await user.selectOptions(driver, 'tuya_cloud')
+    const hint = screen.getByRole('button', { name: 'Podpowiedź: Access ID' })
+    const bubble = document.getElementById(hint.getAttribute('aria-describedby')!)!
+    expect(bubble).toHaveAttribute('role', 'tooltip')
+    expect(bubble.textContent).toContain('iot.tuya.com')
+    expect(hint).toHaveAttribute('aria-expanded', 'false')
+    await user.click(hint)  // tap on a phone
+    expect(hint).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByLabelText('Access ID')).toBeInTheDocument()
+    expect(screen.getByText('Więcej opcji')).toBeInTheDocument()  // codes are folded away
+  })
+
+  it('the gate view only links to the settings', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json(overview())))
+    render(<GatePanel credential={KEY} onUnauthorized={vi.fn()} />)
+    await screen.findByText('ZAMKNIĘTA')
+    expect(screen.queryByLabelText('Sterownik')).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Ustawienia → Brama' })).toHaveAttribute('href', '#/settings/gate')
   })
 })

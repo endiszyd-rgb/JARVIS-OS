@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { AudioLines, Check, CircleAlert, Ear, Mic, MicOff, Save, Settings2, Volume2 } from 'lucide-react'
+import { AudioLines, CircleAlert, Ear, Mic, MicOff } from 'lucide-react'
 import { ApiError } from '../../api'
-import { defaultVoiceConfig, readGate, readVoiceConfig, saveVoiceConfig, sendVoiceMessage, synthesizeWav, transcribeWav } from '../gate/api'
+import { defaultVoiceConfig, readGate, readVoiceConfig, sendVoiceMessage, synthesizeWav, transcribeWav } from '../gate/api'
 import type { GateStatus, VoiceConfig } from '../gate/api'
 import { stateTone } from '../gate/GatePanel'
 import { afterWakeWord, encodeWav16k, looksLikeDeviceCommand, recognitionConstructor } from './recognition'
@@ -18,14 +18,11 @@ export function VoicePanel(props: Props) { return <VoiceWorkspace key={props.cre
 
 function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
   const [config, setConfig] = useState<VoiceConfig>(defaultVoiceConfig)
-  const [revision, setRevision] = useState(0)
   const [wyomingAvailable, setWyomingAvailable] = useState(false)
-  const [draft, setDraft] = useState<VoiceConfig | null>(null)
   const [phase, setPhase] = useState<Phase>('off')
   const [lines, setLines] = useState<Line[]>([])
   const [interim, setInterim] = useState('')
   const [error, setError] = useState<string | null>(null)
-  const [notice, setNotice] = useState<string | null>(null)
   const [gate, setGate] = useState<GateStatus | null>(null)
   const [busy, setBusy] = useState(false)
   const supported = recognitionConstructor() !== null
@@ -49,7 +46,7 @@ function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
     const voiceSettings = owner ? readVoiceConfig(credential, controller.signal) : Promise.resolve({ config: defaultVoiceConfig, revision: 0, wyomingAvailable: false })
     Promise.all([voiceSettings, readGate(credential, controller.signal)]).then(([voice, overview]) => {
       if (controller.signal.aborted) return
-      setConfig(voice.config); setRevision(voice.revision); setWyomingAvailable(voice.wyomingAvailable); setGate(overview.gate)
+      setConfig(voice.config); setWyomingAvailable(voice.wyomingAvailable); setGate(overview.gate)
     }).catch(failure => { if (!controller.signal.aborted) { if (failure instanceof ApiError && failure.status === 401) unauthorized.current(); else setError(message(failure)) } })
     return () => { controller.abort(); stopAll() }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -218,23 +215,9 @@ function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
   }
 
   // ---- settings -------------------------------------------------------------------------------
-  async function saveSettings() {
-    if (!draft) return
-    setBusy(true); setError(null); setNotice(null)
-    try {
-      const saved = await saveVoiceConfig(credential, new AbortController().signal, revision, draft)
-      setConfig(saved.config); setRevision(saved.revision); setDraft(null); setNotice('Ustawienia głosu zapisane.')
-    } catch (failure) {
-      if (failure instanceof ApiError && failure.status === 401) unauthorized.current()
-      else if (failure instanceof ApiError && failure.status === 409) setError('Ustawienia zmieniły się w międzyczasie. Odśwież widok.')
-      else setError(message(failure))
-    } finally { setBusy(false) }
-  }
-
   const browserMode = config.engine === 'browser'
   return <div className="voice-feature">
     {error && <div className="app-error" role="alert"><CircleAlert aria-hidden="true" /><span>{error}</span></div>}
-    {notice && <p className="voice-notice" role="status"><Check aria-hidden="true" />{notice}</p>}
     <section className="panel voice-console" aria-labelledby="voice-title" aria-busy={busy}>
       <div className="voice-head"><div><h2 className="panel-heading" id="voice-title"><AudioLines aria-hidden="true" />Sterowanie głosem</h2>
         <p className="panel-description">{browserMode ? 'Rozpoznawanie mowy przeglądarki (Chrome/Edge). Dźwięk jest przetwarzany przez usługę mowy przeglądarki.' : 'Lokalne Wyoming: przytrzymaj przycisk, mów, puść.'} Polecenia urządzeń wykonuje serwer JARVIS po sprawdzeniu uprawnień.</p></div></div>
@@ -262,21 +245,6 @@ function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
       <p className="voice-caption"><Ear aria-hidden="true" /> Przykłady: „{config.wake_word}, otwórz bramę”, „{config.wake_word}, zamknij bramę”, „{config.wake_word}, brama stop”, „{config.wake_word}, jaki jest stan bramy”. Gdy brama wymaga potwierdzenia, odpowiedz „tak” lub „nie”.</p>
     </section>
 
-    {owner && <section className="panel" aria-labelledby="voice-settings-title">
-      <div className="voice-head"><div><h2 className="panel-heading" id="voice-settings-title"><Settings2 aria-hidden="true" />Ustawienia głosu</h2><p className="panel-description">Zapisywane w JARVIS dla właściciela. Zmiana silnika wyłącza bieżący nasłuch.</p></div>
-        {!draft && <button type="button" className="button subtle" onClick={() => setDraft({ ...config })} disabled={busy}>Edytuj</button>}</div>
-      {draft && <div className="voice-form">
-        <div className="voice-grid">
-          <div className="form-field"><label htmlFor="voice-engine">Silnik mowy</label><select id="voice-engine" value={draft.engine} onChange={event => setDraft({ ...draft, engine: event.target.value as VoiceConfig['engine'] })}><option value="browser">Przeglądarka (Chrome/Edge, słowo aktywujące)</option><option value="wyoming">Wyoming lokalnie (przytrzymaj i mów){wyomingAvailable ? '' : ' — nieskonfigurowane'}</option></select></div>
-          <div className="form-field"><label htmlFor="voice-wake">Słowo aktywujące</label><input id="voice-wake" value={draft.wake_word} maxLength={30} onChange={event => setDraft({ ...draft, wake_word: event.target.value })} /></div>
-          <div className="form-field"><label htmlFor="voice-lang">Język</label><select id="voice-lang" value={draft.language} onChange={event => setDraft({ ...draft, language: event.target.value as VoiceConfig['language'] })}><option value="pl-PL">polski</option><option value="en-US">English</option></select></div>
-        </div>
-        <label className="voice-check"><input type="checkbox" checked={draft.wake_listening} onChange={event => setDraft({ ...draft, wake_listening: event.target.checked })} />Reaguj tylko po słowie aktywującym (zalecane przy ciągłym nasłuchu)</label>
-        <label className="voice-check"><input type="checkbox" checked={draft.speak_replies} onChange={event => setDraft({ ...draft, speak_replies: event.target.checked })} /><Volume2 aria-hidden="true" />Czytaj odpowiedzi na głos</label>
-        <label className="voice-check"><input type="checkbox" checked={draft.send_to_model} onChange={event => setDraft({ ...draft, send_to_model: event.target.checked })} />Wysyłaj inne zdania do modelu AI (rozmowa głosowa, wymaga skonfigurowanego modelu)</label>
-        <div className="voice-actions"><button type="button" className="button primary" disabled={busy} onClick={() => { stopAll(); void saveSettings() }}><Save aria-hidden="true" />Zapisz</button><button type="button" className="button secondary" disabled={busy} onClick={() => setDraft(null)}>Anuluj</button></div>
-      </div>}
-      {!draft && <dl className="voice-summary"><div><dt>Silnik</dt><dd>{config.engine === 'browser' ? 'Przeglądarka' : 'Wyoming'}</dd></div><div><dt>Słowo aktywujące</dt><dd>{config.wake_listening ? config.wake_word : 'wyłączone'}</dd></div><div><dt>Odpowiedzi na głos</dt><dd>{config.speak_replies ? 'tak' : 'nie'}</dd></div><div><dt>Zdania do modelu</dt><dd>{config.send_to_model ? 'tak' : 'tylko urządzenia'}</dd></div></dl>}
-    </section>}
+    {owner && <p className="voice-caption">Słowo aktywujące, język i czytanie odpowiedzi: <a href="#/settings/voice">Ustawienia → Głos</a>.</p>}
   </div>
 }

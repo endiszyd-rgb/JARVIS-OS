@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera as CameraIcon, CircleAlert, Maximize2, Pause, Play, Plus, Save, Settings2, Trash2 } from 'lucide-react'
+import { Camera as CameraIcon, CircleAlert, Maximize2, Pause, Play, Plus, Save, Trash2 } from 'lucide-react'
 import { ApiError, apiRequest } from '../../api'
+import { FieldLabel } from '../../components/HelpTip'
 import './cameras.css'
 
 interface Props { credential: string; onUnauthorized: () => void; owner: boolean }
@@ -91,13 +92,13 @@ function ConfigEditor({ credential, onSaved, onUnauthorized }: { credential: str
   return <div className="camera-config">
     <label className="voice-check"><input type="checkbox" checked={draft.enabled} onChange={event => setDraft({ ...draft, enabled: event.target.checked })} />Podgląd kamer włączony</label>
     <div className="camera-config-grid">
-      <div className="form-field"><label htmlFor="go2rtc-url">Adres go2rtc</label><input id="go2rtc-url" value={draft.go2rtc_url} onChange={event => setDraft({ ...draft, go2rtc_url: event.target.value })} placeholder="http://127.0.0.1:1984" /><small>Musi należeć do JARVIS_NETWORK_ALLOWLIST. Hasła kamer wpisz tylko w go2rtc.yaml.</small></div>
-      <div className="form-field"><label htmlFor="camera-refresh">Odświeżanie (ms)</label><input id="camera-refresh" type="number" min={250} max={10000} step={250} value={draft.refresh_ms} onChange={event => setDraft({ ...draft, refresh_ms: Number(event.target.value) })} /></div>
+      <div className="form-field"><FieldLabel htmlFor="go2rtc-url" help={<>Adres programu go2rtc na komputerze warsztatowym — zwykle <code>http://127.0.0.1:1984</code>. To go2rtc łączy się z kamerami Setti (źródło Tuya) i trzyma ich hasła; JARVIS pobiera od niego tylko obraz.</>}>Adres go2rtc</FieldLabel><input id="go2rtc-url" value={draft.go2rtc_url} onChange={event => setDraft({ ...draft, go2rtc_url: event.target.value })} placeholder="http://127.0.0.1:1984" /></div>
+      <div className="form-field"><FieldLabel htmlFor="camera-refresh" help="Jak często odświeżać obraz, w milisekundach. 1000 = raz na sekundę. Przy słabym internecie w telefonie ustaw 2000–3000.">Odświeżanie (ms)</FieldLabel><input id="camera-refresh" type="number" min={250} max={10000} step={250} value={draft.refresh_ms} onChange={event => setDraft({ ...draft, refresh_ms: Number(event.target.value) })} /></div>
     </div>
     <ul className="camera-rows">{draft.cameras.map((item, index) => <li key={index} className="camera-row">
-      <div className="form-field"><label htmlFor={'cam-id-' + index}>Identyfikator</label><input id={'cam-id-' + index} value={item.id} onChange={event => update(index, { id: event.target.value.toLowerCase() })} placeholder="brama" /></div>
-      <div className="form-field"><label htmlFor={'cam-name-' + index}>Nazwa</label><input id={'cam-name-' + index} value={item.name} onChange={event => update(index, { name: event.target.value })} placeholder="Wjazd" /></div>
-      <div className="form-field"><label htmlFor={'cam-stream-' + index}>Strumień go2rtc</label><input id={'cam-stream-' + index} value={item.stream} onChange={event => update(index, { stream: event.target.value })} placeholder="nvr_ch1" /></div>
+      <div className="form-field"><FieldLabel htmlFor={'cam-id-' + index} help="Krótka nazwa techniczna bez spacji i polskich liter, np. zewnetrzna.">Identyfikator</FieldLabel><input id={'cam-id-' + index} value={item.id} onChange={event => update(index, { id: event.target.value.toLowerCase() })} placeholder="brama" /></div>
+      <div className="form-field"><FieldLabel htmlFor={'cam-name-' + index} help="Nazwa widoczna pod podglądem, np. „Wjazd” albo „Hala”.">Nazwa</FieldLabel><input id={'cam-name-' + index} value={item.name} onChange={event => update(index, { name: event.target.value })} placeholder="Wjazd" /></div>
+      <div className="form-field"><FieldLabel htmlFor={'cam-stream-' + index} help="Nazwa strumienia dokładnie taka jak w go2rtc (lista Streams w go2rtc albo plik go2rtc.yaml), np. kamera_zewn.">Strumień go2rtc</FieldLabel><input id={'cam-stream-' + index} value={item.stream} onChange={event => update(index, { stream: event.target.value })} placeholder="nvr_ch1" /></div>
       <label className="voice-check"><input type="checkbox" checked={item.enabled} onChange={event => update(index, { enabled: event.target.checked })} />Aktywna</label>
       <button type="button" className="icon-button" aria-label={'Usuń kamerę ' + (item.name || index + 1)} onClick={() => setDraft({ ...draft, cameras: draft.cameras.filter((_, position) => position !== index) })}><Trash2 aria-hidden="true" /></button>
     </li>)}</ul>
@@ -109,6 +110,17 @@ function ConfigEditor({ credential, onSaved, onUnauthorized }: { credential: str
   </div>
 }
 
+/** Camera settings (owner): go2rtc address and streams. Preview stays in the Cameras view. */
+export function CameraSettings({ credential, onUnauthorized }: { credential: string; onUnauthorized: () => void }) {
+  const [saved, setSaved] = useState(false)
+  return <div className="settings-block">
+    <h2 className="panel-heading"><CameraIcon aria-hidden="true" />Kamery</h2>
+    <p className="panel-description">Kamery Setti łączysz w go2rtc (instrukcja: docs/DOSTEP-ZDALNY.md), a tutaj podajesz, które strumienie pokazywać.</p>
+    <ConfigEditor credential={credential} onUnauthorized={onUnauthorized} onSaved={() => setSaved(true)} />
+    {saved && <p className="workshop-caption" role="status">Zapisano. Podgląd: <a href="#/cameras">Kamery</a>.</p>}
+  </div>
+}
+
 export function CamerasPanel(props: Props) { return <CamerasWorkspace key={props.credential} {...props} /> }
 
 function CamerasWorkspace({ credential, onUnauthorized, owner }: Props) {
@@ -116,8 +128,6 @@ function CamerasWorkspace({ credential, onUnauthorized, owner }: Props) {
   const [error, setError] = useState<string | null>(null)
   const [running, setRunning] = useState(true)
   const [focused, setFocused] = useState<string | null>(null)
-  const [editing, setEditing] = useState(false)
-  const [generation, setGeneration] = useState(0)
   const unauthorized = useRef(onUnauthorized)
   unauthorized.current = onUnauthorized
   const [stableUnauthorized] = useState(() => () => unauthorized.current())
@@ -128,7 +138,7 @@ function CamerasWorkspace({ credential, onUnauthorized, owner }: Props) {
       if (failure instanceof ApiError && failure.status === 401) unauthorized.current(); else setError(message(failure))
     })
     return () => controller.abort()
-  }, [credential, generation])
+  }, [credential])
   const shown = list?.cameras.filter(item => focused === null || item.id === focused) ?? []
   return <div className="cameras-feature">
     {error && <div className="app-error" role="alert"><CircleAlert aria-hidden="true" /><span>{error}</span></div>}
@@ -139,14 +149,9 @@ function CamerasWorkspace({ credential, onUnauthorized, owner }: Props) {
           <button type="button" className="button secondary" onClick={() => setRunning(value => !value)}>{running ? <><Pause aria-hidden="true" />Wstrzymaj</> : <><Play aria-hidden="true" />Wznów</>}</button>
         </div></div>
       {!list ? <p role="status">Odczytywanie kamer…</p> : !list.enabled || list.cameras.length === 0
-        ? <p className="panel-description">{owner ? 'Brak skonfigurowanych kamer. Uruchom go2rtc z kamerami lub rejestratorem i dodaj strumienie poniżej.' : 'Właściciel nie udostępnił jeszcze kamer.'}</p>
+        ? <p className="panel-description">{owner ? <>Brak skonfigurowanych kamer. Dodaj je w <a href="#/settings/cameras">Ustawienia → Kamery</a>.</> : 'Właściciel nie udostępnił jeszcze kamer.'}</p>
         : <div className={'camera-grid' + (focused ? ' is-single' : '')}>{shown.map(item => <CameraView key={item.id} camera={item} credential={credential} refreshMs={list.refresh_ms} running={running} onUnauthorized={stableUnauthorized} onOpen={() => setFocused(current => current ? null : item.id)} />)}</div>}
       <p className="panel-description camera-note">Obraz jest pobierany klatka po klatce przez JARVIS (bez bezpośredniego połączenia telefonu z kamerą). Przy słabym łączu zwiększ odświeżanie.</p>
     </section>
-    {owner && <section className="panel" aria-labelledby="cameras-config-title">
-      <div className="camera-head"><h2 className="panel-heading" id="cameras-config-title"><Settings2 aria-hidden="true" />Konfiguracja kamer</h2>
-        <button type="button" className="button subtle" aria-expanded={editing} onClick={() => setEditing(value => !value)}>{editing ? 'Zwiń' : 'Edytuj'}</button></div>
-      {editing && <ConfigEditor credential={credential} onUnauthorized={stableUnauthorized} onSaved={() => { setEditing(false); setGeneration(value => value + 1) }} />}
-    </section>}
   </div>
 }
