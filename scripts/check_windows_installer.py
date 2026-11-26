@@ -52,10 +52,11 @@ def main():
         with sqlite3.connect(data / 'jarvis.db') as db:
             assert db.execute('SELECT value FROM installer_qa').fetchone() == ('preserve-me',)
         gui_test = root / 'gui_test.py'
-        gui_test.write_text('''import runpy, sys, tkinter, webbrowser
+        gui_test.write_text('''import runpy, subprocess, sys, tkinter, webbrowser
 module = runpy.run_path(sys.argv[1])
 opened = []
 webbrowser.open = lambda url: opened.append(url)
+subprocess.Popen = lambda command, **kwargs: opened.append(command[1].removeprefix('--app='))
 original = tkinter.Tk
 for delay in (0, 4000):
     server = module['LocalServer'](sys.argv[2])
@@ -67,7 +68,7 @@ for delay in (0, 4000):
     tkinter.Tk = window
     module['gui'](server)
     assert not server.thread.is_alive()
-assert opened == [server.url], opened
+assert opened and all(url.endswith('/control/#/kiosk') and url.startswith('http://localhost:') for url in opened), opened
 ''', encoding='utf-8')
         run([python, '-I', gui_test, launcher, data])
         installed = True
@@ -79,7 +80,7 @@ assert opened == [server.url], opened
     assert hashlib.sha256((data / '.env').read_bytes()).hexdigest() == key_hash
     report = {'passed': installed, 'installer_sha256': hashlib.sha256(args.installer.read_bytes()).hexdigest(),
               'installation': True, 'reinstall': True, 'installed_runtime_api_assets': True,
-              'restart_preserves_key_database': True, 'tk_window_browser_handoff_shutdown': True,
+              'restart_preserves_key_database': True, 'tk_window_desktop_window_handoff_shutdown': True,
               'uninstall_preserves_data': True, 'visual_inspection': 'not_run_tool_unavailable',
               'qa_artifacts': str(root), 'real_model_or_hardware': False}
     args.report.resolve().write_text(json.dumps(report, indent=2) + '\n', encoding='utf-8')

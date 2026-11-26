@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "application_version": "0.14.2",
+  "application_version": "0.15.0",
   "handoff_revision": "0.10.4-handoff.1",
   "snapshot_date": "2026-11-26",
   "language": "pl",
@@ -232,7 +232,8 @@
         "0.13.0: raport dnia i części na żywo z desktopowej AutoLogiki OS (tylko odczyt), połączenie ustawiane w panelu",
         "0.14.0: logowanie Face ID / Touch ID / Windows Hello (passkeys, WebAuthn), schemat SQLite 14",
         "0.14.1: menu w grupach (Na co dzień / Konto / Zaawansowane), właściciel startuje na ekranie Warsztat, kamery Setti (Tuya) przez go2rtc",
-        "0.14.2: wszystkie ustawienia w Zaawansowane → Ustawienia (zakładki), uproszczone formularze, podpowiedzi „?” przy polach"
+        "0.14.2: wszystkie ustawienia w Zaawansowane → Ustawienia (zakładki), uproszczone formularze, podpowiedzi „?” przy polach",
+        "0.15.0: program desktopowy — osobne okno aplikacji (Edge/Chrome w trybie aplikacji) równolegle ze stroną; opcjonalny autostart z Windows"
       ],
       "pending": [
         "pełny WCAG/czytnik/Safari",
@@ -387,8 +388,8 @@
   },
   "windows_delivery": {
     "status": "build_pipeline_added_not_run",
-    "version": "0.14.2",
-    "installer": "JARVIS-OS-0.14.2-Setup-x64.exe",
+    "version": "0.15.0",
+    "installer": "JARVIS-OS-0.15.0-Setup-x64.exe",
     "sha256": "not_built_yet",
     "bytes": 28223337,
     "release_url": "",

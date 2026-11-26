@@ -1,3 +1,5 @@
+2026-11-26: 0.15.0 — program desktopowy (okno aplikacji Edge/Chrome) równolegle ze stroną, opcjonalny autostart.
+
 2026-11-26: 0.14.2 — ustawienia w zakładkach (Zaawansowane → Ustawienia), podpowiedzi „?” przy polach.
 
 2026-11-26: 0.14.1 — menu w grupach, start na ekranie Warsztat, instrukcja kamer Setti (Tuya) przez go2rtc.

@@ -48,3 +48,54 @@ def test_local_server_binds_loopback_without_secret_in_url(tmp_path):
         assert server.url.endswith('/control/')
     finally:
         server.sock.close()
+
+
+# ----------------------------------------------------------------- desktop window (Edge/Chrome app mode)
+from scripts.windows_launcher import app_command, desktop_url, find_app_browser, open_desktop, remember_port, remembered_port
+
+
+def test_desktop_window_prefers_edge_then_chrome():
+    env = {'PROGRAMFILES(X86)': r'C:\PF86', 'PROGRAMFILES': r'C:\PF', 'LOCALAPPDATA': r'C:\Users\e\AppData\Local'}
+    edge = os.path.join('C:\\PF86', 'Microsoft', 'Edge', 'Application', 'msedge.exe')
+    chrome = os.path.join('C:\\PF', 'Google', 'Chrome', 'Application', 'chrome.exe')
+    found = find_app_browser(env, exists=lambda path: str(path).replace('/', '\\') in (edge.replace('/', '\\'), chrome.replace('/', '\\')))
+    assert str(found).replace('/', '\\').endswith('Edge\\Application\\msedge.exe')
+    found = find_app_browser(env, exists=lambda path: str(path).replace('/', '\\') == chrome.replace('/', '\\'))
+    assert str(found).replace('/', '\\').endswith('Chrome\\Application\\chrome.exe')
+    assert find_app_browser(env, exists=lambda path: False) is None
+
+
+def test_app_window_command_has_no_secret_and_uses_localhost(tmp_path):
+    command = app_command('msedge.exe', 17321, tmp_path)
+    assert command[0] == 'msedge.exe'
+    assert '--app=http://localhost:17321/control/#/kiosk' in command
+    assert any(item.startswith('--user-data-dir=') and item.endswith('desktop-window') for item in command)
+    assert not any('JARVIS_API_KEY' in item or 'key=' in item.lower() for item in command)
+    assert desktop_url(8000, 'gate') == 'http://localhost:8000/control/#/gate'
+
+
+def test_open_desktop_falls_back_to_default_browser(monkeypatch, tmp_path):
+    opened, started = [], []
+    monkeypatch.setattr('scripts.windows_launcher.webbrowser.open', opened.append)
+    assert open_desktop(17321, tmp_path, environ={}) == 'browser'
+    assert opened == ['http://localhost:17321/control/#/kiosk']
+    edge_root = tmp_path / 'pf'
+    exe = edge_root / 'Microsoft' / 'Edge' / 'Application' / 'msedge.exe'
+    exe.parent.mkdir(parents=True)
+    exe.write_bytes(b'')
+    assert open_desktop(17321, tmp_path, environ={'PROGRAMFILES': str(edge_root)}, runner=lambda command, **kwargs: started.append(command)) == 'app'
+    assert started and started[0][0] == str(exe)
+
+
+def test_second_launch_reuses_the_running_port(tmp_path):
+    assert remembered_port(tmp_path) is None
+    remember_port(tmp_path, 17321)
+    assert remembered_port(tmp_path) == 17321
+    (tmp_path / 'desktop-port.txt').write_text('99', encoding='ascii')
+    assert remembered_port(tmp_path) is None  # out of range / tampered
+
+
+@pytest.mark.skipif(os.name != 'nt', reason='Edge location is checked on the Windows runner')
+def test_windows_runner_has_an_app_mode_browser():
+    found = find_app_browser()
+    assert found is not None and found.name in ('msedge.exe', 'chrome.exe')
