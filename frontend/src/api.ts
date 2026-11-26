@@ -1,3 +1,4 @@
+import { credentialJSON, requestOptions } from './webauthn'
 import type { AuthSession, CoreStatus, Health, Identity, LoginInput, Readiness, Snapshot } from './types'
 
 export class ApiError extends Error {
@@ -12,7 +13,9 @@ export class ApiError extends Error {
               : status === 429 ? 'Zbyt wiele żądań. Odczekaj chwilę i spróbuj ponownie.'
                 : status === 503 ? 'JARVIS OS nie jest jeszcze gotowy. Sprawdź konfigurację serwera.'
                   : 'Nie udało się wykonać żądania. Spróbuj ponownie.'
-    super(detail === 'Second factor required' ? 'Podaj kod z aplikacji uwierzytelniającej (2FA).'
+    super(detail === 'Passkey cancelled' ? 'Logowanie Face ID / kluczem dostępu przerwane.'
+      : detail === 'Passkey failed' ? 'To urządzenie nie ma klucza dostępu dla JARVIS. Zaloguj się hasłem i dodaj Face ID w „Moje konto”.'
+      : detail === 'Second factor required' ? 'Podaj kod z aplikacji uwierzytelniającej (2FA).'
       : detail && status === 403 && /Remote access/.test(detail) ? 'Dostęp spoza warsztatu wymaga konta z włączonym 2FA (logowanie kluczem właściciela działa tylko lokalnie).'
         : message)
     this.name = 'ApiError'; this.status = status; this.detail = detail
@@ -81,13 +84,26 @@ function status(value: unknown): CoreStatus {
 }
 export async function connect(input: LoginInput, signal: AbortSignal): Promise<AuthSession> {
   let credential: string
-  if (input.mode === 'account') {
+  if (input.mode === 'passkey') {
+    const start = await request('/api/v1/auth/passkeys/login/options', signal, undefined, input.username ? { username: input.username } : {})
+    if (!object(start) || typeof start.ticket !== 'string' || !object(start.options)) return invalid()
+    let assertion: Credential | null
+    try { assertion = await navigator.credentials.get({ publicKey: requestOptions(start.options), signal }) }
+    catch (error) {
+      if (signal.aborted) throw new DOMException('Request aborted', 'AbortError')
+      throw new ApiError(null, 'http', error instanceof DOMException && error.name === 'NotAllowedError' ? 'Passkey cancelled' : 'Passkey failed')
+    }
+    if (!assertion) throw new ApiError(null, 'http', 'Passkey cancelled')
+    const result = await request('/api/v1/auth/passkeys/login/verify', signal, undefined, { ticket: start.ticket, credential: credentialJSON(assertion as PublicKeyCredential) })
+    if (!object(result) || typeof result.token !== 'string' || !result.token) return invalid()
+    credential = result.token
+  } else if (input.mode === 'account') {
     const result = await request('/api/v1/auth/login', signal, undefined, input.otp ? { username: input.username, password: input.password, otp: input.otp } : { username: input.username, password: input.password })
     if (!object(result) || typeof result.token !== 'string' || !result.token) return invalid()
     credential = result.token
   } else credential = input.key
   const principal = identity(await request('/api/v1/auth/me', signal, credential))
-  if ((input.mode === 'account' && principal.kind !== 'session') || (input.mode === 'key' && principal.kind !== 'owner_key')) throw new ApiError(403)
+  if (((input.mode === 'account' || input.mode === 'passkey') && principal.kind !== 'session') || (input.mode === 'key' && principal.kind !== 'owner_key')) throw new ApiError(403)
   return { credential, identity: principal }
 }
 export async function readSnapshot(credential: string, signal: AbortSignal): Promise<Snapshot> {

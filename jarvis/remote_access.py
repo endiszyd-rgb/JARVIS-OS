@@ -16,7 +16,9 @@ import ipaddress
 import os
 
 FORWARD_HEADERS = ('cf-connecting-ip', 'cf-ray', 'x-forwarded-for', 'x-forwarded-host', 'forwarded', 'x-real-ip', 'tailscale-user-login')
-REMOTE_PUBLIC_API = frozenset({'/api/auth/login', '/api/v1/auth/login', '/api/ready', '/api/v1/ready'})
+REMOTE_PUBLIC_API = frozenset({'/api/auth/login', '/api/v1/auth/login', '/api/ready', '/api/v1/ready',
+                               '/api/auth/passkeys/login/options', '/api/v1/auth/passkeys/login/options',
+                               '/api/auth/passkeys/login/verify', '/api/v1/auth/passkeys/login/verify'})
 DEFAULT_LOCAL_HOSTS = ('127.0.0.1', 'localhost', '::1')
 # Provider webhooks verify their own request signatures and predate this policy.
 SIGNED_WEBHOOK_PREFIX = '/webhooks/'

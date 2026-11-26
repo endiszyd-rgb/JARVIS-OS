@@ -83,6 +83,10 @@ JARVIS_SESSION_MINUTES=60
 
 Sprawdź z telefonu (dane komórkowe, nie Wi‑Fi warsztatu): `https://jarvis.nitropoint.pl/control/` → logowanie kontem + kod 2FA. Logowanie kluczem właściciela przez tunel ma odpowiedzieć „Dostęp spoza warsztatu wymaga konta z włączonym 2FA”.
 
+### 3a. Face ID zamiast hasła i kodu (passkey)
+
+Na telefonie, przez tunel: zaloguj się raz hasłem + kodem 2FA → **Moje konto** → *Face ID / Touch ID* → *Dodaj to urządzenie*. Od teraz na ekranie logowania wystarczy *Zaloguj przez Face ID / klucz dostępu*. Klucz jest przypisany do domeny (np. `jarvis.nitropoint.pl`); na komputerze w warsztacie dodaj osobny klucz, otwierając panel przez `http://localhost:17321` (przeglądarki nie obsługują kluczy pod `127.0.0.1`). Zgubiony telefon: właściciel → **Bezpieczeństwo** → *Resetuj 2FA* (usuwa też klucze i sesje).
+
 ### 4. Aplikacja na telefonie (PWA)
 
 Chrome (Android): menu ⋮ → *Dodaj do ekranu głównego*. Safari (iPhone): *Udostępnij* → *Do ekranu początkowego*. Ikona JARVIS otwiera panel pełnoekranowo, ze skrótami Brama / Głos / Kamery. Brak trybu offline — każde polecenie idzie przez serwer i jego uprawnienia.

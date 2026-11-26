@@ -307,3 +307,23 @@ it('gives the operator role gate, voice, cameras and account views only', async 
   for (const label of ['Rozmowa', 'Pamięć', 'Bezpieczeństwo', 'Ustawienia']) expect(nav.queryByRole('link', { name: label })).not.toBeInTheDocument()
   expect(calls.some(call => call.path === '/api/v1/devices/gate')).toBe(true)
 })
+
+it('logs in with a passkey (Face ID) and sends the assertion as JSON', async () => {
+  const raw = new Uint8Array([1, 2, 3]).buffer
+  const assertion = { id: 'AQID', rawId: raw, type: 'public-key', authenticatorAttachment: 'platform', getClientExtensionResults: () => ({}),
+    response: { clientDataJSON: new Uint8Array([123, 125]).buffer, authenticatorData: raw, signature: raw, userHandle: null } }
+  const get = vi.fn(async () => assertion)
+  vi.stubGlobal('PublicKeyCredential', function PublicKeyCredential() { /* marker */ })
+  vi.stubGlobal('isSecureContext', true)
+  Object.defineProperty(navigator, 'credentials', { configurable: true, value: { get } })
+  const calls = server(path => path === '/api/v1/auth/passkeys/login/options' ? response({ ticket: 'ticket-0123456789abcdef', options: { challenge: 'AAEC', rpId: 'localhost', allowCredentials: [], userVerification: 'required' } })
+    : path === '/api/v1/auth/passkeys/login/verify' ? response({ token: TOKEN, user: { id: SESSION.id }, mfa: true }) : undefined)
+  render(<App />)
+  await userEvent.setup().click(screen.getByRole('button', { name: 'Zaloguj przez Face ID / klucz dostępu' }))
+  await screen.findByRole('article', { name: 'Pamięć' })
+  const options = (get.mock.calls[0] as unknown as [CredentialRequestOptions])[0].publicKey!
+  expect(new Uint8Array(options.challenge as ArrayBuffer)).toEqual(new Uint8Array([0, 1, 2]))
+  const verify = calls.find(call => call.path === '/api/v1/auth/passkeys/login/verify')
+  expect(JSON.parse(String(verify?.options.body))).toEqual({ ticket: 'ticket-0123456789abcdef', credential: { id: 'AQID', rawId: 'AQID', type: 'public-key', response: { clientDataJSON: 'e30', authenticatorData: 'AQID', signature: 'AQID', userHandle: null }, clientExtensionResults: {}, authenticatorAttachment: 'platform' } })
+  Object.defineProperty(navigator, 'credentials', { configurable: true, value: undefined })
+})

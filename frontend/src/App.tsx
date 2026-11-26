@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Activity, ArrowRight, ArrowUpRight, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
+import { Activity, ArrowRight, ArrowUpRight, Fingerprint, AudioLines, Bell, Camera, Check, ChevronRight, CircleAlert, Cpu, Database, DoorOpen, GitPullRequest, House, LayoutDashboard, LockKeyhole, LogOut, Menu, MessageSquare, Phone, Plug, RefreshCw, ShieldCheck, UserRound, Wrench, X } from 'lucide-react'
 import { ApiError, connect, endSession, readSnapshot } from './api'
 import type { AuthSession, LoginInput, Role, Snapshot } from './types'
 import { roleLabels } from './types'
+import { passkeysSupported } from './webauthn'
 import { ChatPanel } from './features/chat/ChatPanel'
 import { SettingsPanel } from './features/settings/SettingsPanel'
 import { ActivityPanel } from './features/activity/ActivityPanel'
@@ -105,6 +106,8 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
           <button type="button" className={mode === 'account' ? 'active' : ''} aria-pressed={mode === 'account'} disabled={busy} onClick={() => choose('account')}>Konto</button>
           <button type="button" className={mode === 'key' ? 'active' : ''} aria-pressed={mode === 'key'} disabled={busy} onClick={() => choose('key')}>Klucz właściciela</button>
         </div>
+        {mode === 'account' && passkeysSupported() && <button className="button primary passkey-login" type="button" disabled={busy} onClick={() => { const name = username.trim(); setPassword(''); setOtp(''); onSubmit(name ? { mode: 'passkey', username: name } : { mode: 'passkey' }) }}><Fingerprint aria-hidden="true" />Zaloguj przez Face ID / klucz dostępu</button>}
+        {mode === 'account' && passkeysSupported() && <p className="passkey-or">lub hasłem</p>}
         <form onSubmit={submit} aria-busy={busy}>
           {mode === 'account' ? <>
             <div className="form-field"><label htmlFor="login-name">Login</label><input id="login-name" name="username" value={username} onChange={event => setUsername(event.target.value)} autoComplete="username" autoCapitalize="none" spellCheck={false} required disabled={busy} placeholder="Twoja nazwa użytkownika" /></div>
@@ -114,6 +117,7 @@ function Login({ busy, error, onSubmit }: { busy: boolean; error: string | null;
           {error && <p className="form-error" role="alert">{error}</p>}
           <button className="button primary" type="submit" disabled={busy}>{busy ? <RefreshCw className="spin" aria-hidden="true" /> : <ArrowRight aria-hidden="true" />}{mode === 'account' ? 'Zaloguj się' : 'Połącz kluczem'}</button>
         </form>
+
         <p className="privacy-note"><LockKeyhole aria-hidden="true" />Dane dostępu pozostają tylko w pamięci tej karty. Po odświeżeniu strony połączysz się ponownie.</p>
       </section>
     </div>

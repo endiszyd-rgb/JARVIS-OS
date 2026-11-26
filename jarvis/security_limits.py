@@ -125,7 +125,7 @@ class RateLimit:
         window.api += 1
         if path.startswith('/api/v1/'):
             path = '/api/' + path[len('/api/v1/'):]
-        if path.rstrip('/') == '/api/auth/login':
+        if path.rstrip('/') in ('/api/auth/login', '/api/auth/passkeys/login/verify'):
             if window.login >= self.config.login_per_minute:
                 return await self._reject(send, window.start + 60 - now)
             window.login += 1

@@ -81,3 +81,9 @@ WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług.
 - Rola `operator` (status, brama, komendy głosowe, kamery) zamiast rozszerzania `owner`; czat z modelem i pamięć pozostają właścicielskie. Głos operatora idzie do `/voice/command` (tylko deterministyczny parser).
 - Kamery przez go2rtc zamiast własnej obsługi RTSP: hasła kamer zostają w go2rtc.yaml, JARVIS proxuje pojedyncze klatki JPEG (limit 4 MiB, 8 s, allowlista sieci). Płynne wideo (WebRTC) odłożone — wymagałoby przepuszczenia mediów przez tunel.
 - Schemat SQLite 13: CHECK ról wymaga przebudowy tabeli `identity_users` (procedura SQLite przy `foreign_keys=OFF` w jednej transakcji, z kopią `before-schema13-*`).
+
+## 2026-11-26 — passkeys (0.14.0)
+
+- Logowanie WebAuthn z wymaganą weryfikacją użytkownika traktujemy jak dwa składniki (posiadanie urządzenia + biometria/PIN), więc sesja ma `mfa=1` i działa zdalnie. Konto z TOTP może dodać klucz tylko w sesji otwartej kodem — hasło samo nie wystarcza do „przeniesienia” konta na nowe urządzenie.
+- Biblioteka `webauthn` (Duo Labs) zamiast własnej weryfikacji CBOR/COSE/podpisów. Klucz zapisujemy z rp_id i wymagamy zgodności przy logowaniu (obrona w głąb obok ochrony przeglądarki).
+- Origin akceptujemy, gdy to `https://` + nagłówek Host (domena tunelu — Cloudflare kieruje ruch po nazwie hosta, a przeglądarka wiąże klucz z domeną), `http://localhost` lub jawna lista. Klucz z witryny phishingowej nie może zostać użyty dla naszej domeny.

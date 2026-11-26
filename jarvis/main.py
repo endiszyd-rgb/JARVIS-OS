@@ -30,7 +30,7 @@ from . import plugins as transports, home, whatsapp, voice, recall, telephony, r
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
 from .security_limits import SecurityConfig, RateLimit
-from . import identity, remote_access, security_api, postgres_api, postgres_memory_api, postgres_context_api, postgres_profiles_api, control_ui
+from . import identity, passkeys, remote_access, security_api, postgres_api, postgres_memory_api, postgres_context_api, postgres_profiles_api, control_ui
 from .postgres_store import PostgresConfig, PostgresStore
 from .postgres_memory import PostgresMemory
 from .postgres_context import PostgresContext
@@ -147,7 +147,7 @@ class Retention(Strict):
     dry_run: bool = True
 
 
-SCHEMA_VERSION = 13  # 13: operator role, second factor (identity_mfa), session mfa flag, camera config
+SCHEMA_VERSION = 14  # 13: operator role, second factor (identity_mfa), session mfa flag, camera config; 14: passkeys
 
 
 class VoiceCommand(Strict):
@@ -181,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.13.0', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.14.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -359,7 +359,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.13.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.14.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -1342,6 +1342,7 @@ def create_app(db_path=None, api_key=None):
         return {'filename': target.name, 'sha256': hashlib.sha256(target.read_bytes()).hexdigest()}
 
     security_api.mount(api,db,auth,require('identity:self'),audit,security_config,lambda:config.owner_key_configured)
+    passkeys.mount(api,db,require('identity:self'),audit,security_config,lambda:config.owner_key_configured)
     postgres_api.mount(api,postgres_store,auth)
     postgres_profiles=PostgresProfiles(postgres_store)
     app.state.postgres_profiles=postgres_profiles

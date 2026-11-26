@@ -307,3 +307,6 @@ textarea:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--acce
   .connection-pill, .badge, .nav-link.active { border: 1px solid CanvasText; }
   .overview-visual, .overview-visual::before, .core-symbol { box-shadow: none; }
 }
+.passkey-login { width: 100%; margin-top: 12px; justify-content: center; }
+.passkey-or { margin: 16px 0 0; text-align: center; color: var(--subtle); font-size: 12px; letter-spacing: 1px; text-transform: uppercase; }
+@media (max-width: 720px) { .login-intro p, .login-intro .feature-list { display: none; } .login-intro h1 { font-size: 30px; } }

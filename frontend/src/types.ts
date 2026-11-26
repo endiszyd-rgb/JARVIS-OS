@@ -10,5 +10,5 @@ export interface CoreStatus {
 export interface Health { status: 'ok'; version: string }
 export interface Readiness { status: 'ready' | 'not_ready'; checks: { owner_key: boolean; database: boolean }; optional_integrations_probed: boolean }
 export interface Snapshot { status: CoreStatus; health: Health; ready: Readiness; loadedAt: number }
-export type LoginInput = { mode: 'account'; username: string; password: string; otp?: string } | { mode: 'key'; key: string }
+export type LoginInput = { mode: 'account'; username: string; password: string; otp?: string } | { mode: 'key'; key: string } | { mode: 'passkey'; username?: string }
 export const roleLabels: Record<Role, string> = { owner: 'Właściciel', observer: 'Obserwator', home_reader: 'Odczyt domu', workshop_reader: 'Odczyt warsztatu', automation_runner: 'Harmonogram', operator: 'Operator (brama, głos, kamery)' }

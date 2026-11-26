@@ -109,6 +109,12 @@ def install(c):
         secret TEXT NOT NULL, enabled INTEGER NOT NULL CHECK(enabled IN (0,1)),
         last_step INTEGER NOT NULL DEFAULT 0, backup_codes TEXT NOT NULL DEFAULT '[]',
         created REAL NOT NULL, updated REAL NOT NULL)''')
+    c.execute('''CREATE TABLE IF NOT EXISTS identity_passkeys(
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES identity_users(id) ON DELETE CASCADE,
+        credential_id TEXT NOT NULL UNIQUE, public_key BLOB NOT NULL, sign_count INTEGER NOT NULL CHECK(sign_count>=0),
+        name TEXT NOT NULL, transports TEXT NOT NULL DEFAULT '[]', created REAL NOT NULL, last_used REAL,
+        rp_id TEXT NOT NULL)''')
+    c.execute('CREATE INDEX IF NOT EXISTS identity_passkeys_user ON identity_passkeys(user_id)')
 
 
 def _transaction(c):
@@ -253,6 +259,11 @@ def issue_session(c, username, password, ttl_seconds, now=None, otp=None):
             return MFA_REQUIRED
         if not _consume_second_factor(c, second, otp, at):
             return None
+    return _open_session(c, row, ttl_seconds, at, mfa=second is not None)
+
+
+def _open_session(c, row, ttl_seconds, at, mfa):
+    """Prune, enforce <=16 live sessions per account and store only the token digest."""
     c.execute('DELETE FROM identity_sessions WHERE expires_at<=? OR revoked=1', (at,))
     active = _all(c, 'SELECT id FROM identity_sessions WHERE user_id=? AND revoked=0 ORDER BY created,id',
                   (row['id'],))
@@ -262,8 +273,8 @@ def issue_session(c, username, password, ttl_seconds, now=None, otp=None):
                       [(item['id'],) for item in active[:len(active) - MAX_ACTIVE_SESSIONS + 1]])
     ident, token, expires = str(uuid.uuid4()), secrets.token_urlsafe(32), at + ttl_seconds
     c.execute('INSERT INTO identity_sessions(id,user_id,token_digest,expires_at,revoked,created,mfa) VALUES(?,?,?,?,0,?,?)',
-              (ident, row['id'], hashlib.sha256(token.encode()).hexdigest(), expires, at, int(second is not None)))
-    return {'session_id': ident, 'token': token, 'expires_at': expires, 'user': _user(row, c), 'mfa': second is not None}
+              (ident, row['id'], hashlib.sha256(token.encode()).hexdigest(), expires, at, int(bool(mfa))))
+    return {'session_id': ident, 'token': token, 'expires_at': expires, 'user': _user(row, c), 'mfa': bool(mfa)}
 
 
 def _token_digest(token):
@@ -386,5 +397,57 @@ def mfa_reset(c, user_id):
     if _one(c, 'SELECT id FROM identity_users WHERE id=?', (str(user_id),)) is None:
         raise HTTPException(404, 'Account missing')
     removed = c.execute('DELETE FROM identity_mfa WHERE user_id=?', (str(user_id),)).rowcount > 0
+    removed = c.execute('DELETE FROM identity_passkeys WHERE user_id=?', (str(user_id),)).rowcount > 0 or removed
     c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (str(user_id),))
     return {'reset': removed}
+
+
+# --------------------------------------------------------------------------- passkeys (WebAuthn: Face ID / Touch ID / Windows Hello)
+
+MAX_PASSKEYS = 10
+
+
+def passkey_list(c, user_id):
+    return [{**row, 'transports': json.loads(row['transports'])} for row in
+            _all(c, 'SELECT id,name,transports,created,last_used,rp_id FROM identity_passkeys WHERE user_id=? ORDER BY created,id', (str(user_id),))]
+
+
+def passkey_credentials(c, user_id, rp_id=None):
+    sql, values = 'SELECT credential_id FROM identity_passkeys WHERE user_id=?', [str(user_id)]
+    if rp_id is not None:
+        sql, values = sql + ' AND rp_id=?', values + [rp_id]
+    return [row['credential_id'] for row in _all(c, sql, tuple(values))]
+
+
+def passkey_add(c, user_id, credential_id, public_key, sign_count, name, transports, rp_id):
+    _transaction(c)
+    if c.execute('SELECT count(*) FROM identity_passkeys WHERE user_id=?', (str(user_id),)).fetchone()[0] >= MAX_PASSKEYS:
+        raise HTTPException(409, 'Passkey limit reached; remove an old device first')
+    if c.execute('SELECT 1 FROM identity_passkeys WHERE credential_id=?', (credential_id,)).fetchone():
+        raise HTTPException(409, 'This passkey is already registered')
+    ident = str(uuid.uuid4())
+    c.execute('INSERT INTO identity_passkeys(id,user_id,credential_id,public_key,sign_count,name,transports,created,last_used,rp_id) VALUES(?,?,?,?,?,?,?,?,NULL,?)',
+              (ident, str(user_id), credential_id, public_key, int(sign_count), name, json.dumps(list(transports)[:8]), _now(), rp_id))
+    return next(item for item in passkey_list(c, user_id) if item['id'] == ident)
+
+
+def passkey_delete(c, user_id, ident):
+    _transaction(c)
+    return c.execute('DELETE FROM identity_passkeys WHERE id=? AND user_id=?', (str(ident), str(user_id))).rowcount > 0
+
+
+def passkey_lookup(c, credential_id, rp_id):
+    """Credential registered for this RP with its enabled account, or None (unknown, other domain, disabled)."""
+    row = _one(c, '''SELECT p.id passkey_id,p.public_key,p.sign_count,u.* FROM identity_passkeys p
+                    JOIN identity_users u ON u.id=p.user_id WHERE p.credential_id=? AND p.rp_id=?''', (credential_id, rp_id))
+    if row is None or not row['enabled'] or row['role'] not in ROLES:
+        return None
+    return row
+
+
+def passkey_login(c, row, new_sign_count, ttl_seconds, now=None):
+    """A verified passkey with user verification (Face ID/PIN) counts as two factors."""
+    _transaction(c)
+    at = _now(now)
+    c.execute('UPDATE identity_passkeys SET sign_count=?,last_used=? WHERE id=?', (int(new_sign_count), at, row['passkey_id']))
+    return _open_session(c, row, ttl_seconds, at, mfa=True)

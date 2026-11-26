@@ -1,3 +1,16 @@
+## 0.14.0 — logowanie Face ID / Touch ID (passkeys) (2026-11-26)
+
+Na iPhonie sesja znika po zamknięciu aplikacji, więc logowanie hasłem i kodem 2FA za każdym razem było uciążliwe. Teraz:
+
+- **„Zaloguj przez Face ID / klucz dostępu”** na ekranie logowania (na telefonie na samej górze). Klucz dostępu (passkey, WebAuthn) z weryfikacją użytkownika (Face ID, Touch ID, Windows Hello, PIN urządzenia) otwiera sesję liczoną jako dwuskładnikowa — działa też przez tunel spoza warsztatu.
+- **Moje konto → Face ID / Touch ID / Windows Hello**: *Dodaj to urządzenie*, lista urządzeń (domena, ostatnie użycie), usuwanie. Konto z 2FA może dodać klucz tylko w sesji otwartej kodem 2FA. Właścicielski *Resetuj 2FA* usuwa też klucze (zgubiony telefon).
+- Backend `jarvis/passkeys.py` (biblioteka `webauthn` 3.0.1 + zależności przypięte w `requirements.lock`): wyzwania jednorazowe 2 min w pamięci, wymagane UV, licznik podpisów, klucz przypisany do domeny (rp_id) — klucz z domeny tunelu nie zadziała pod innym adresem. Dozwolone adresy: `https://<domena tunelu>`, `http://localhost:<port>`, lista `JARVIS_PASSKEY_ORIGINS`. Przeglądarki nie pozwalają na klucze pod adresem IP (`127.0.0.1`) — lokalnie użyj `http://localhost:17321`. Logowanie kluczem objęte limitem prób jak hasło.
+- Schemat SQLite **14**: tabela `identity_passkeys` (kopia `backups/before-schema14-*`).
+
+Wykonane kontrole: **990 pytest PASS / 75 skip** (nowe `tests/test_passkeys.py` 10 z programowym uwierzytelniaczem ES256: rejestracja, logowanie, ponowne użycie wyzwania, obcy klucz, inna domena, wymagane UV, wyłączone konto, reguły 2FA, pełna ścieżka telefonu przez tunel), pip check PASS, **174 testy UI PASS** (logowanie passkey, dodawanie urządzenia), typecheck/build PASS. **Chrome z wirtualnym uwierzytelniaczem WebAuthn (CDP)** na prawdziwym serwerze, 390 px: logowanie hasłem → Moje konto → *Dodaj to urządzenie* → wylogowanie → *Zaloguj przez Face ID* → pulpit; licznik podpisów 2, 0 błędów konsoli.
+
+Ograniczenia: **prawdziwy iPhone/Face ID i Windows Hello NOT_RUN** (test tylko z wirtualnym uwierzytelniaczem Chrome). Klucz trzeba dodać osobno dla każdego adresu (domena tunelu, localhost). Wyzwania w pamięci jednego procesu — restart serwera w trakcie logowania wymaga ponowienia.
+
 ## 0.13.0 — AutoLogika OS na żywo: raport dnia i części (2026-11-26)
 
 Właściciel używa desktopowej AutoLogiki OS. Ponowny audyt repozytorium Autologika-OS (bcdc364, 21.11.2026, 201 commitów po poprzednim audycie): serwer mobilny nadal udostępnia te same trasy GET `/api/orders` i `/api/order/{id}` (PIN w `X-Autologika-Pin`, port 8787), schemat bazy 18; statusy części pochodzą z `electron/job-part-workflow.cjs` (DO_ZAMOWIENIA / ZAMOWIONE / W_DRODZE …), a zlecenie z brakującymi częściami ma `wait_state=CZESCI`.
