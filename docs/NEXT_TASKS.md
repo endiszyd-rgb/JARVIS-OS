@@ -1,4 +1,4 @@
-2026-11-26: 0.14.0 — logowanie Face ID / passkeys (schemat 14). Następne: tryb warsztatowy (jeden ekran), raport poranny, test właściciela na iPhonie przez tunel.
+2026-11-26: 0.14.0 — logowanie Face ID / passkeys (schemat 14) i ekran „Warsztat”. Następne: raport poranny (harmonogram), powiadomienia o bramie, test właściciela na iPhonie przez tunel.
 
 2026-11-26: 0.13.0 — raport dnia i części na żywo z AutoLogiki OS (M6.2 IN_PROGRESS). Następne: test właściciela na jego AutoLogice (serwer mobilny + PIN w widoku AutoLogika), logowanie Face ID (passkeys), tryb warsztatowy.
 

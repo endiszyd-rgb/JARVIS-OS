@@ -23,15 +23,17 @@ import { SecurityPanel } from './features/security/SecurityPanel'
 import { ChangesPanel } from './features/changes/ChangesPanel'
 import { CamerasPanel } from './features/cameras/CamerasPanel'
 import { AccountPanel } from './features/account/AccountPanel'
+import { KioskPanel } from './features/kiosk/KioskPanel'
 
 const viewLabels = {
-  dashboard: 'Pulpit', system: 'System', chat: 'Rozmowa', voice: 'Głos', gate: 'Brama', cameras: 'Kamery', account: 'Moje konto', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
+  dashboard: 'Pulpit', kiosk: 'Warsztat', system: 'System', chat: 'Rozmowa', voice: 'Głos', gate: 'Brama', cameras: 'Kamery', account: 'Moje konto', settings: 'Ustawienia', activity: 'Historia działań', plugins: 'Pluginy',
   workshop: 'AutoLogika', home: 'Dom', devices: 'Urządzenia', automations: 'Automatyzacje', memory: 'Pamięć',
   telephony: 'Telefonia', notifications: 'Powiadomienia', security: 'Bezpieczeństwo', logs: 'Logi', changes: 'Zmiany i zgody',
 } as const
 type View = keyof typeof viewLabels
 const viewDescriptions: Record<View, string> = {
-  dashboard: 'Podgląd Twojej instalacji. Zawsze z jasnym stanem i zakresem działania.', system: 'Gotowość instalacji i informacje o bieżącym dostępie.',
+  dashboard: 'Podgląd Twojej instalacji. Zawsze z jasnym stanem i zakresem działania.',
+  kiosk: 'Jeden ekran na warsztat i telefon: polecenia głosowe, brama, kamery i dzisiejsze zlecenia.', system: 'Gotowość instalacji i informacje o bieżącym dostępie.',
   chat: 'Twoje rozmowy, zapisane sesje i wybór skonfigurowanego modelu.', settings: 'Ustawienia asystenta z podglądem przed zatwierdzeniem.',
   voice: 'Komendy głosowe: nasłuch słowa aktywującego lub przytrzymaj i mów. Polecenia urządzeń wykonuje serwer.',
   gate: 'Sterowanie bramą warsztatu, konfiguracja sterownika i historia poleceń.',
@@ -46,7 +48,7 @@ const viewDescriptions: Record<View, string> = {
   logs: 'Ostatnie zdarzenia audytu. Logi systemu i Dockera nie są udostępniane przez ten panel.',
 }
 const navItems: { view: View; icon: ReactNode }[] = [
-  { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Activity /> },
+  { view: 'kiosk', icon: <Wrench /> }, { view: 'dashboard', icon: <LayoutDashboard /> }, { view: 'system', icon: <Activity /> },
   { view: 'chat', icon: <MessageSquare /> }, { view: 'voice', icon: <AudioLines /> }, { view: 'gate', icon: <DoorOpen /> }, { view: 'cameras', icon: <Camera /> }, { view: 'memory', icon: <Database /> },
   { view: 'settings', icon: <Cpu /> }, { view: 'activity', icon: <Activity /> }, { view: 'plugins', icon: <Plug /> },
   { view: 'workshop', icon: <Wrench /> }, { view: 'home', icon: <House /> }, { view: 'devices', icon: <Cpu /> },
@@ -56,7 +58,7 @@ const navItems: { view: View; icon: ReactNode }[] = [
 ]
 function canAccess(view: View, role: Role): boolean {
   if (view === 'dashboard' || view === 'system' || view === 'account' || role === 'owner') return true
-  if (role === 'operator') return view === 'gate' || view === 'voice' || view === 'cameras'
+  if (role === 'operator') return view === 'kiosk' || view === 'gate' || view === 'voice' || view === 'cameras'
   return view === 'home' && role === 'home_reader' || view === 'workshop' && role === 'workshop_reader'
 }
 const currentView = (): View => {
@@ -269,7 +271,7 @@ export default function App() {
     try {
       const authenticated = await connect(input, controller.signal)
       if (epoch.current !== id || controller.signal.aborted) return
-      const target = keepView ? currentView() : 'dashboard'
+      const target = keepView ? currentView() : authenticated.identity.role === 'operator' ? 'kiosk' : 'dashboard'
       setSession(authenticated); setView(target); setMenuOpen(false)
       window.history.replaceState(null, '', '#/' + target)
       setBusyRefresh(true)
@@ -348,6 +350,7 @@ export default function App() {
           view === 'devices' ? <DevicesPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :
           view === 'gate' ? <GatePanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
           view === 'voice' ? <VoicePanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
+          view === 'kiosk' ? <KioskPanel credential={session.credential} onUnauthorized={privateUnauthorized} workshopData={isOwner || session.identity.role === 'workshop_reader'} /> :
           view === 'cameras' ? <CamerasPanel credential={session.credential} onUnauthorized={privateUnauthorized} owner={isOwner} /> :
           view === 'account' ? <AccountPanel credential={session.credential} onUnauthorized={privateUnauthorized} accountSession={session.identity.kind === 'session'} /> :
           view === 'automations' ? <AutomationsPanel credential={session.credential} onUnauthorized={privateUnauthorized} /> :

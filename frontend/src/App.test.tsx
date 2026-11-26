@@ -296,14 +296,24 @@ it('sends the 2FA code with the account login and explains a missing code', asyn
   expect(JSON.parse(String(second?.options.body))).toEqual({ username: 'observer.demo', password: PASSWORD, otp: '123456' })
 })
 
-it('gives the operator role gate, voice, cameras and account views only', async () => {
+it('gives the operator role the workshop screen, gate, voice, cameras and account views only', async () => {
   const gate = { name: 'Brama warsztatu', driver: 'simulator', live: false, state: 'closed', state_label: 'zamknięta', changed: null, last_action: null, require_confirmation: false, pulse: false }
   const calls = server(path => path === '/api/v1/auth/me' ? response({ ...SESSION, role: 'operator', scopes: ['status:read', 'gate:control', 'voice:command', 'cameras:view'] })
-    : path === '/api/v1/devices/gate' ? response({ gate, config: { name: gate.name, driver: 'simulator', require_confirmation: false }, events: [] }) : undefined)
+    : path === '/api/v1/devices/gate' ? response({ gate, config: { name: gate.name, driver: 'simulator', require_confirmation: false }, events: [] })
+      : path === '/api/v1/cameras' ? response({ enabled: false, refresh_ms: 1000, cameras: [] })
+        : path === '/api/v1/voice/command' ? response({ reply: 'Otwieram: Brama warsztatu.', handled: true, device: { status: 'executed' } }) : undefined)
   render(<App />)
-  await accountLogin()
+  const user = userEvent.setup()
+  await user.type(screen.getByLabelText('Login', { exact: true }), 'mechanik')
+  await user.type(screen.getByLabelText('Hasło', { exact: true }), PASSWORD)
+  await user.click(screen.getByRole('button', { name: 'Zaloguj się' }))
+  await screen.findByRole('heading', { name: 'Warsztat', level: 1 })  // operators land on the workshop screen
+  await user.type(screen.getByLabelText('Polecenie'), 'otwórz bramę')
+  await user.click(screen.getByRole('button', { name: 'Wyślij polecenie' }))
+  expect(await screen.findByText('Otwieram: Brama warsztatu.')).toBeInTheDocument()
+  expect(screen.queryByRole('button', { name: 'Co dziś?' })).not.toBeInTheDocument()
   const nav = within(document.querySelector('.sidebar-nav') as HTMLElement)
-  for (const label of ['Brama', 'Głos', 'Kamery', 'Moje konto']) expect(nav.getByRole('link', { name: label })).toBeInTheDocument()
+  for (const label of ['Warsztat', 'Brama', 'Głos', 'Kamery', 'Moje konto']) expect(nav.getByRole('link', { name: label })).toBeInTheDocument()
   for (const label of ['Rozmowa', 'Pamięć', 'Bezpieczeństwo', 'Ustawienia']) expect(nav.queryByRole('link', { name: label })).not.toBeInTheDocument()
   expect(calls.some(call => call.path === '/api/v1/devices/gate')).toBe(true)
 })

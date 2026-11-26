@@ -27,7 +27,7 @@ export async function readFrame(credential: string, signal: AbortSignal, id: str
   return response.blob()
 }
 
-function CameraView({ camera, credential, refreshMs, running, onUnauthorized, onOpen }: { camera: CameraSummary; credential: string; refreshMs: number; running: boolean; onUnauthorized: () => void; onOpen: () => void }) {
+export function CameraView({ camera, credential, refreshMs, running, onUnauthorized, onOpen }: { camera: CameraSummary; credential: string; refreshMs: number; running: boolean; onUnauthorized: () => void; onOpen: () => void }) {
   const [url, setUrl] = useState<string | null>(null)
   const [problem, setProblem] = useState<string | null>(null)
   const [stamp, setStamp] = useState<number | null>(null)
