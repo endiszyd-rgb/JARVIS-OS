@@ -1,7 +1,8 @@
 """Workshop gate control: explicit driver, owner-only commands, cooldown, optional confirmation, audit.
 
 Drivers: ``simulator`` (no I/O), ``http`` (Shelly/Tasmota/ESPHome style local URLs), ``tuya_cloud``
-(Smart Life / Tuya IoT OpenAPI) and ``home_assistant`` (service call on one entity). Configuration
+(Smart Life / Tuya IoT OpenAPI), ``tuya_local`` (Setti/Tuya device on the workshop LAN, no cloud,
+via tinytuya) and ``home_assistant`` (service call on one entity). Configuration
 lives in the local database, is edited from the Control Center and never leaves the Core unmasked.
 """
 import asyncio
@@ -73,6 +74,40 @@ class TuyaDriver(Strict):
         return value.rstrip('/')
 
 
+TUYA_LOCAL_VERSIONS = ('auto', '3.1', '3.3', '3.4', '3.5')
+
+
+def private_lan_address(value: str) -> str:
+    """A device on the workshop network: private IPv4/IPv6 only (no loopback, public or link-local)."""
+    try:
+        address = ipaddress.ip_address(value.strip())
+    except ValueError:
+        raise ValueError('Enter the device IP address, e.g. 192.168.1.50') from None
+    if not address.is_private or address.is_loopback or address.is_link_local or address.is_multicast or address.is_unspecified:
+        raise ValueError('Only devices on the local network (e.g. 192.168.x.x) are allowed')
+    return str(address)
+
+
+class TuyaLocalDriver(Strict):
+    """Tuya/Setti device controlled directly on the LAN (port 6668); the cloud is needed once for the local key."""
+    device_id: str = Field(min_length=1, max_length=64, pattern=r'^[A-Za-z0-9_-]+$')
+    local_key: str = Field(default='', max_length=64)
+    address: str = Field(min_length=1, max_length=45)
+    version: Literal['auto', '3.1', '3.3', '3.4', '3.5'] = 'auto'
+    open_dp: int = Field(default=1, ge=1, le=255)
+    open_value: bool | int | str = True
+    close_dp: int = Field(default=1, ge=1, le=255)
+    close_value: bool | int | str = False
+    stop_dp: int = Field(default=0, ge=0, le=255, description='0 = no stop command')
+    stop_value: bool | int | str = True
+    status_dp: int = Field(default=0, ge=0, le=255, description='0 = no position sensor')
+
+    @field_validator('address')
+    @classmethod
+    def _address(cls, value):
+        return private_lan_address(value)
+
+
 class HomeAssistantDriver(Strict):
     url: str = Field(default='', max_length=300)
     token: str = Field(default='', max_length=4096)
@@ -97,7 +132,7 @@ class HomeAssistantDriver(Strict):
 
 
 class GateConfig(Strict):
-    driver: Literal['disabled', 'simulator', 'http', 'tuya_cloud', 'home_assistant'] = 'simulator'
+    driver: Literal['disabled', 'simulator', 'http', 'tuya_cloud', 'tuya_local', 'home_assistant'] = 'simulator'
     name: str = Field(default='Brama warsztatu', min_length=1, max_length=80)
     require_confirmation: bool = False
     cooldown_seconds: int = Field(default=3, ge=0, le=120)
@@ -105,10 +140,11 @@ class GateConfig(Strict):
     pulse: bool = Field(default=False, description='Single-impulse gate: open and close send the same command')
     http: HttpDriver | None = None
     tuya: TuyaDriver | None = None
+    tuya_local: TuyaLocalDriver | None = None
     home_assistant: HomeAssistantDriver | None = None
 
     def selected(self):
-        mapping = {'http': self.http, 'tuya_cloud': self.tuya, 'home_assistant': self.home_assistant}
+        mapping = {'http': self.http, 'tuya_cloud': self.tuya, 'tuya_local': self.tuya_local, 'home_assistant': self.home_assistant}
         if self.driver in mapping and mapping[self.driver] is None:
             raise HTTPException(422, 'Driver "' + self.driver + '" needs its configuration section')
         return mapping.get(self.driver)
@@ -116,7 +152,7 @@ class GateConfig(Strict):
     def masked(self):
         """Public view for the panel: secrets are replaced by a marker and a *_set flag."""
         data = self.model_dump()
-        for section, fields in (('http', ('password',)), ('tuya', ('access_secret',)), ('home_assistant', ('token',))):
+        for section, fields in (('http', ('password',)), ('tuya', ('access_secret',)), ('tuya_local', ('local_key',)), ('home_assistant', ('token',))):
             if data.get(section):
                 for name in fields:
                     data[section][name + '_set'] = bool(data[section][name])
@@ -124,7 +160,7 @@ class GateConfig(Strict):
         return data
 
 
-SECRET_FIELDS = {'http': ('password',), 'tuya': ('access_secret',), 'home_assistant': ('token',)}
+SECRET_FIELDS = {'http': ('password',), 'tuya': ('access_secret',), 'tuya_local': ('local_key',), 'home_assistant': ('token',)}
 
 
 def merge_secrets(previous: GateConfig | None, incoming: dict) -> dict:
@@ -364,7 +400,101 @@ class HomeAssistant:
         return {'state': mapping.get(value, state.get('state', 'unknown')), 'external_request_sent': True, 'raw': value}
 
 
-DRIVERS = {'simulator': Simulator, 'http': Http, 'tuya_cloud': TuyaCloud, 'home_assistant': HomeAssistant}
+class TuyaLocal:
+    """Setti/Tuya on the workshop Wi‑Fi without the cloud (tinytuya, TCP 6668, AES with the device's local key)."""
+    live = True
+    TRY_VERSIONS = (3.3, 3.4, 3.5, 3.1)
+
+    def __init__(self, config: GateConfig, device_factory=None):
+        self.config = config
+        self.driver = config.tuya_local
+        self.factory = device_factory
+        self.version = None if self.driver.version == 'auto' else float(self.driver.version)
+
+    def _device(self, version):
+        if self.factory is not None:
+            return self.factory(self.driver, version)
+        import tinytuya
+        device = tinytuya.Device(self.driver.device_id, self.driver.address, self.driver.local_key, version=version,
+                                 connection_timeout=4, connection_retry_limit=1, connection_retry_delay=1)
+        device.set_socketPersistent(False)
+        return device
+
+    @staticmethod
+    def _check(result):
+        if isinstance(result, dict) and result.get('Error'):
+            code = str(result.get('Err', ''))
+            hint = {'901': 'urządzenie nie odpowiada pod tym adresem IP', '905': 'urządzenie nie odpowiada pod tym adresem IP',
+                    '914': 'zły klucz lokalny albo wersja protokołu', '904': 'nieprawidłowa odpowiedź — sprawdź wersję protokołu'}.get(code, '')
+            raise HTTPException(502, 'Tuya local error ' + code + ': ' + str(result.get('Error'))[:120] + (' — ' + hint if hint else ''))
+        return result
+
+    async def _call(self, operation):
+        if not self.driver.local_key:
+            raise HTTPException(503, 'Tuya local key is not configured')
+        versions = (self.version,) if self.version else self.TRY_VERSIONS
+        last = None
+        for version in versions:
+            try:
+                async with asyncio.timeout(15):
+                    result = self._check(await asyncio.to_thread(operation, self._device(version)))
+                self.version = version  # remember the protocol that answered
+                return result
+            except HTTPException as exc:
+                last = exc
+        raise last
+
+    async def command(self, action, state):
+        driver = self.driver
+        if action == 'stop' and not driver.stop_dp:
+            raise HTTPException(501, 'No stop command configured for this gate')
+        dp, value = {'open': (driver.open_dp, driver.open_value), 'close': (driver.close_dp, driver.close_value),
+                     'stop': (driver.stop_dp, driver.stop_value)}[action]
+        if self.config.pulse and action == 'close':
+            dp, value = driver.open_dp, driver.open_value
+        await self._call(lambda device: device.set_value(dp, value))
+        return {'state': 'opening' if action == 'open' else 'closing' if action == 'close' else 'stopped', 'external_request_sent': True}
+
+    async def status(self, state):
+        result = await self._call(lambda device: device.status())
+        values = result.get('dps', {}) if isinstance(result, dict) else {}
+        current = state.get('state', 'unknown')
+        if self.driver.status_dp and str(self.driver.status_dp) in values:
+            value = values[str(self.driver.status_dp)]
+            current = 'open' if value in (True, 'open', 'opened', 1) else 'closed' if value in (False, 'close', 'closed', 0) else current
+        return {'state': current, 'external_request_sent': True, 'values': {str(k): values[k] for k in list(values)[:20]},
+                'protocol': self.version}
+
+
+def scan_lan(seconds=8):
+    """Listen for Tuya UDP broadcasts on the LAN; returns devices without contacting any cloud."""
+    import tinytuya
+    found = tinytuya.deviceScan(verbose=False, maxretry=seconds, color=False, poll=False)
+    devices = []
+    for ip, info in (found or {}).items():
+        try:
+            address = private_lan_address(str(info.get('ip') or ip))
+        except ValueError:
+            continue
+        device_id = str(info.get('gwId') or info.get('id') or '')
+        if re.fullmatch(r'[A-Za-z0-9_-]{1,64}', device_id):
+            devices.append({'address': address, 'device_id': device_id, 'version': str(info.get('version') or '')[:5]})
+    return sorted(devices, key=lambda item: item['address'])[:50]
+
+
+async def cloud_device_info(config: GateConfig, device_id: str):
+    """Read the device's local key (and name) once through the Tuya cloud project already saved in settings."""
+    if config.tuya is None or not config.tuya.access_secret:
+        raise HTTPException(409, 'Save the Tuya cloud access (Access ID/Secret) first')
+    cloud = TuyaCloud(config.model_copy(update={'driver': 'tuya_cloud'}))
+    token = await cloud._token()
+    result = await cloud._request('GET', '/v1.0/devices/' + device_id, '', token)
+    if not isinstance(result, dict) or not isinstance(result.get('local_key'), str) or not result['local_key']:
+        raise HTTPException(502, 'Tuya did not return a local key for this device')
+    return {'local_key': result['local_key'][:64], 'name': str(result.get('name') or '')[:80]}
+
+
+DRIVERS = {'simulator': Simulator, 'http': Http, 'tuya_cloud': TuyaCloud, 'tuya_local': TuyaLocal, 'home_assistant': HomeAssistant}
 
 
 # --------------------------------------------------------------------------- controller

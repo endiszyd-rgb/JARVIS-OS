@@ -181,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.15.0', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.16.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -359,7 +359,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.15.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.16.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -682,6 +682,28 @@ def create_app(db_path=None, api_key=None):
         result=await run_gate('status','panel')
         with db() as c: audit(c,'gate.tested',{'driver':result['driver']})
         return {'status':'reachable','gate':result}
+
+    class TuyaKeyRequest(Strict):
+        device_id:str=Field(min_length=1,max_length=64,pattern=r'^[A-Za-z0-9_-]+$')
+
+    @api.post('/devices/gate/tuya-local/scan', dependencies=[Depends(auth)])
+    async def gate_tuya_scan():
+        """Find Tuya/Setti devices on the workshop Wi‑Fi (UDP broadcast, ~8 s, no cloud)."""
+        try:
+            async with asyncio.timeout(25):
+                devices=await asyncio.to_thread(gate.scan_lan,8)
+        except (OSError,TimeoutError):
+            raise HTTPException(502,'Local network scan failed') from None
+        with db() as c: audit(c,'gate.tuya_local_scan',{'found':len(devices)})
+        return {'devices':devices}
+
+    @api.post('/devices/gate/tuya-local/key', dependencies=[Depends(auth)])
+    async def gate_tuya_key(body:TuyaKeyRequest):
+        """One-time read of the device's local key through the saved Tuya cloud project (owner only)."""
+        with db() as c: config,_=gate.load(c)
+        info=await gate.cloud_device_info(config,body.device_id)
+        with db() as c: audit(c,'gate.tuya_local_key_read',{'device_id':body.device_id})
+        return info
 
     @api.get('/devices/gate/config', dependencies=[Depends(auth)])
     def gate_config_read():

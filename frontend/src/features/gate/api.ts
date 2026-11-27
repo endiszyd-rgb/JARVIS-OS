@@ -1,6 +1,6 @@
 import { ApiError, apiRequest } from '../../api'
 
-export type GateDriver = 'disabled' | 'simulator' | 'http' | 'tuya_cloud' | 'home_assistant'
+export type GateDriver = 'disabled' | 'simulator' | 'http' | 'tuya_cloud' | 'tuya_local' | 'home_assistant'
 export type GateAction = 'open' | 'close' | 'stop' | 'status'
 export type GateState = 'unknown' | 'open' | 'closed' | 'opening' | 'closing' | 'stopped'
 
@@ -12,23 +12,36 @@ export interface GateStatus {
 export interface GateEvent { id: number; action: string; source: string; actor: string; result: string; created: number; detail: Record<string, unknown> }
 export interface HttpDriverConfig { open_url: string; close_url: string; stop_url: string; status_url: string; method: 'GET' | 'POST'; body: string; username: string; password: string; password_set?: boolean; status_open_match: string }
 export interface TuyaDriverConfig { endpoint: string; access_id: string; access_secret: string; access_secret_set?: boolean; device_id: string; open_code: string; open_value: boolean | number | string; close_code: string; close_value: boolean | number | string; stop_code: string; stop_value: boolean | number | string; status_code: string }
+export interface TuyaLocalDriverConfig { device_id: string; local_key: string; local_key_set?: boolean; address: string; version: 'auto' | '3.1' | '3.3' | '3.4' | '3.5'; open_dp: number; open_value: boolean | number | string; close_dp: number; close_value: boolean | number | string; stop_dp: number; stop_value: boolean | number | string; status_dp: number }
 export interface HomeAssistantDriverConfig { url: string; token: string; token_set?: boolean; entity_id: string; open_service: string; close_service: string; stop_service: string }
 export interface GateConfig {
   driver: GateDriver; name: string; require_confirmation: boolean; cooldown_seconds: number; travel_seconds: number; pulse: boolean
-  http: HttpDriverConfig | null; tuya: TuyaDriverConfig | null; home_assistant: HomeAssistantDriverConfig | null
+  http: HttpDriverConfig | null; tuya: TuyaDriverConfig | null; tuya_local?: TuyaLocalDriverConfig | null; home_assistant: HomeAssistantDriverConfig | null
 }
 export interface GateOverview { gate: GateStatus; config: GateConfig; revision: number; events: GateEvent[]; drivers: string[] }
 export type CommandResult =
   | { status: 'executed'; action: GateAction; external_request_sent: boolean; gate: GateStatus }
   | { status: 'confirmation_required'; action: GateAction; confirm_token: string; expires_in: number; prompt: string; gate: GateStatus }
 
-export const DRIVERS: GateDriver[] = ['simulator', 'http', 'tuya_cloud', 'home_assistant', 'disabled']
+export const DRIVERS: GateDriver[] = ['simulator', 'http', 'tuya_cloud', 'tuya_local', 'home_assistant', 'disabled']
 export const driverLabels: Record<GateDriver, string> = {
   disabled: 'Wyłączone', simulator: 'Symulator (bez sprzętu)', http: 'Lokalne HTTP (Shelly / Tasmota / ESP)',
-  tuya_cloud: 'Tuya / Smart Life (chmura)', home_assistant: 'Home Assistant',
+  tuya_cloud: 'Tuya / Smart Life (chmura)', tuya_local: 'Tuya / Setti w sieci lokalnej (bez chmury)', home_assistant: 'Home Assistant',
 }
 export const emptyHttp: HttpDriverConfig = { open_url: '', close_url: '', stop_url: '', status_url: '', method: 'GET', body: '', username: '', password: '', status_open_match: '' }
 export const emptyTuya: TuyaDriverConfig = { endpoint: 'https://openapi.tuyaeu.com', access_id: '', access_secret: '', device_id: '', open_code: 'switch_1', open_value: true, close_code: 'switch_1', close_value: false, stop_code: '', stop_value: true, status_code: '' }
+export const emptyTuyaLocal: TuyaLocalDriverConfig = { device_id: '', local_key: '', address: '', version: 'auto', open_dp: 1, open_value: true, close_dp: 1, close_value: false, stop_dp: 0, stop_value: true, status_dp: 0 }
+export interface FoundDevice { address: string; device_id: string; version: string }
+export async function scanTuyaLocal(credential: string, signal: AbortSignal): Promise<FoundDevice[]> {
+  const value = await apiRequest('/api/v1/devices/gate/tuya-local/scan', signal, credential, { body: {}, timeoutMs: 40000 })
+  if (!object(value) || !Array.isArray(value.devices)) return invalid()
+  return value.devices as FoundDevice[]
+}
+export async function fetchTuyaLocalKey(credential: string, signal: AbortSignal, deviceId: string): Promise<{ local_key: string; name: string }> {
+  const value = await apiRequest('/api/v1/devices/gate/tuya-local/key', signal, credential, { body: { device_id: deviceId }, timeoutMs: 30000 })
+  if (!object(value) || typeof value.local_key !== 'string') return invalid()
+  return { local_key: value.local_key, name: typeof value.name === 'string' ? value.name : '' }
+}
 export const emptyHomeAssistant: HomeAssistantDriverConfig = { url: '', token: '', entity_id: '', open_service: 'cover.open_cover', close_service: 'cover.close_cover', stop_service: 'cover.stop_cover' }
 
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value)
