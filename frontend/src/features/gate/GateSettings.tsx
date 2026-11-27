@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
 import { Check, CircleAlert, DoorOpen, KeyRound, Radar, Save, Search } from 'lucide-react'
 import { ApiError } from '../../api'
-import { FieldLabel } from '../../components/HelpTip'
+import { FieldLabel, HelpTip } from '../../components/HelpTip'
 import { DRIVERS, driverLabels, emptyHomeAssistant, emptyHttp, emptyTuya, emptyTuyaLocal, fetchTuyaLocalKey, readGate, saveGateConfig, scanTuyaLocal, testGate } from './api'
 import type { FoundDevice, GateConfig, GateDriver, GateOverview } from './api'
 import './gate.css'
@@ -25,6 +25,25 @@ function Text({ id, label, help, value, onChange, secret, saved, placeholder, di
   return <div className="form-field"><FieldLabel htmlFor={id} help={help}>{label}</FieldLabel>
     <input id={id} type={secret ? 'password' : 'text'} value={storedMask ? '' : value} maxLength={max} disabled={disabled} autoComplete={secret ? 'new-password' : 'off'}
       placeholder={secret && (saved || storedMask) ? 'zapisany ✓ — wpisz nowy tylko, aby zmienić' : placeholder} onChange={event => onChange(event.target.value.trim() === '' && storedMask ? SECRET_MASK : event.target.value.trim())} /></div>
+}
+
+type Signal = boolean | number | string
+const BRAMA_SIGNAL_HELP = 'Sygnał, który rusza bramą. Jeśli wcześniej działał tylko przycisk Zamknij, wybierz „Wyłącz”. Sprawdź jednym naciśnięciem „Brama” w widoku Brama.'
+const signalKey = (value: Signal) => value === true ? 'on' : value === false ? 'off' : 'other'
+
+/** One-button Setti controllers: "Otwórz" sends exactly what "Zamknij" sends (the same function and value). */
+function SameSignal({ id, same, disabled, onChange }: { id: string; same: boolean; disabled: boolean; onChange: (same: boolean) => void }) {
+  return <label className="gate-check" htmlFor={id}><input id={id} type="checkbox" checked={same} disabled={disabled} onChange={event => onChange(event.target.checked)} />
+    Jeden przycisk w sterowniku: „Otwórz” wysyła ten sam sygnał co „Zamknij”
+    <HelpTip topic="Jeden przycisk" text="Zaznacz, gdy sterownik ma jeden sygnał, który raz otwiera, a raz zamyka bramę (np. Setti), i działa tylko jeden z przycisków. Oba przyciski i komenda głosowa „otwórz bramę” wyślą wtedy ten sam, działający sygnał." /></label>
+}
+
+/** Which value a button sends: on/off for switch_1 style relays, other values kept as they are. */
+function SignalSelect({ id, label, help, value, disabled, onChange }: { id: string; label: string; help: string; value: Signal; disabled: boolean; onChange: (value: Signal) => void }) {
+  const key = signalKey(value)
+  return <div className="form-field"><FieldLabel htmlFor={id} help={help}>{label}</FieldLabel>
+    <select id={id} value={key} disabled={disabled} onChange={event => onChange(event.target.value === 'on' ? true : event.target.value === 'off' ? false : value)}>
+      <option value="on">Włącz</option><option value="off">Wyłącz</option>{key === 'other' && <option value="other">Inna wartość: {String(value)}</option>}</select></div>
 }
 
 /** Turn the server's driver error into a concrete next step (the generic text hid Tuya's reason). */
@@ -120,6 +139,9 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
       <Text id="gate-name" label="Nazwa" help="Tak JARVIS nazywa bramę w odpowiedziach, np. „Otwieram: Brama warsztatu”." value={draft.name} max={80} disabled={busy} onChange={name => set({ name })} />
     </div>
     <label className="gate-check"><input type="checkbox" checked={draft.require_confirmation} disabled={busy} onChange={event => set({ require_confirmation: event.target.checked })} />Pytaj „czy na pewno?” przed ruchem bramy</label>
+    {draft.driver !== 'disabled' && <label className="gate-check" htmlFor="gate-pulse"><input id="gate-pulse" type="checkbox" checked={draft.pulse} disabled={busy} onChange={event => set({ pulse: event.target.checked })} />
+      Jeden przycisk „Brama” (jak pilot)
+      <HelpTip topic="Jeden przycisk Brama" text="Dla sterowników, w których jeden sygnał po kolei otwiera, zatrzymuje i zamyka bramę (np. Setti). Zamiast Otwórz/Zamknij/Stop będzie jeden przycisk „Brama”, a komenda głosowa to „Jarvis, brama”." /></label>}
 
     {draft.driver === 'tuya_local' && local && <fieldset className="gate-fieldset"><legend>Setti / Tuya w sieci warsztatu</legend>
       <p className="workshop-caption">JARVIS łączy się ze sterownikiem bezpośrednio przez Wi‑Fi — działa bez internetu i bez abonamentu Tuya. Chmura jest potrzebna tylko raz, do pobrania klucza.</p>
@@ -133,7 +155,13 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
         <Text id="local-key" label="Klucz lokalny" secret saved={local.local_key_set} help="16-znakowy klucz szyfrowania urządzenia. Kliknij „Pobierz klucz z chmury Tuya” — działa, gdy dane chmury (Access ID/Secret) są zapisane i okres IoT Core jest aktywny. Klucz zmienia się, gdy urządzenie dodasz w aplikacji od nowa." value={local.local_key} max={64} disabled={busy} onChange={local_key => set({ tuya_local: { ...local, local_key } })} />
       </div>
       <div className="gate-actions"><button type="button" className="button secondary" disabled={busy} onClick={() => { void fetchKey() }}><KeyRound aria-hidden="true" />Pobierz klucz z chmury Tuya</button></div>
+      {draft.pulse ? <div className="gate-grid"><SignalSelect id="local-pulse-value" label="Sygnał przycisku Brama" help={BRAMA_SIGNAL_HELP} value={local.open_value} disabled={busy}
+          onChange={value => set({ tuya_local: { ...local, open_value: value, close_dp: local.open_dp, close_value: value } })} /></div>
+        : <SameSignal id="local-same" disabled={busy} same={local.open_dp === local.close_dp && local.open_value === local.close_value}
+        onChange={same => set({ tuya_local: same ? { ...local, open_dp: local.close_dp, open_value: local.close_value } : { ...local, open_value: true, close_value: false } })} />}
       <details className="settings-more"><summary>Więcej opcji</summary><div className="gate-grid">
+        {!draft.pulse && <><SignalSelect id="local-open-value" label="Sygnał przycisku Otwórz" help="Co wysyła przycisk Otwórz: Włącz albo Wyłącz przekaźnika. Domyślnie Włącz." value={local.open_value} disabled={busy} onChange={open_value => set({ tuya_local: { ...local, open_value } })} />
+        <SignalSelect id="local-close-value" label="Sygnał przycisku Zamknij" help="Co wysyła przycisk Zamknij. Domyślnie Wyłącz." value={local.close_value} disabled={busy} onChange={close_value => set({ tuya_local: { ...local, close_value } })} /></>}
         <div className="form-field"><FieldLabel htmlFor="local-version" help="Wersja protokołu Tuya. „Automatycznie” sprawdzi 3.3, 3.4, 3.5 i 3.1 i zapamięta działającą. „Znajdź w sieci” podaje ją sama.">Wersja protokołu</FieldLabel>
           <select id="local-version" value={local.version} disabled={busy} onChange={event => set({ tuya_local: { ...local, version: event.target.value as typeof local.version } })}><option value="auto">Automatycznie</option><option value="3.3">3.3</option><option value="3.4">3.4</option><option value="3.5">3.5</option><option value="3.1">3.1</option></select></div>
         <div className="form-field"><FieldLabel htmlFor="local-open" help="Numer funkcji (DP) przekaźnika. Dla switch_1 to 1. Inne numery widać w Device Debugging na iot.tuya.com.">Numer funkcji otwarcia</FieldLabel><input id="local-open" type="number" min={1} max={255} value={local.open_dp} disabled={busy} onChange={event => set({ tuya_local: { ...local, open_dp: Number(event.target.value) } })} /></div>
@@ -151,7 +179,13 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
         <Text id="tuya-secret" label="Access Secret" secret saved={tuya.access_secret_set} help="Tam samo, pole Access Secret/Client Secret (kliknij oko, aby je pokazać). Po zapisaniu nie jest już wyświetlane." value={tuya.access_secret} max={128} disabled={busy} onChange={access_secret => set({ tuya: { ...tuya, access_secret } })} />
         <Text id="tuya-device" label="ID urządzenia" help="Projekt → Devices → sterownik bramy → kolumna Device ID. Wcześniej połącz w projekcie konto aplikacji (Devices → Link App Account)." value={tuya.device_id} max={64} disabled={busy} onChange={device_id => set({ tuya: { ...tuya, device_id } })} />
       </div>
+      {draft.pulse ? <div className="gate-grid"><SignalSelect id="tuya-pulse-value" label="Sygnał przycisku Brama" help={BRAMA_SIGNAL_HELP} value={tuya.open_value} disabled={busy}
+          onChange={value => set({ tuya: { ...tuya, open_value: value, close_code: tuya.open_code, close_value: value } })} /></div>
+        : <SameSignal id="tuya-same" disabled={busy} same={tuya.open_code === tuya.close_code && tuya.open_value === tuya.close_value}
+        onChange={same => set({ tuya: same ? { ...tuya, open_code: tuya.close_code, open_value: tuya.close_value } : { ...tuya, open_value: true, close_value: false } })} />}
       <details className="settings-more"><summary>Więcej opcji</summary><div className="gate-grid">
+        {!draft.pulse && <><SignalSelect id="tuya-open-value" label="Sygnał przycisku Otwórz" help="Co wysyła przycisk Otwórz: Włącz (true) albo Wyłącz (false). Domyślnie Włącz." value={tuya.open_value} disabled={busy} onChange={open_value => set({ tuya: { ...tuya, open_value } })} />
+        <SignalSelect id="tuya-close-value" label="Sygnał przycisku Zamknij" help="Co wysyła przycisk Zamknij. Domyślnie Wyłącz (false)." value={tuya.close_value} disabled={busy} onChange={close_value => set({ tuya: { ...tuya, close_value } })} /></>}
         <Text id="tuya-open" label="Kod otwarcia" help={<>Nazwa funkcji sterownika z zakładki Device Debugging. Zwykle <code>switch_1</code> — zostaw, jeśli nie wiesz.</>} value={tuya.open_code} max={64} disabled={busy} onChange={open_code => set({ tuya: { ...tuya, open_code } })} />
         <Text id="tuya-close" label="Kod zamknięcia" help="Zwykle ten sam co otwarcia (switch_1) z wartością „wyłącz”." value={tuya.close_code} max={64} disabled={busy} onChange={close_code => set({ tuya: { ...tuya, close_code } })} />
         <Text id="tuya-stop" label="Kod zatrzymania" help="Opcjonalnie. Puste — przycisk Stop będzie niedostępny." value={tuya.stop_code} max={64} disabled={busy} onChange={stop_code => set({ tuya: { ...tuya, stop_code } })} />
@@ -188,7 +222,6 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
     </fieldset>}
 
     {draft.driver !== 'disabled' && <details className="settings-more"><summary>Zachowanie bramy</summary>
-      <label className="gate-check"><input type="checkbox" checked={draft.pulse} disabled={busy} onChange={event => set({ pulse: event.target.checked })} />Brama impulsowa (jeden przycisk otwiera i zamyka)</label>
       <div className="gate-grid">
         <div className="form-field"><FieldLabel htmlFor="gate-cooldown" help="Minimalna przerwa między poleceniami — chroni przed przypadkowym podwójnym kliknięciem.">Przerwa między poleceniami (s)</FieldLabel><input id="gate-cooldown" type="number" min={0} max={120} value={draft.cooldown_seconds} disabled={busy} onChange={event => set({ cooldown_seconds: Number(event.target.value) })} /></div>
         <div className="form-field"><FieldLabel htmlFor="gate-travel" help="Ile sekund brama jedzie od zamkniętej do otwartej. JARVIS pokazuje „otwiera się” przez ten czas.">Czas ruchu bramy (s)</FieldLabel><input id="gate-travel" type="number" min={1} max={300} value={draft.travel_seconds} disabled={busy} onChange={event => set({ travel_seconds: Number(event.target.value) })} /></div>

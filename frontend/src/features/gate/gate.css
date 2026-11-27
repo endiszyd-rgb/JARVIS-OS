@@ -48,3 +48,4 @@
 .remember-key input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--accent); }
 .gate-found { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 6px; }
 .gate-fieldset .gate-actions { margin: 10px 0 12px; }
+.gate-toggle { min-width: 12rem; font-size: 1.15rem; }

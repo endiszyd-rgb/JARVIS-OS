@@ -1,8 +1,8 @@
 import { ApiError, apiRequest } from '../../api'
 
 export type GateDriver = 'disabled' | 'simulator' | 'http' | 'tuya_cloud' | 'tuya_local' | 'home_assistant'
-export type GateAction = 'open' | 'close' | 'stop' | 'status'
-export type GateState = 'unknown' | 'open' | 'closed' | 'opening' | 'closing' | 'stopped'
+export type GateAction = 'open' | 'close' | 'stop' | 'toggle' | 'status'
+export type GateState = 'unknown' | 'open' | 'closed' | 'opening' | 'closing' | 'stopped' | 'impulse'
 
 export interface GateStatus {
   name: string; driver: GateDriver; live: boolean; state: GateState; state_label: string

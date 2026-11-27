@@ -47,6 +47,34 @@ def desktop_url(port, view='kiosk'):
     return f'http://localhost:{int(port)}/control/#/{view}'
 
 
+def allow_microphone(data_dir, port):
+    """Allow the microphone for JARVIS's own localhost origin in the app-window profile (voice commands).
+
+    Only the separate ``desktop-window`` profile is touched and only the ``http://localhost:<port>`` origin;
+    an earlier "Block" there is replaced, because the window exists only for JARVIS. Best effort: a profile
+    currently open in the browser is rewritten by the browser on exit.
+    """
+    preferences = Path(data_dir) / 'desktop-window' / 'Default' / 'Preferences'
+    try:
+        data = json.loads(preferences.read_text(encoding='utf-8')) if preferences.is_file() else {}
+        if not isinstance(data, dict):
+            data = {}
+        exceptions = data.setdefault('profile', {}).setdefault('content_settings', {}).setdefault('exceptions', {})
+        mic = exceptions.setdefault('media_stream_mic', {})
+        key = f'http://localhost:{int(port)},*'
+        if mic.get(key, {}).get('setting') == 1:
+            return False
+        mic[key] = {'last_modified': str(int(time.time() * 1_000_000) + 11644473600 * 1_000_000), 'setting': 1}
+        preferences.parent.mkdir(parents=True, exist_ok=True)
+        temporary = preferences.with_suffix('.jarvis-tmp')
+        temporary.write_text(json.dumps(data), encoding='utf-8')
+        os.replace(temporary, preferences)
+        return True
+    except (OSError, ValueError, AttributeError, TypeError):
+        logging.getLogger('jarvis.launcher').warning('Could not pre-allow the microphone for the app window')
+        return False
+
+
 def app_command(browser, port, data_dir, view='kiosk'):
     profile = Path(data_dir) / 'desktop-window'
     return [str(browser), '--app=' + desktop_url(port, view), '--user-data-dir=' + str(profile),
@@ -59,6 +87,7 @@ def open_desktop(port, data_dir, view='kiosk', environ=None, runner=None):
     if browser is None:
         webbrowser.open(desktop_url(port, view))
         return 'browser'
+    allow_microphone(data_dir, port)
     (runner or subprocess.Popen)(app_command(browser, port, data_dir, view), close_fds=True,
                                  stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     return 'app'

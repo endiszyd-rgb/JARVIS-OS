@@ -99,3 +99,25 @@ def test_second_launch_reuses_the_running_port(tmp_path):
 def test_windows_runner_has_an_app_mode_browser():
     found = find_app_browser()
     assert found is not None and found.name in ('msedge.exe', 'chrome.exe')
+
+
+def test_app_window_profile_allows_the_microphone_only_for_jarvis(tmp_path):
+    import json
+    from scripts.windows_launcher import allow_microphone
+    preferences = tmp_path / 'desktop-window' / 'Default' / 'Preferences'
+    preferences.parent.mkdir(parents=True)
+    blocked = {'other': 1, 'profile': {'content_settings': {'exceptions': {'media_stream_mic': {
+        'http://localhost:17321,*': {'setting': 2}, 'https://example.com:443,*': {'setting': 2}}}}}}
+    preferences.write_text(json.dumps(blocked), encoding='utf-8')
+    assert allow_microphone(tmp_path, 17321) is True
+    data = json.loads(preferences.read_text(encoding='utf-8'))
+    mic = data['profile']['content_settings']['exceptions']['media_stream_mic']
+    assert mic['http://localhost:17321,*']['setting'] == 1 and mic['https://example.com:443,*'] == {'setting': 2}
+    assert data['other'] == 1
+    assert allow_microphone(tmp_path, 17321) is False  # already allowed: file left alone
+    fresh = tmp_path / 'fresh'
+    assert allow_microphone(fresh, 17400) is True
+    assert json.loads((fresh / 'desktop-window' / 'Default' / 'Preferences').read_text())['profile']['content_settings']['exceptions']['media_stream_mic'] == {
+        'http://localhost:17400,*': json.loads((fresh / 'desktop-window' / 'Default' / 'Preferences').read_text())['profile']['content_settings']['exceptions']['media_stream_mic']['http://localhost:17400,*']}
+    (fresh / 'desktop-window' / 'Default' / 'Preferences').write_text('not json')
+    assert allow_microphone(fresh, 17400) is False  # corrupt profile: never crashes the launcher

@@ -40,6 +40,8 @@ JARVIS łączy się ze sterownikiem bezpośrednio przez Wi‑Fi (TCP 6668, szyfr
 
 Uwagi: klucz lokalny zmienia się, gdy urządzenie zostanie usunięte i dodane w aplikacji od nowa — wtedy pobierz go ponownie. Dozwolone są tylko adresy prywatne (192.168.x.x, 10.x.x.x, 172.16–31.x.x); ten sterownik nie korzysta z `JARVIS_NETWORK_ALLOWLIST`. „Wersja protokołu: Automatycznie” próbuje 3.3, 3.4, 3.5, 3.1 i zapamiętuje działającą. Numery funkcji (DP): `switch_1` = 1; inne w *Device Debugging*.
 
+**Sterownik impulsowy / jednoprzyciskowy (np. Setti, od 0.17.0):** gdy każde naciśnięcie po kolei otwiera, zatrzymuje i zamyka bramę, zaznacz **„Jeden przycisk „Brama” (jak pilot)”** i wybierz **Sygnał przycisku Brama** (jeśli wcześniej ruszał nią przycisk *Zamknij* — „Wyłącz”). Wtedy w widokach Brama i Warsztat jest jeden przycisk **Brama**, a komenda głosowa to „Jarvis, brama” (też „rusz bramę”, „uruchom bramę”; „otwórz/zamknij bramę” wysyłają ten sam impuls). Stan po naciśnięciu to „ruszona” — JARVIS nie zna kierunku bez czujnika krańcowego. Bez tej opcji można osobno ustawić sygnały Otwórz/Zamknij (*Więcej opcji*) albo pole „„Otwórz” wysyła ten sam sygnał co „Zamknij””.
+
 ### Brama na Smart Life / Tuya przez chmurę
 
 1. Załóż konto na https://iot.tuya.com → *Cloud* → *Create Cloud Project* (Industry: Smart Home, Data Center: **Central Europe**).

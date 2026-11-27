@@ -235,8 +235,7 @@ function VoiceWorkspace({ credential, onUnauthorized, owner = true }: Props) {
             onPointerDown={() => { void startRecording() }} onPointerUp={() => { void stopRecording(true) }} onPointerLeave={() => { if (phase === 'recording') void stopRecording(true) }}
             onKeyDown={event => { if (event.key === ' ' || event.key === 'Enter') { event.preventDefault(); void startRecording() } }} onKeyUp={event => { if (event.key === ' ' || event.key === 'Enter') void stopRecording(true) }}>
             <Mic aria-hidden="true" />{phase === 'recording' ? 'Mów… (puść, aby wysłać)' : 'Przytrzymaj i mów'}</button>}
-        <button type="button" className="button subtle" onClick={() => { void handleCommand('otwórz bramę') }} disabled={busy}>Otwórz bramę</button>
-        <button type="button" className="button subtle" onClick={() => { void handleCommand('zamknij bramę') }} disabled={busy}>Zamknij bramę</button>
+        <button type="button" className="button subtle" onClick={() => { void handleCommand('brama') }} disabled={busy}>Brama</button>
         <button type="button" className="button subtle" onClick={() => { void handleCommand('stan bramy') }} disabled={busy}>Stan bramy</button>
       </div>
       {!browserMode && !wyomingAvailable && <p className="voice-caption">Wyoming nie jest skonfigurowane na serwerze (JARVIS_VOICE_ENABLED, WYOMING_STT_URI, WYOMING_TTS_URI). Do czasu konfiguracji przełącz silnik na przeglądarkę.</p>}
