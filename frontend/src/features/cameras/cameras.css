@@ -21,3 +21,13 @@
   .camera-config-grid, .camera-row { grid-template-columns: 1fr; }
   .camera-grid { grid-template-columns: 1fr; }
 }
+.camera-card { display: grid; gap: 10px; padding: 14px; border: 1px solid var(--border); border-radius: 9px; background: #101923; }
+.camera-card-grid { display: grid; grid-template-columns: repeat(3, minmax(140px, 1fr)); gap: 12px; align-items: end; }
+.camera-card-actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.camera-card-actions .icon-button { margin-left: auto; }
+.camera-builtin p { margin: 0; font-size: 13px; color: var(--muted, #9fb3c8); }
+.camera-builtin .status-dot.is-ok { color: #4ade80; }
+.camera-problems { margin: 6px 0 0; padding-left: 18px; font-size: 13px; color: #f5c46b; }
+.camera-config .form-warning { display: flex; gap: 8px; align-items: flex-start; margin: 0; padding: 11px 13px; border: 1px solid #6a5a2e; border-radius: 9px; background: #2e2716; color: #f5c46b; font-size: 13px; line-height: 1.6; }
+.camera-config .form-warning svg { flex: none; width: 16px; height: 16px; margin-top: 2px; }
+@media (max-width: 720px) { .camera-card-grid { grid-template-columns: 1fr; } }

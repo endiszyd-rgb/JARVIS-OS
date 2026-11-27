@@ -47,6 +47,16 @@ def desktop_url(port, view='kiosk'):
     return f'http://localhost:{int(port)}/control/#/{view}'
 
 
+def bundled_tools(root=None):
+    """go2rtc/ffmpeg shipped by the installer in <install>\\tools (camera previews); missing files are skipped."""
+    tools = Path(root) if root else APP_ROOT.parent / 'tools'
+    found = {}
+    for name, variable in (('go2rtc.exe', 'JARVIS_GO2RTC_BIN'), ('ffmpeg.exe', 'JARVIS_FFMPEG_BIN')):
+        if (tools / name).is_file():
+            found[variable] = str(tools / name)
+    return found
+
+
 def allow_microphone(data_dir, port):
     """Allow the microphone for JARVIS's own localhost origin in the app-window profile (voice commands).
 
@@ -125,6 +135,7 @@ def prepare(data_dir):
             del os.environ[name]
     os.environ.update({k: v for k, v in values.items() if v is not None})
     os.environ['JARVIS_DB'] = str(data_dir / 'jarvis.db')
+    os.environ.update(bundled_tools())
     os.chdir(data_dir)
     sys.path.insert(0, str(APP_ROOT))
     return key

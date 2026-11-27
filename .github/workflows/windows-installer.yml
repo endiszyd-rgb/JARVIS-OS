@@ -30,12 +30,25 @@ jobs:
           python -m pip install -r requirements-dev.txt
           python -m pytest -q tests/test_core.py tests/test_gate.py tests/test_windows_launcher.py
       - name: Build installer
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         run: python scripts/build_windows_installer.py --download-runtime --compiler "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" --output "${{ runner.temp }}\jarvis-build"
       - name: Smoke-test the staged payload launcher
         run: |
           $payload = "${{ runner.temp }}\jarvis-build\payload"
           & "$payload\runtime\python.exe" -I "$payload\app\scripts\windows_launcher.py" --smoke-test --data-dir "${{ runner.temp }}\jarvis-smoke" --report "${{ runner.temp }}\jarvis-build\smoke.json"
           Get-Content "${{ runner.temp }}\jarvis-build\smoke.json"
+      - name: Smoke-test bundled camera tools
+        run: |
+          $tools = "${{ runner.temp }}\jarvis-build\payload\tools"
+          & "$tools\go2rtc.exe" -version
+          if ($LASTEXITCODE -ne 0) { throw 'go2rtc.exe does not start' }
+          & "$tools\ffmpeg.exe" -hide_banner -version | Select-Object -First 1
+          if ($LASTEXITCODE -ne 0) { throw 'ffmpeg.exe does not start' }
+          Get-Content "$tools\THIRD-PARTY.txt"
+      - name: Camera end-to-end (RTSP test pattern → built-in go2rtc → JPEG), informational
+        continue-on-error: true
+        run: python scripts/camera_e2e_check.py "${{ runner.temp }}\jarvis-build\payload\tools" "${{ runner.temp }}\camera-e2e"
       - uses: actions/upload-artifact@v4
         with:
           name: JARVIS-OS-windows-installer

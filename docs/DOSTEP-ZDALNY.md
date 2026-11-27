@@ -93,35 +93,20 @@ Chrome (Android): menu ⋮ → *Dodaj do ekranu głównego*. Safari (iPhone): *U
 
 Rozpoznawanie mowy w przeglądarce: Chrome na Androidzie działa; Safari na iPhonie bywa niestabilne — przyciski *Otwórz/Zamknij bramę* w widoku Głos i Brama działają zawsze.
 
-### 5. Kamery przez go2rtc
+### 5. Kamery (od 0.18.0: wbudowany go2rtc)
 
-JARVIS nie łączy się z kamerami bezpośrednio. Na PC warsztatowym uruchom [go2rtc](https://github.com/AlexxIT/go2rtc) (jeden plik `go2rtc.exe`) z `go2rtc.yaml`:
+Instalator JARVIS zawiera [go2rtc](https://github.com/AlexxIT/go2rtc) v1.9.14 (MIT) i FFmpeg (build LGPL z BtbN/FFmpeg-Builds) w folderze `tools`. JARVIS sam uruchamia go2rtc w tle — tylko na `127.0.0.1:1984`, z wyłączonym serwerem RTSP — i pisze jego konfigurację z kamer ustawionych w panelu. Plik `go2rtc.yaml` i dziennik `go2rtc.log` leżą w folderze danych (`dane\go2rtc`) i zawierają hasła kamer / sekret chmury Tuya — nie wysyłaj ich nikomu.
 
-```yaml
-api:
-  listen: "127.0.0.1:1984"      # tylko lokalnie — nie wystawiaj go2rtc przez tunel
-streams:
-  nvr_ch1: rtsp://admin:HASLO@192.168.1.64:554/Streaming/Channels/102   # Hikvision, kanał 1, substream
-  nvr_ch2: rtsp://admin:HASLO@192.168.1.64:554/Streaming/Channels/202
-  # Dahua: rtsp://admin:HASLO@192.168.1.108:554/cam/realmonitor?channel=1&subtype=1
-```
+**Ustawienia → Kamery → Dodaj kamerę**:
 
-#### Kamery Setti (Setti+, ekosystem Tuya)
+- **Setti / Tuya (Device ID)** — wpisz Device ID kamery z iot.tuya.com (*Devices → All Devices*) i kliknij **Sprawdź kamerę**: JARVIS pobiera z chmury nazwę i UID właściciela (potrzebny go2rtc). Działa przez ten sam projekt Tuya co brama (Access ID/Secret z *Ustawienia → Brama → Setti / Tuya przez chmurę*), więc kamery muszą być na tym samym koncie aplikacji co brama, a okres IoT Core musi być aktywny (obraz idzie przez chmurę Tuya, inaczej niż brama lokalna). Domyślnie jakość SD (mniej danych na telefonie); „Wysoka jakość (HD)” przy kamerze.
+- **Kamera IP / rejestrator (RTSP)** — adres z hasłem, np. `rtsp://admin:HASLO@192.168.1.64:554/Streaming/Channels/102` (Hikvision, podstrumień) albo `rtsp://admin:HASLO@192.168.1.108:554/cam/realmonitor?channel=1&subtype=1` (Dahua). Po zapisaniu adres nie jest pokazywany („zapisany ✓”).
 
-Kamery Setti działają w chmurze Tuya i zwykle nie mają RTSP. go2rtc od wersji **1.9.13** ma źródło `tuya`:
+Zapisz — go2rtc uruchamia się / restartuje sam; stan („go2rtc działa”, brakujące dane) widać nad listą kamer. Podgląd: widok **Kamery**, klatki JPEG odświeżane co `refresh_ms` (domyślnie 1 s) — działa przez tunel i na słabym LTE; to nie jest płynne wideo.
 
-- **Tuya Smart API** (prościej): w go2rtc (http://127.0.0.1:1984) *Add → Tuya* → region + e-mail i hasło konta **Tuya Smart**. Konta Smart Life i aplikacji OEM (Setti+) nie są obsługiwane — kamery trzeba usunąć z aplikacji Setti+ i dodać w aplikacji Tuya Smart.
-- **Tuya Cloud API** (bez przenoszenia kamer, jeśli konto Setti+ da się powiązać z projektem Tuya IoT — tym samym co dla sterownika bramy): w `go2rtc.yaml`
+**Własny go2rtc (zaawansowane):** *Więcej opcji → Używam własnego go2rtc* — wtedy jak przed 0.18.0: adres go2rtc i nazwy strumieni z jego `go2rtc.yaml` (adres musi być w `JARVIS_NETWORK_ALLOWLIST`). Konfiguracje zapisane przed 0.18.0 zostają w tym trybie.
 
-```yaml
-streams:
-  kamera_zewn: tuya://openapi.tuyaeu.com?device_id=ID_KAMERY&uid=UID&client_id=ACCESS_ID&client_secret=ACCESS_SECRET&resolution=sd
-  kamera_wewn: tuya://openapi.tuyaeu.com?device_id=ID_KAMERY_2&uid=UID&client_id=ACCESS_ID&client_secret=ACCESS_SECRET&resolution=sd
-```
-
-Podgląd klatek z kamer Tuya wymaga **ffmpeg** obok go2rtc (go2rtc dekoduje obraz do JPEG). W JARVIS dodaj kamery `zewnetrzna` → strumień `kamera_zewn` i `wewnetrzna` → `kamera_wewn`. Nie testowane na kamerach Setti — jeśli go2rtc nie pokaże obrazu, sprawdź podgląd w samym go2rtc, zanim szukasz problemu w JARVIS.
-
-Hasła kamer zostają w `go2rtc.yaml`; JARVIS zna tylko nazwy strumieni. W panelu: **Zaawansowane → Ustawienia → Kamery** → adres `http://127.0.0.1:1984`, dodaj kamery (identyfikator, nazwa, strumień `nvr_ch1`). Podgląd to klatki JPEG odświeżane co `refresh_ms` (domyślnie 1 s) — działa przez każdy tunel i na słabym LTE; to nie jest płynne wideo. Używaj substreamów (niższa rozdzielczość).
+Ograniczenia: kamery Setti nie były testowane z prawdziwym sprzętem — jeśli obraz się nie pokazuje, zajrzyj do `dane\go2rtc\go2rtc.log` albo otwórz http://127.0.0.1:1984 na komputerze warsztatowym (panel go2rtc pokazuje strumienie i błędy).
 
 ### 6. Komendy głosowe
 

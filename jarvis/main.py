@@ -26,7 +26,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from .autologika import AUDITED_COMMIT, capabilities as autologika_capabilities
 from . import autologika as autologika_live
 from datetime import datetime
-from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras
+from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras, go2rtc as go2rtc_runtime
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
 from .security_limits import SecurityConfig, RateLimit
@@ -179,9 +179,14 @@ def create_app(db_path=None, api_key=None):
     tasks=TaskManager()
     @asynccontextmanager
     async def lifespan(app):
+        manager=getattr(app.state,'go2rtc',None)
+        if manager is not None:
+            await asyncio.to_thread(app.state.apply_cameras)  # start the built-in go2rtc with the saved cameras
         try:yield
-        finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.17.0', docs_url=None, redoc_url=None, openapi_url=None)
+        finally:
+            if manager is not None: await asyncio.to_thread(manager.stop)
+            await tasks.close()
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.18.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -359,7 +364,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.17.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.18.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -648,6 +653,27 @@ def create_app(db_path=None, api_key=None):
         revision:int=Field(ge=0,strict=True)
         config:dict
 
+    camera_runtime=go2rtc_runtime.Manager.from_env(Path(app.state.runtime_config.database_path).resolve().parent)
+    app.state.go2rtc=camera_runtime
+
+    def apply_cameras():
+        """Regenerate and (re)start the built-in go2rtc after camera or Tuya cloud changes."""
+        with db() as c:
+            camera_config,_=cameras.load(c)
+            gate_config,_=gate.load(c)
+        return camera_runtime.apply(camera_config,gate_config.tuya)
+    app.state.apply_cameras=apply_cameras
+
+    class TuyaCameraRequest(Strict):
+        device_id:str=Field(min_length=1,max_length=64,pattern=r'^[A-Za-z0-9_-]+$')
+
+    @api.post('/cameras/tuya-info',dependencies=[Depends(auth)])
+    async def camera_tuya_info(body:TuyaCameraRequest):
+        """Check a Setti/Tuya camera in the saved cloud project and return its owner UID (needed by go2rtc)."""
+        with db() as c: gate_config,_=gate.load(c)
+        info=await gate.cloud_device_details(gate_config,body.device_id)
+        return info
+
     @api.get('/cameras',dependencies=[Depends(require('cameras:view'))])
     def camera_list():
         with db() as c: config,_=cameras.load(c)
@@ -656,15 +682,16 @@ def create_app(db_path=None, api_key=None):
     @api.get('/cameras/config',dependencies=[Depends(auth)])
     def camera_config_read():
         with db() as c: config,revision=cameras.load(c)
-        return {'config':config.model_dump(),'revision':revision}
+        return {'config':config.masked(),'revision':revision,'builtin':camera_runtime.status()}
 
     @api.put('/cameras/config',dependencies=[Depends(auth)])
     def camera_config_write(body:CameraConfigUpdate):
         with db() as c:
             c.execute('BEGIN IMMEDIATE')
             config,revision=cameras.save(c,body.config,body.revision)
-            audit(c,'cameras.config_changed',{'revision':revision,'enabled':config.enabled,'count':len(config.cameras)})
-        return {'config':config.model_dump(),'revision':revision}
+            audit(c,'cameras.config_changed',{'revision':revision,'enabled':config.enabled,'mode':config.mode,'count':len(config.cameras)})
+        status=apply_cameras()
+        return {'config':config.masked(),'revision':revision,'builtin':status}
 
     @api.get('/cameras/{ident}/frame.jpg',dependencies=[Depends(require('cameras:view'))])
     async def camera_frame(ident:Annotated[str,FastAPIPath(pattern=r'^[a-z0-9][a-z0-9_-]{0,31}$')]):
@@ -718,6 +745,7 @@ def create_app(db_path=None, api_key=None):
             config,revision=gate.save(c,body.config,body.revision)
             audit(c,'gate.config_changed',{'driver':config.driver,'revision':revision,'require_confirmation':config.require_confirmation})
         gate_controller._driver_cache=None
+        if config.tuya is not None: app.state.apply_cameras()  # Tuya cameras use the same cloud project
         return {'config':config.masked(),'revision':revision}
 
     @api.get('/config/voice', dependencies=[Depends(auth)])

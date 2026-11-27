@@ -49,6 +49,53 @@ describe('Cameras panel', () => {
     await user.click(screen.getByRole('button', { name: 'Dodaj kamerę' }))
     await user.type(screen.getByLabelText('Strumień go2rtc'), 'nvr_ch1')
     await user.click(screen.getByRole('button', { name: 'Zapisz' }))
-    await waitFor(() => expect(saved).toEqual({ revision: 0, config: { enabled: true, go2rtc_url: 'http://127.0.0.1:1984', refresh_ms: 1000, cameras: [{ id: 'kamera1', name: 'Kamera 1', stream: 'nvr_ch1', enabled: true }] } }))
+    await waitFor(() => expect(saved).toEqual({ revision: 0, config: { enabled: true, mode: 'external', go2rtc_url: 'http://127.0.0.1:1984', refresh_ms: 1000, cameras: [{ id: 'kamera1', name: 'Kamera 1', source: 'go2rtc', stream: 'nvr_ch1', device_id: '', uid: '', resolution: 'sd', rtsp_url: '', enabled: true }] } }))
+  })
+
+  it('built-in go2rtc: adds a Setti camera by Device ID, reads its UID and keeps RTSP passwords hidden', async () => {
+    const saved: Record<string, unknown>[] = []
+    const status = { available: true, running: false, ffmpeg: true, problems: [], error: null }
+    const stored = { enabled: false, mode: 'builtin', go2rtc_url: 'http://127.0.0.1:1984', refresh_ms: 1000,
+      cameras: [{ id: 'hala', name: 'Hala', source: 'rtsp', stream: '', device_id: '', uid: '', resolution: 'sd', rtsp_url: '••••••••', rtsp_set: true, enabled: true }] }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
+      const path = String(input)
+      if (path === '/api/v1/cameras/tuya-info') {
+        expect(JSON.parse(String(options.body))).toEqual({ device_id: 'cam123' })
+        return json({ uid: 'eu1700abc', name: 'Kamera zewnętrzna', category: 'sp', online: true })
+      }
+      if (path === '/api/v1/cameras/config' && options.method === 'PUT') {
+        const body = JSON.parse(String(options.body)); saved.push(body.config)
+        return json({ config: body.config, revision: 1, builtin: { ...status, running: true } })
+      }
+      if (path === '/api/v1/cameras/config') return json({ config: stored, revision: 0, builtin: status })
+      return json({ detail: 'unexpected' }, 404)
+    }))
+    render(<CameraSettings credential={TOKEN} onUnauthorized={vi.fn()} />)
+    const user = userEvent.setup()
+    expect(await screen.findByText(/go2rtc uruchomi się po dodaniu kamery/)).toBeInTheDocument()
+    const rtsp = screen.getByLabelText('Adres RTSP')
+    expect(rtsp).toHaveValue('')
+    expect(rtsp).toHaveAttribute('placeholder', expect.stringContaining('zapisany ✓'))
+    await user.click(screen.getByRole('button', { name: 'Dodaj kamerę' }))
+    expect(screen.getByLabelText('Podgląd kamer włączony')).toBeChecked()  // adding a camera switches the preview on
+    expect(screen.getAllByLabelText('Rodzaj kamery')[1]).toHaveValue('tuya')
+    await user.type(screen.getByLabelText('Device ID kamery'), ' cam123 ')
+    await user.click(screen.getByRole('button', { name: 'Sprawdź kamerę' }))
+    expect(await screen.findByText(/✓ Kamera zewnętrzna · online/)).toBeInTheDocument()
+    expect(screen.getAllByLabelText('Nazwa')[1]).toHaveValue('Kamera zewnętrzna')
+    await user.click(screen.getByRole('button', { name: 'Zapisz' }))
+    await waitFor(() => expect(saved).toHaveLength(1))
+    expect(saved[0]).toMatchObject({ enabled: true, mode: 'builtin', cameras: [
+      { id: 'hala', source: 'rtsp', rtsp_url: '••••••••' },
+      { id: 'kamera2', name: 'Kamera zewnętrzna', source: 'tuya', device_id: 'cam123', uid: 'eu1700abc', resolution: 'sd' }] })
+    expect((saved[0].cameras as Record<string, unknown>[])[0]).not.toHaveProperty('rtsp_set')
+    expect(await screen.findByText(/go2rtc działa/)).toBeInTheDocument()
+  })
+
+  it('built-in go2rtc missing: explains what to do', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => json({ config: { enabled: true, mode: 'builtin', go2rtc_url: 'http://127.0.0.1:1984', refresh_ms: 1000, cameras: [] }, revision: 0,
+      builtin: { available: false, running: false, ffmpeg: false, problems: [], error: null } })))
+    render(<CameraSettings credential={TOKEN} onUnauthorized={vi.fn()} />)
+    expect(await screen.findByText(/Wbudowany go2rtc nie jest zainstalowany/)).toBeInTheDocument()
   })
 })
