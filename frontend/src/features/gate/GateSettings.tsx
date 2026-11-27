@@ -1,26 +1,55 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import type { FormEvent, ReactNode } from 'react'
-import { Check, CircleAlert, DoorOpen, Radar, Save } from 'lucide-react'
+import { Check, CircleAlert, DoorOpen, KeyRound, Radar, Save, Search } from 'lucide-react'
 import { ApiError } from '../../api'
 import { FieldLabel } from '../../components/HelpTip'
-import { DRIVERS, driverLabels, emptyHomeAssistant, emptyHttp, emptyTuya, readGate, saveGateConfig, testGate } from './api'
-import type { GateConfig, GateDriver, GateOverview } from './api'
+import { DRIVERS, driverLabels, emptyHomeAssistant, emptyHttp, emptyTuya, emptyTuyaLocal, fetchTuyaLocalKey, readGate, saveGateConfig, scanTuyaLocal, testGate } from './api'
+import type { FoundDevice, GateConfig, GateDriver, GateOverview } from './api'
 import './gate.css'
 
 interface Props { credential: string; onUnauthorized: () => void }
 
+const SECRET_MASK = '••••••••'
 const shortDriver: Record<GateDriver, string> = {
-  tuya_cloud: 'Setti / Tuya (aplikacja Setti+, Smart Life)', http: 'Przekaźnik w sieci (Shelly, Tasmota, ESP)',
+  tuya_local: 'Setti / Tuya lokalnie, bez chmury (zalecane)',
+  tuya_cloud: 'Setti / Tuya przez chmurę Tuya', http: 'Przekaźnik w sieci (Shelly, Tasmota, ESP)',
   home_assistant: 'Home Assistant', simulator: 'Symulator — bez sprzętu (do prób)', disabled: 'Wyłączone',
 }
-const ORDER: GateDriver[] = ['tuya_cloud', 'http', 'home_assistant', 'simulator', 'disabled']
+const ORDER: GateDriver[] = ['tuya_local', 'tuya_cloud', 'http', 'home_assistant', 'simulator', 'disabled']
 
 function Text({ id, label, help, value, onChange, secret, saved, placeholder, disabled, max = 300 }: {
   id: string; label: string; help?: ReactNode; value: string; onChange: (value: string) => void; secret?: boolean; saved?: boolean; placeholder?: string; disabled: boolean; max?: number
 }) {
+  // A stored secret comes back as a mask: show an empty field with "zapisany ✓" instead of dots that look like a cut-off key.
+  const storedMask = secret && value === SECRET_MASK
   return <div className="form-field"><FieldLabel htmlFor={id} help={help}>{label}</FieldLabel>
-    <input id={id} type={secret ? 'password' : 'text'} value={value} maxLength={max} disabled={disabled} autoComplete={secret ? 'new-password' : 'off'}
-      placeholder={secret && saved ? 'zapisane — zostaw puste, aby nie zmieniać' : placeholder} onChange={event => onChange(event.target.value)} /></div>
+    <input id={id} type={secret ? 'password' : 'text'} value={storedMask ? '' : value} maxLength={max} disabled={disabled} autoComplete={secret ? 'new-password' : 'off'}
+      placeholder={secret && (saved || storedMask) ? 'zapisany ✓ — wpisz nowy tylko, aby zmienić' : placeholder} onChange={event => onChange(event.target.value.trim() === '' && storedMask ? SECRET_MASK : event.target.value.trim())} /></div>
+}
+
+/** Turn the server's driver error into a concrete next step (the generic text hid Tuya's reason). */
+export function explain(failure: ApiError): string {
+  const detail = failure.detail ?? ''
+  const code = /Tuya error (\d+)/.exec(detail)?.[1]
+  if (code) {
+    const hints: Record<string, string> = {
+      '28841107': 'centrum danych projektu jest wstrzymane — na iot.tuya.com: Overview → Edit → usuń wszystkie centra danych → Save → dodaj Central Europe → Save.',
+      '28841101': 'wygasł okres próbny IoT Core — Cloud → Cloud Services → IoT Core → Extend Trial Period.',
+      '28841105': 'projekt nie ma uprawnień do API — Service API → dodaj IoT Core i Authorization Token Management.',
+      '1004': 'zły Access Secret — skopiuj go ponownie z Overview na iot.tuya.com.',
+      '1010': 'token wygasł — kliknij jeszcze raz.',
+      '1106': 'brak uprawnień do urządzenia — sprawdź, czy sterownik jest w Devices → All Devices i ma prawo zapisu.',
+      '2009': 'urządzenie nie obsługuje tego kodu — sprawdź kod w Device Debugging.',
+      '2008': 'urządzenie nie obsługuje tego kodu — sprawdź kod w Device Debugging.',
+    }
+    return 'Tuya (' + code + '): ' + (hints[code] ?? detail.replace(/^Tuya error \d+:\s*/, ''))
+  }
+  if (detail.startsWith('Tuya local error')) return 'Sterownik w sieci: ' + detail.replace(/^Tuya local error \S*:\s*/, '')
+  if (detail === 'Tuya local key is not configured') return 'Brakuje klucza lokalnego — kliknij „Pobierz klucz z chmury Tuya”.'
+  if (detail === 'Save the Tuya cloud access (Access ID/Secret) first') return 'Najpierw zapisz dane chmury: wybierz „Setti / Tuya przez chmurę Tuya”, wpisz Access ID i Secret, Zapisz, potem wróć tutaj.'
+  if (detail === 'Gate controller is unreachable') return 'Sterownik nie odpowiada — sprawdź adres IP i czy jest w tej samej sieci Wi‑Fi.'
+  if (detail === 'Local network scan failed') return 'Nie udało się przeszukać sieci (zapora Windows może blokować porty UDP 6666–6667).'
+  return detail && failure.status && failure.status >= 400 && failure.status < 600 && failure.status !== 401 ? detail : failure.message
 }
 
 /** Gate driver settings (owner). Everyday control stays in the Gate view. */
@@ -30,9 +59,10 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [notice, setNotice] = useState<string | null>(null)
+  const [found, setFound] = useState<FoundDevice[] | null>(null)
   const unauthorized = useRef(onUnauthorized)
   unauthorized.current = onUnauthorized
-  const fail = (failure: unknown) => { if (failure instanceof ApiError && failure.status === 401) unauthorized.current(); else setError(failure instanceof ApiError ? failure.message : 'Nie udało się wykonać żądania.') }
+  const fail = (failure: unknown) => { if (failure instanceof ApiError && failure.status === 401) unauthorized.current(); else setError(failure instanceof ApiError ? explain(failure) : 'Nie udało się wykonać żądania.') }
 
   const load = useCallback(async (signal: AbortSignal) => {
     const next = await readGate(credential, signal)
@@ -54,6 +84,19 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
       else fail(failure)
     } finally { setBusy(false) }
   }
+  async function scan() {
+    setBusy(true); setError(null); setNotice('Szukam urządzeń Tuya w sieci (ok. 8 sekund)…'); setFound(null)
+    try { const devices = await scanTuyaLocal(credential, new AbortController().signal); setFound(devices); setNotice(devices.length ? `Znaleziono: ${devices.length}. Wybierz sterownik bramy z listy.` : 'Nie znaleziono urządzeń. Sprawdź, czy komputer i sterownik są w tej samej sieci Wi‑Fi.') }
+    catch (failure) { setNotice(null); fail(failure) } finally { setBusy(false) }
+  }
+  async function fetchKey() {
+    const local = draft?.tuya_local
+    if (!draft || !local) return
+    if (!local.device_id.trim()) { setError('Najpierw wpisz ID urządzenia (albo wybierz je z wyszukiwania).'); return }
+    setBusy(true); setError(null); setNotice(null)
+    try { const info = await fetchTuyaLocalKey(credential, new AbortController().signal, local.device_id.trim()); setDraft({ ...draft, tuya_local: { ...local, local_key: info.local_key } }); setNotice('Klucz pobrany' + (info.name ? ` (${info.name})` : '') + '. Kliknij Zapisz.') }
+    catch (failure) { fail(failure) } finally { setBusy(false) }
+  }
   async function test() {
     setBusy(true); setError(null); setNotice(null)
     try { const gate = await testGate(credential, new AbortController().signal); setNotice(`Sterownik odpowiada. Stan bramy: ${gate.state_label}.`) }
@@ -62,7 +105,7 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
 
   if (!draft) return error ? <div className="app-error" role="alert"><CircleAlert aria-hidden="true" /><span>{error}</span></div> : <p role="status">Odczytywanie ustawień bramy…</p>
   const set = (patch: Partial<GateConfig>) => setDraft({ ...draft, ...patch })
-  const tuya = draft.tuya, http = draft.http, ha = draft.home_assistant
+  const tuya = draft.tuya, http = draft.http, ha = draft.home_assistant, local = draft.tuya_local ?? null
   return <form className="gate-form settings-block" onSubmit={event => { void save(event) }} aria-busy={busy}>
     <h2 className="panel-heading"><DoorOpen aria-hidden="true" />Brama</h2>
     {error && <div className="app-error" role="alert"><CircleAlert aria-hidden="true" /><span>{error}</span></div>}
@@ -71,13 +114,35 @@ export function GateSettings({ credential, onUnauthorized }: Props) {
       <div className="form-field"><FieldLabel htmlFor="gate-driver" help="Czym JARVIS steruje bramą. Sterownik Setti Wi‑Fi działa w chmurze Tuya — wybierz pierwszą opcję. Symulator pozwala wypróbować przyciski bez ruchu bramy.">Sterownik</FieldLabel>
         <select id="gate-driver" value={draft.driver} disabled={busy} onChange={event => {
           const driver = event.target.value as GateDriver
-          set({ driver, http: driver === 'http' ? http ?? { ...emptyHttp } : http, tuya: driver === 'tuya_cloud' ? tuya ?? { ...emptyTuya } : tuya, home_assistant: driver === 'home_assistant' ? ha ?? { ...emptyHomeAssistant } : ha })
+          set({ driver, http: driver === 'http' ? http ?? { ...emptyHttp } : http, tuya: driver === 'tuya_cloud' ? tuya ?? { ...emptyTuya } : tuya,
+            tuya_local: driver === 'tuya_local' ? local ?? { ...emptyTuyaLocal, device_id: tuya?.device_id ?? '' } : local, home_assistant: driver === 'home_assistant' ? ha ?? { ...emptyHomeAssistant } : ha })
         }}>{(ORDER.filter(item => DRIVERS.includes(item))).map(item => <option key={item} value={item} title={driverLabels[item]}>{shortDriver[item]}</option>)}</select></div>
       <Text id="gate-name" label="Nazwa" help="Tak JARVIS nazywa bramę w odpowiedziach, np. „Otwieram: Brama warsztatu”." value={draft.name} max={80} disabled={busy} onChange={name => set({ name })} />
     </div>
     <label className="gate-check"><input type="checkbox" checked={draft.require_confirmation} disabled={busy} onChange={event => set({ require_confirmation: event.target.checked })} />Pytaj „czy na pewno?” przed ruchem bramy</label>
 
-    {draft.driver === 'tuya_cloud' && tuya && <fieldset className="gate-fieldset"><legend>Setti / Tuya</legend>
+    {draft.driver === 'tuya_local' && local && <fieldset className="gate-fieldset"><legend>Setti / Tuya w sieci warsztatu</legend>
+      <p className="workshop-caption">JARVIS łączy się ze sterownikiem bezpośrednio przez Wi‑Fi — działa bez internetu i bez abonamentu Tuya. Chmura jest potrzebna tylko raz, do pobrania klucza.</p>
+      <div className="gate-actions"><button type="button" className="button secondary" disabled={busy} onClick={() => { void scan() }}><Search aria-hidden="true" />Znajdź w sieci</button></div>
+      {found && found.length > 0 && <ul className="gate-found">{found.map(item => <li key={item.address + item.device_id}><button type="button" className="button subtle" disabled={busy}
+        onClick={() => { set({ tuya_local: { ...local, address: item.address, device_id: item.device_id, version: (['3.1', '3.3', '3.4', '3.5'].includes(item.version) ? item.version : 'auto') as typeof local.version } }); setFound(null); setNotice('Wybrano ' + item.address + '. Teraz pobierz klucz.') }}>
+        {item.address} · {item.device_id}{item.device_id === tuya?.device_id ? ' · to Twoja brama' : ''}{item.version ? ' · v' + item.version : ''}</button></li>)}</ul>}
+      <div className="gate-grid">
+        <Text id="local-address" label="Adres IP sterownika" placeholder="192.168.1.50" help="Adres sterownika w sieci warsztatu. Najprościej: „Znajdź w sieci”. Albo w routerze (lista urządzeń) lub w aplikacji Tuya Smart: urządzenie → ✎ → Informacje o urządzeniu → IP. Warto przypisać mu stały adres w routerze." value={local.address} max={45} disabled={busy} onChange={address => set({ tuya_local: { ...local, address } })} />
+        <Text id="local-device" label="ID urządzenia" help="Device ID z iot.tuya.com (Devices → All Devices) albo z aplikacji: urządzenie → ✎ → Informacje o urządzeniu → Wirtualny ID. „Znajdź w sieci” wpisze je samo." value={local.device_id} max={64} disabled={busy} onChange={device_id => set({ tuya_local: { ...local, device_id } })} />
+        <Text id="local-key" label="Klucz lokalny" secret saved={local.local_key_set} help="16-znakowy klucz szyfrowania urządzenia. Kliknij „Pobierz klucz z chmury Tuya” — działa, gdy dane chmury (Access ID/Secret) są zapisane i okres IoT Core jest aktywny. Klucz zmienia się, gdy urządzenie dodasz w aplikacji od nowa." value={local.local_key} max={64} disabled={busy} onChange={local_key => set({ tuya_local: { ...local, local_key } })} />
+      </div>
+      <div className="gate-actions"><button type="button" className="button secondary" disabled={busy} onClick={() => { void fetchKey() }}><KeyRound aria-hidden="true" />Pobierz klucz z chmury Tuya</button></div>
+      <details className="settings-more"><summary>Więcej opcji</summary><div className="gate-grid">
+        <div className="form-field"><FieldLabel htmlFor="local-version" help="Wersja protokołu Tuya. „Automatycznie” sprawdzi 3.3, 3.4, 3.5 i 3.1 i zapamięta działającą. „Znajdź w sieci” podaje ją sama.">Wersja protokołu</FieldLabel>
+          <select id="local-version" value={local.version} disabled={busy} onChange={event => set({ tuya_local: { ...local, version: event.target.value as typeof local.version } })}><option value="auto">Automatycznie</option><option value="3.3">3.3</option><option value="3.4">3.4</option><option value="3.5">3.5</option><option value="3.1">3.1</option></select></div>
+        <div className="form-field"><FieldLabel htmlFor="local-open" help="Numer funkcji (DP) przekaźnika. Dla switch_1 to 1. Inne numery widać w Device Debugging na iot.tuya.com.">Numer funkcji otwarcia</FieldLabel><input id="local-open" type="number" min={1} max={255} value={local.open_dp} disabled={busy} onChange={event => set({ tuya_local: { ...local, open_dp: Number(event.target.value) } })} /></div>
+        <div className="form-field"><FieldLabel htmlFor="local-close" help="Zwykle ten sam numer co otwarcie (1), z wartością „wyłącz”.">Numer funkcji zamknięcia</FieldLabel><input id="local-close" type="number" min={1} max={255} value={local.close_dp} disabled={busy} onChange={event => set({ tuya_local: { ...local, close_dp: Number(event.target.value) } })} /></div>
+        <div className="form-field"><FieldLabel htmlFor="local-status" help="Numer funkcji czujnika krańcowego, jeśli jest. 0 = brak czujnika.">Numer funkcji stanu</FieldLabel><input id="local-status" type="number" min={0} max={255} value={local.status_dp} disabled={busy} onChange={event => set({ tuya_local: { ...local, status_dp: Number(event.target.value) } })} /></div>
+      </div></details>
+    </fieldset>}
+
+    {draft.driver === 'tuya_cloud' && tuya && <fieldset className="gate-fieldset"><legend>Setti / Tuya przez chmurę</legend>
       <div className="gate-grid">
         <div className="form-field"><FieldLabel htmlFor="tuya-endpoint" help="Region konta Tuya. W Polsce prawie zawsze „Europa Centralna”.">Region</FieldLabel>
           <select id="tuya-endpoint" value={tuya.endpoint} disabled={busy} onChange={event => set({ tuya: { ...tuya, endpoint: event.target.value } })}>

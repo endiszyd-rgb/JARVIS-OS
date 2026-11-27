@@ -46,3 +46,5 @@
 .gate-tile .gate-readout-value { font-size: 26px; }
 .remember-key { display: flex; align-items: flex-start; gap: 9px; margin-top: 4px; color: var(--subtle); font-size: 12px; line-height: 1.6; font-weight: 400; }
 .remember-key input { margin-top: 2px; width: 15px; height: 15px; accent-color: var(--accent); }
+.gate-found { list-style: none; margin: 4px 0 8px; padding: 0; display: grid; gap: 6px; }
+.gate-fieldset .gate-actions { margin: 10px 0 12px; }

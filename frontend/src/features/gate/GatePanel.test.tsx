@@ -1,7 +1,8 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { GateSettings } from './GateSettings'
+import { GateSettings, explain } from './GateSettings'
+import { ApiError } from '../../api'
 import { GatePanel } from './GatePanel'
 import { GateTile } from './GateTile'
 
@@ -102,7 +103,7 @@ describe('Gate settings hints and placement', () => {
     const user = userEvent.setup()
     render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
     const driver = await screen.findByLabelText('Sterownik') as HTMLSelectElement
-    expect([...driver.options].map(item => item.value)[0]).toBe('tuya_cloud')
+    expect([...driver.options].map(item => item.value).slice(0, 2)).toEqual(['tuya_local', 'tuya_cloud'])
     await user.selectOptions(driver, 'tuya_cloud')
     const hint = screen.getByRole('button', { name: 'Podpowiedź: Access ID' })
     const bubble = document.getElementById(hint.getAttribute('aria-describedby')!)!
@@ -113,6 +114,50 @@ describe('Gate settings hints and placement', () => {
     expect(hint).toHaveAttribute('aria-expanded', 'true')
     expect(screen.getByLabelText('Access ID')).toBeInTheDocument()
     expect(screen.getByText('Więcej opcji')).toBeInTheDocument()  // codes are folded away
+  })
+
+  it('local Setti/Tuya: finds the device on the LAN, fetches the key once and saves without showing it', async () => {
+    const saved: Record<string, unknown>[] = []
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
+      const path = String(input)
+      if (path === '/api/v1/devices/gate') {
+        const last = saved.at(-1) as { tuya_local: Record<string, unknown> } | undefined
+        return json(last ? { ...overview(), config: { ...last, tuya_local: { ...last.tuya_local, local_key: '••••••••', local_key_set: true } }, revision: 2 } : overview())
+      }
+      if (path === '/api/v1/devices/gate/tuya-local/scan') return json({ devices: [{ address: '192.168.1.50', device_id: 'bf98dev', version: '3.4' }] })
+      if (path === '/api/v1/devices/gate/tuya-local/key') {
+        expect(JSON.parse(String(options.body))).toEqual({ device_id: 'bf98dev' })
+        return json({ local_key: 'secret-local-key', name: 'Brama Setti' })
+      }
+      if (path === '/api/v1/devices/gate/config') {
+        const body = JSON.parse(String(options.body)); saved.push(body.config)
+        return json({ config: { ...body.config, tuya_local: { ...body.config.tuya_local, local_key: '••••••••', local_key_set: true } }, revision: 2 })
+      }
+      return json({ detail: 'unexpected' }, 404)
+    }))
+    const user = userEvent.setup()
+    render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.selectOptions(await screen.findByLabelText('Sterownik'), 'tuya_local')
+    await user.click(screen.getByRole('button', { name: 'Znajdź w sieci' }))
+    await user.click(await screen.findByRole('button', { name: /192\.168\.1\.50 · bf98dev/ }))
+    expect(screen.getByLabelText('Adres IP sterownika')).toHaveValue('192.168.1.50')
+    expect(screen.getByLabelText('ID urządzenia')).toHaveValue('bf98dev')
+    await user.click(screen.getByRole('button', { name: 'Pobierz klucz z chmury Tuya' }))
+    expect(await screen.findByText(/Klucz pobrany \(Brama Setti\)/)).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Zapisz' }))
+    await waitFor(() => expect(saved).toHaveLength(1))
+    expect(saved[0]).toMatchObject({ driver: 'tuya_local', tuya_local: { address: '192.168.1.50', device_id: 'bf98dev', local_key: 'secret-local-key', version: '3.4' } })
+    const key = await screen.findByLabelText('Klucz lokalny')
+    await waitFor(() => expect(key).toHaveValue(''))  // stored key is not shown as dots
+    expect(key).toHaveAttribute('placeholder', expect.stringContaining('zapisany ✓'))
+    expect(document.body.innerHTML).not.toContain('secret-local-key')
+  })
+
+  it('explains Tuya errors with the next step', () => {
+    expect(explain(new ApiError(502, 'http', 'Tuya error 28841107: No permission. The data center is suspended.'))).toContain('Central Europe')
+    expect(explain(new ApiError(502, 'http', 'Tuya error 28841101: expired'))).toContain('Extend Trial Period')
+    expect(explain(new ApiError(502, 'http', 'Tuya local error 914: Check device key — zły klucz lokalny albo wersja protokołu'))).toContain('zły klucz lokalny')
+    expect(explain(new ApiError(502, 'http', 'Gate controller is unreachable'))).toContain('adres IP')
   })
 
   it('the gate view only links to the settings', async () => {

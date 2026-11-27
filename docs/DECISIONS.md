@@ -92,3 +92,10 @@ WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług.
 
 - Okno programu = Edge/Chrome w trybie `--app` z własnym profilem, a nie WebView2 (pywebview) ani Electron. WebView2 nie obsługuje Web Speech API (rozpoznawanie mowy, na którym opiera się widok Głos i ekran Warsztat), a Electron dodałby ~150 MB i drugi runtime. Edge jest częścią Windows 10/11; fallback: domyślna przeglądarka.
 - Serwer pozostaje jeden (launcher z oknem „serwer”), więc program i strona (PC, telefon przez tunel) zawsze pokazują te same dane i uprawnienia.
+
+## 2026-11-27 — brama Setti/Tuya lokalnie (0.16.0)
+
+- Sterownik `tuya_local` (tinytuya 1.21.1) steruje bramą w LAN bez chmury, bo wygaśnięcie okresu próbnego IoT Core / wstrzymanie centrum danych zatrzymywało bramę.
+- Adres sterownika musi być prywatny (RFC 1918 / ULA; bez loopback, link-local, multicast, publicznych). Ten sterownik **nie** używa `JARVIS_NETWORK_ALLOWLIST` (domyślnie tylko loopback), bo inaczej każdy właściciel musiałby edytować `.env`; walidacja adresu zastępuje allowlistę. Konfiguruje go tylko właściciel.
+- Klucz lokalny jest sekretem jak Access Secret: maskowany w odpowiedziach, zachowywany przy zapisie maski. Endpoint `/tuya-local/key` zwraca klucz właścicielowi jednorazowo (żeby wpisał go do formularza i zapisał); audyt zapisuje tylko ID urządzenia.
+- Skan LAN to wyłącznie nasłuch broadcastu UDP (`poll=False`) — bez łączenia się z urządzeniami.

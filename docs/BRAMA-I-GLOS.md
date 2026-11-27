@@ -28,14 +28,26 @@ Właściciel zlecił 2026-11-13 realne sterowanie bramą na Wi‑Fi z poziomu ap
 
 Widok **Brama** → *Konfiguracja sterownika* → *Edytuj*. Zapis wymaga zgodnej rewizji (409 przy równoległej zmianie). *Testuj połączenie* odczytuje stan bez poruszania bramą.
 
-### Brama na Smart Life / Tuya (najczęstszy przypadek „sterownik Wi‑Fi z aplikacji”)
+### Setti / Tuya w sieci warsztatu — bez chmury (zalecane, od 0.16.0)
+
+JARVIS łączy się ze sterownikiem bezpośrednio przez Wi‑Fi (TCP 6668, szyfrowanie kluczem lokalnym urządzenia, biblioteka `tinytuya`). Działa bez internetu i nie zależy od okresu próbnego / subskrypcji IoT Core. Chmura Tuya jest potrzebna **tylko raz** — do pobrania klucza lokalnego.
+
+1. Skonfiguruj najpierw chmurę jak w następnej sekcji (Access ID, Access Secret, Device ID) i **Zapisz** — wystarczy, że IoT Core jest aktywny w chwili pobierania klucza.
+2. *Zaawansowane → Ustawienia → Brama* → sterownik **Setti / Tuya w sieci warsztatu — bez chmury**.
+3. **Znajdź w sieci** — JARVIS przez ok. 8 s nasłuchuje komunikatów Tuya (UDP 6666/6667) i pokazuje adresy IP + ID urządzeń; przy Twojej bramie jest dopisek „to Twoja brama”. Kliknij ją — adres, ID i wersja protokołu wpiszą się same. Gdy Windows zapyta o zaporę dla JARVIS / Pythona — zezwól w sieci prywatnej.
+4. **Pobierz klucz z chmury Tuya** → **Zapisz** → **Sprawdź połączenie**.
+5. Ustaw w routerze stały adres IP (rezerwacja DHCP) dla sterownika — inaczej po restarcie routera adres może się zmienić.
+
+Uwagi: klucz lokalny zmienia się, gdy urządzenie zostanie usunięte i dodane w aplikacji od nowa — wtedy pobierz go ponownie. Dozwolone są tylko adresy prywatne (192.168.x.x, 10.x.x.x, 172.16–31.x.x); ten sterownik nie korzysta z `JARVIS_NETWORK_ALLOWLIST`. „Wersja protokołu: Automatycznie” próbuje 3.3, 3.4, 3.5, 3.1 i zapamiętuje działającą. Numery funkcji (DP): `switch_1` = 1; inne w *Device Debugging*.
+
+### Brama na Smart Life / Tuya przez chmurę
 
 1. Załóż konto na https://iot.tuya.com → *Cloud* → *Create Cloud Project* (Industry: Smart Home, Data Center: **Central Europe**).
 2. W projekcie: *Devices* → *Link Tuya App Account* → zeskanuj kod aplikacją Smart Life/Tuya Smart. Brama pojawi się na liście z **Device ID**.
 3. *Overview* → skopiuj **Access ID/Client ID** i **Access Secret**.
 4. *Devices* → *Device Debugging* → sprawdź kody funkcji (`switch_1`, czasem `switch`, `control` z wartościami `open/close/stop`, `doorcontact_state` jako czujnik).
 5. W JARVIS wybierz sterownik *Tuya / Smart Life*, wpisz region, Access ID, Access Secret, Device ID oraz kody. Dla sterownika z jednym przekaźnikiem impulsowym zaznacz *Brama impulsowa*.
-6. *Zapisz*, potem *Testuj połączenie*. Błąd `Tuya error 1106` oznacza brak powiązania urządzenia z projektem; `1004` — zły podpis/sekret; `28841105` — nieaktywna subskrypcja API w projekcie (włącz *IoT Core* w *Service API*).
+6. *Zapisz*, potem *Sprawdź połączenie*. Od 0.16.0 panel tłumaczy błędy Tuya na kolejny krok. Najczęstsze: `1106` — urządzenie niepowiązane z projektem; `1004` — zły sekret; `28841105` — brak uprawnień API (*Service API* → IoT Core); `28841101` — wygasł okres próbny IoT Core (*Cloud Services → IoT Core → Extend Trial Period*); `28841107` — wstrzymane centrum danych (*Overview → Edit* → usuń centra danych → *Save* → dodaj *Central Europe* → *Save*).
 
 Alternatywa bez chmury: wgranie Tasmota/ESPHome na sterownik ESP (jeśli jest na ESP8266/ESP32) i użycie sterownika HTTP.
 
@@ -67,6 +79,8 @@ Odpowiedzi są czytane przez `speechSynthesis` (głos polski Windows, jeśli zai
 - `POST /api/v1/devices/gate/command` `{action: open|close|stop|status, source: panel|voice|api, confirm_token?}` → `executed` | `confirmation_required` | 429 cooldown | 501/502/503.
 - `POST /api/v1/devices/gate/test` — odczyt stanu bez ruchu.
 - `GET/PUT /api/v1/devices/gate/config` — `{revision, config}`; sekrety maskowane.
+- `POST /api/v1/devices/gate/tuya-local/scan` — urządzenia Tuya w sieci lokalnej `{devices:[{address, device_id, version}]}` (tylko właściciel, ok. 8 s, bez chmury).
+- `POST /api/v1/devices/gate/tuya-local/key` `{device_id}` — jednorazowy odczyt klucza lokalnego przez zapisany projekt chmury Tuya (tylko właściciel; 409 bez zapisanych danych chmury).
 - `GET/PUT /api/v1/config/voice` — preferencje głosu właściciela.
 - `POST /api/v1/chat` z `input_mode: voice` lub tekstem rozpoznaje intencje bramy przed modelem; odpowiedź ma `model: parser` i pole `device`.
 

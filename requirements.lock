@@ -10,6 +10,7 @@ certifi==2026.10.19
 cffi==2.1.1
 charset-normalizer==3.5.2
 click==8.5.0
+colorama==0.4.6
 cryptography==50.0.2
 fastapi==0.115.12
 frozenlist==1.8.0
@@ -44,6 +45,7 @@ requests==2.34.2
 rpds-py==2026.9.1
 sse-starlette==2.3.6
 starlette==0.46.2
+tinytuya==1.21.1
 twilio==9.12.0
 typing-inspection==0.4.4
 typing_extensions==4.16.0
