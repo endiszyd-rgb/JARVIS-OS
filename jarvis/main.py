@@ -155,7 +155,7 @@ class VoiceCommand(Strict):
 
 
 class GateCommand(Strict):
-    action: Literal['open','close','stop','status']
+    action: Literal['open','close','stop','toggle','status']
     source: Literal['panel','voice','api'] = 'panel'
     confirm_token: str | None = Field(default=None,max_length=64)
 
@@ -181,7 +181,7 @@ def create_app(db_path=None, api_key=None):
     async def lifespan(app):
         try:yield
         finally:await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.16.1', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.17.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -359,7 +359,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.16.1', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.17.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -1136,7 +1136,7 @@ def create_app(db_path=None, api_key=None):
             reply=f"{name}: stan {result['gate']['state_label']}."
         else:
             action=result['action']
-            reply={'open':f'Otwieram: {name}.','close':f'Zamykam: {name}.','stop':f'Zatrzymuję: {name}.'}[action]
+            reply={'open':f'Otwieram: {name}.','close':f'Zamykam: {name}.','stop':f'Zatrzymuję: {name}.','toggle':f'Uruchamiam: {name}.'}[action]
             if config.driver=='simulator': reply+=' (symulator — bez fizycznego sterowania)'
         return {'reply':reply,'model':'parser','ai_generated':False,'device':result}
 

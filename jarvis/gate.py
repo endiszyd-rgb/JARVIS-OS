@@ -22,8 +22,9 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_valida
 
 from . import network
 
-ACTIONS = ('open', 'close', 'stop', 'status')
-STATES = ('unknown', 'open', 'closed', 'opening', 'closing', 'stopped')
+ACTIONS = ('open', 'close', 'stop', 'toggle', 'status')
+# 'impulse': a one-button controller got its signal; direction is unknown (open, stop or close) until a sensor says.
+STATES = ('unknown', 'open', 'closed', 'opening', 'closing', 'stopped', 'impulse')
 TUYA_ENDPOINTS = ('https://openapi.tuyaeu.com', 'https://openapi.tuyaus.com', 'https://openapi.tuyacn.com', 'https://openapi.tuyain.com', 'https://openapi-ueaz.tuyaus.com', 'https://openapi-weaz.tuyaeu.com')
 ENTITY = re.compile(r'^(cover|switch|button|input_boolean|script)\.[a-z0-9_]+$')
 SECRET_MASK = '••••••••'
@@ -243,6 +244,8 @@ class Simulator:
         self.config = config
 
     async def command(self, action, state):
+        if action == 'toggle':  # one-button gate: alternates like a real impulse controller
+            action = 'close' if state.get('state') in ('open', 'opening') else 'open'
         return {'state': 'opening' if action == 'open' else 'closing' if action == 'close' else 'stopped', 'external_request_sent': False}
 
     async def status(self, state):
@@ -521,8 +524,8 @@ class Controller:
 
     def settle(self, config: GateConfig):
         """Opening/closing finishes after travel time; the simulator relies on this entirely."""
-        if self.state['state'] in ('opening', 'closing') and self.state['changed'] and time.time() - self.state['changed'] >= config.travel_seconds:
-            self.state['state'] = 'open' if self.state['state'] == 'opening' else 'closed'
+        if self.state['state'] in ('opening', 'closing', 'impulse') and self.state['changed'] and time.time() - self.state['changed'] >= config.travel_seconds:
+            self.state['state'] = {'opening': 'open', 'closing': 'closed', 'impulse': 'unknown'}[self.state['state']]
         return self.state
 
     def confirmation(self, action, key):
@@ -544,6 +547,10 @@ class Controller:
         if action not in ACTIONS:
             raise HTTPException(422, 'Unknown gate action')
         driver = self.driver(config, revision)
+        if config.pulse and action in ('open', 'close'):
+            action = 'toggle'  # one-button gate ("Brama"): open/close are the same impulse
+        elif action == 'toggle' and not config.pulse:
+            action = 'close' if self.settle(config)['state'] in ('open', 'opening') else 'open'  # two-button gate: next move
         if action == 'status':
             async with self.lock:
                 try:
@@ -557,13 +564,17 @@ class Controller:
         if config.require_confirmation and not self.consume(action, confirm_key or source, confirm_token):
             token = self.confirmation(action, confirm_key or source)
             return {'status': 'confirmation_required', 'action': action, 'confirm_token': token, 'expires_in': 12,
-                    'prompt': {'open': 'Otworzyć bramę?', 'close': 'Zamknąć bramę?', 'stop': 'Zatrzymać bramę?'}[action], 'gate': self.describe(config)}
+                    'prompt': {'open': 'Otworzyć bramę?', 'close': 'Zamknąć bramę?', 'stop': 'Zatrzymać bramę?', 'toggle': 'Uruchomić bramę?'}[action], 'gate': self.describe(config)}
         async with self.lock:
             if time.time() - self.last_command < config.cooldown_seconds:
                 raise HTTPException(429, 'Gate cooldown active; wait ' + str(config.cooldown_seconds) + ' s between commands')
             self.last_command = time.time()
             try:
-                result = await driver.command(action, self.settle(config))
+                if action == 'toggle' and not isinstance(driver, Simulator):
+                    # the impulse is the configured "open" signal (Settings → Brama → Sygnał przycisku Brama)
+                    result = dict(await driver.command('open', self.settle(config)), state='impulse')
+                else:
+                    result = await driver.command(action, self.settle(config))
                 outcome = 'ok'
             except HTTPException as exc:
                 outcome = 'error'
@@ -594,4 +605,4 @@ class Controller:
         return data
 
 
-LABELS = {'unknown': 'nieznany', 'open': 'otwarta', 'closed': 'zamknięta', 'opening': 'otwiera się', 'closing': 'zamyka się', 'stopped': 'zatrzymana'}
+LABELS = {'unknown': 'nieznany', 'open': 'otwarta', 'closed': 'zamknięta', 'opening': 'otwiera się', 'closing': 'zamyka się', 'stopped': 'zatrzymana', 'impulse': 'ruszona'}

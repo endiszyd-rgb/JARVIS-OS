@@ -157,3 +157,51 @@ def test_one_button_controller_sends_the_close_signal_for_open():
     asyncio.run(driver.command('open', {}))
     asyncio.run(driver.command('close', {}))
     assert FakeDevice.calls == [('set', 3.4, 1, False), ('set', 3.4, 1, False)]
+
+
+# ---------------------------------------------------------------- one button "Brama" (impulse controller)
+
+def test_one_button_gate_turns_open_and_close_into_one_impulse(client):
+    put_config(client, {'driver': 'tuya_local', 'pulse': True, 'cooldown_seconds': 0,
+                        'tuya_local': {**LOCAL, 'version': '3.4', 'open_value': False, 'close_value': False}})
+    for action in ('toggle', 'open', 'close'):
+        response = client.post('/api/v1/devices/gate/command', json={'action': action})
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body['action'] == 'toggle' and body['gate']['state'] == 'impulse' and body['gate']['state_label'] == 'ruszona'
+    assert FakeDevice.calls == [('set', 3.4, 1, False)] * 3  # always the configured "Brama" signal
+
+
+def test_voice_jarvis_brama_sends_the_impulse(client):
+    put_config(client, {'driver': 'tuya_local', 'pulse': True, 'tuya_local': {**LOCAL, 'version': '3.4', 'open_value': False}})
+    reply = client.post('/api/v1/chat', json={'message': 'Jarvis, brama', 'input_mode': 'voice', 'model': 'demo'}).json()
+    assert reply['model'] == 'parser' and reply['reply'].startswith('Uruchamiam:') and reply['device']['action'] == 'toggle'
+    assert FakeDevice.calls == [('set', 3.4, 1, False)]
+
+
+def test_toggle_on_a_two_button_gate_picks_the_next_move(client):
+    put_config(client, {'driver': 'simulator', 'cooldown_seconds': 0})
+    first = client.post('/api/v1/devices/gate/command', json={'action': 'toggle'}).json()
+    second = client.post('/api/v1/devices/gate/command', json={'action': 'toggle'}).json()
+    assert (first['action'], first['gate']['state']) == ('open', 'opening')
+    assert (second['action'], second['gate']['state']) == ('close', 'closing')
+
+
+def test_one_button_confirmation_asks_to_start_the_gate(client):
+    put_config(client, {'driver': 'tuya_local', 'pulse': True, 'require_confirmation': True, 'tuya_local': {**LOCAL, 'version': '3.4'}})
+    asked = client.post('/api/v1/devices/gate/command', json={'action': 'open'}).json()
+    assert asked['status'] == 'confirmation_required' and asked['prompt'] == 'Uruchomić bramę?' and FakeDevice.calls == []
+    done = client.post('/api/v1/devices/gate/command', json={'action': 'toggle', 'confirm_token': asked['confirm_token']}).json()
+    assert done['status'] == 'executed' and len(FakeDevice.calls) == 1
+
+
+@pytest.mark.parametrize('text', ['Jarvis, brama', 'jarvis brama!', 'brama', 'rusz bramę', 'Jarvis uruchom bramę', 'brama proszę'])
+def test_brama_phrases_are_the_toggle_command(text):
+    from jarvis import intents
+    assert intents.parse(text).action == 'toggle'
+
+
+@pytest.mark.parametrize('text', ['brama jest zepsuta', 'ile kosztuje brama', 'kup bramę'])
+def test_other_sentences_about_the_gate_are_not_commands(text):
+    from jarvis import intents
+    assert intents.parse(text) is None

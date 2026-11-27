@@ -7,7 +7,7 @@ import './gate.css'
 
 interface Props { credential: string; onUnauthorized: () => void; owner?: boolean }
 const message = (error: unknown) => error instanceof ApiError ? error.message : 'Nie udało się wykonać żądania. Spróbuj ponownie.'
-const actionLabel: Record<string, string> = { open: 'Otwarcie', close: 'Zamknięcie', stop: 'Zatrzymanie', status: 'Odczyt stanu' }
+const actionLabel: Record<string, string> = { open: 'Otwarcie', close: 'Zamknięcie', stop: 'Zatrzymanie', toggle: 'Brama (impuls)', status: 'Odczyt stanu' }
 const sourceLabel: Record<string, string> = { panel: 'panel', voice: 'głos', chat: 'rozmowa', api: 'API' }
 
 export function stateTone(state: GateStatus['state']): string {
@@ -61,7 +61,7 @@ function GateWorkspace({ credential, onUnauthorized, owner = true }: Props) {
       if (result.status === 'confirmation_required') { setPending(result); return }
       setPending(null)
       setOverview(previous => previous ? { ...previous, gate: result.gate } : previous)
-      setNotice(action === 'status' ? `Stan: ${result.gate.state_label}.` : `${actionLabel[action]} wysłane${result.external_request_sent ? ' do sterownika' : ' (symulator)'}.`)
+      setNotice(action === 'status' ? `Stan: ${result.gate.state_label}.` : result.action === 'toggle' ? `Brama: impuls wysłany${result.external_request_sent ? ' do sterownika' : ' (symulator)'}.` : `${actionLabel[result.action] ?? actionLabel[action]} wysłane${result.external_request_sent ? ' do sterownika' : ' (symulator)'}.`)
       const refreshed = await readGate(credential, current.signal)
       if (!current.signal.aborted) setOverview(refreshed)
     } catch (failure) { fail(failure, current) }
@@ -90,12 +90,13 @@ function GateWorkspace({ credential, onUnauthorized, owner = true }: Props) {
         <div className="gate-actions"><button type="button" className="button primary" disabled={disabled} onClick={() => { void command(pending.action, pending.confirm_token) }}><Check aria-hidden="true" />Tak, wykonaj</button>
           <button type="button" className="button secondary" disabled={disabled} onClick={() => setPending(null)}><X aria-hidden="true" />Anuluj</button></div>
       </div> : <div className="gate-actions">
-        <button type="button" className="button primary gate-open" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('open') }}><Unlock aria-hidden="true" />Otwórz</button>
-        <button type="button" className="button secondary" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('close') }}><Lock aria-hidden="true" />Zamknij</button>
-        <button type="button" className="button secondary" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('stop') }}><Octagon aria-hidden="true" />Stop</button>
+        {gate?.pulse ? <button type="button" className="button primary gate-open gate-toggle" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('toggle') }}><DoorOpen aria-hidden="true" />Brama</button> : <>
+          <button type="button" className="button primary gate-open" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('open') }}><Unlock aria-hidden="true" />Otwórz</button>
+          <button type="button" className="button secondary" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('close') }}><Lock aria-hidden="true" />Zamknij</button>
+          <button type="button" className="button secondary" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('stop') }}><Octagon aria-hidden="true" />Stop</button></>}
         <button type="button" className="button subtle" disabled={disabled || gate?.driver === 'disabled'} onClick={() => { void command('status') }}><Radar aria-hidden="true" />Odczytaj stan</button>
       </div>}
-      <p className="gate-caption">Komenda głosowa: „Jarvis, otwórz bramę” / „zamknij bramę” / „brama stop” — w widoku <a href="#/voice">Głos</a>.{owner && <> Sterownik i hasła: <a href="#/settings/gate">Ustawienia → Brama</a>.</>}</p>
+      <p className="gate-caption">{gate?.pulse ? <>Jeden przycisk jak pilot: każde naciśnięcie otwiera, zatrzymuje albo zamyka bramę. Komenda głosowa: „Jarvis, brama”</> : <>Komenda głosowa: „Jarvis, otwórz bramę” / „zamknij bramę” / „brama stop”</>} — w widoku <a href="#/voice">Głos</a>.{owner && <> Sterownik i hasła: <a href="#/settings/gate">Ustawienia → Brama</a>.</>}</p>
     </section>
 
     <section className="panel" aria-labelledby="gate-events-title">

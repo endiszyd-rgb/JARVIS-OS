@@ -176,6 +176,50 @@ describe('Gate settings hints and placement', () => {
     expect(screen.getByLabelText('Sygnał przycisku Otwórz')).toHaveValue('on')
   })
 
+  it('one-button gate: a single "Brama" button sends the impulse (gate view and tile)', async () => {
+    const sent: string[] = []
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
+      const path = String(input)
+      if (path === '/api/v1/devices/gate') return json(sent.length ? { ...overview('impulse', [], { pulse: true, driver: 'tuya_local', live: true }), gate: gate('impulse', { state_label: 'ruszona', pulse: true, driver: 'tuya_local', live: true }) } : overview('unknown', [], { pulse: true, driver: 'tuya_local', live: true }))
+      if (path === '/api/v1/devices/gate/command') {
+        sent.push(JSON.parse(String(options.body)).action)
+        return json({ status: 'executed', action: 'toggle', external_request_sent: true, gate: gate('impulse', { state_label: 'ruszona', pulse: true, driver: 'tuya_local', live: true }) })
+      }
+      return json({ detail: 'unexpected' }, 404)
+    }))
+    const user = userEvent.setup()
+    const { unmount } = render(<GatePanel credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.click(await screen.findByRole('button', { name: 'Brama' }))
+    expect(screen.queryByRole('button', { name: 'Otwórz' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Zamknij' })).not.toBeInTheDocument()
+    expect(await screen.findByText('RUSZONA')).toBeInTheDocument()
+    expect(screen.getByText(/„Jarvis, brama”/)).toBeInTheDocument()
+    unmount()
+    render(<GateTile credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.click(await screen.findByRole('button', { name: 'Brama' }))
+    expect(await screen.findByText('Brama: impuls wysłany.')).toBeInTheDocument()
+    expect(sent).toEqual(['toggle', 'toggle'])
+  })
+
+  it('settings: "Jeden przycisk Brama" replaces open/close signals with one Brama signal', async () => {
+    const saved: Record<string, unknown>[] = []
+    const local = { device_id: 'bf98dev', local_key: '••••••••', local_key_set: true, address: '192.168.1.50', version: '3.4', open_dp: 1, open_value: true, close_dp: 1, close_value: false, stop_dp: 0, stop_value: true, status_dp: 0 }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
+      const path = String(input)
+      if (path === '/api/v1/devices/gate') return json({ ...overview(), config: { ...config, driver: 'tuya_local', tuya_local: local } })
+      if (path === '/api/v1/devices/gate/config') { const body = JSON.parse(String(options.body)); saved.push(body.config); return json({ config: body.config, revision: 2 }) }
+      return json({ detail: 'unexpected' }, 404)
+    }))
+    const user = userEvent.setup()
+    render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
+    await user.click(await screen.findByLabelText(/Jeden przycisk „Brama”/))
+    expect(screen.queryByLabelText(/„Otwórz” wysyła ten sam sygnał/)).not.toBeInTheDocument()
+    await user.selectOptions(screen.getByLabelText('Sygnał przycisku Brama'), 'off')
+    await user.click(screen.getByRole('button', { name: 'Zapisz' }))
+    await waitFor(() => expect(saved).toHaveLength(1))
+    expect(saved[0]).toMatchObject({ pulse: true, tuya_local: { open_dp: 1, open_value: false, close_dp: 1, close_value: false } })
+  })
+
   it('explains Tuya errors with the next step', () => {
     expect(explain(new ApiError(502, 'http', 'Tuya error 28841107: No permission. The data center is suspended.'))).toContain('Central Europe')
     expect(explain(new ApiError(502, 'http', 'Tuya error 28841101: expired'))).toContain('Extend Trial Period')

@@ -91,7 +91,7 @@ export function KioskPanel({ credential, onUnauthorized, workshopData }: Props) 
         : <p className="workshop-caption">Ta przeglądarka nie rozpoznaje mowy — wpisz polecenie poniżej.</p>}
       <form className="kiosk-type" onSubmit={submit}>
         <label className="visually-hidden" htmlFor="kiosk-command">Polecenie</label>
-        <input id="kiosk-command" value={typed} onChange={event => setTyped(event.target.value)} placeholder="np. otwórz bramę" maxLength={500} disabled={busy} autoComplete="off" />
+        <input id="kiosk-command" value={typed} onChange={event => setTyped(event.target.value)} placeholder="np. brama" maxLength={500} disabled={busy} autoComplete="off" />
         <button type="submit" className="icon-button" aria-label="Wyślij polecenie" disabled={busy || !typed.trim()}><Send aria-hidden="true" /></button>
       </form>
       <div className="kiosk-chips">

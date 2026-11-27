@@ -8,6 +8,9 @@ GATE_NOUNS = r'(?:bram[aeęy]|bramk[aeęi]|garaz\w*|wjazd\w*|szlaban\w*)'
 OPEN = r'(?:otworz\w*|otwieraj|otwarcie|odblokuj|podnies\w*|open)'
 CLOSE = r'(?:zamknij|zamykaj|zamkniecie|zamykac|opusc\w*|close)'
 STOP = r'(?:zatrzymaj|stop|stoj|przerwij|wstrzymaj)'
+# "Jarvis, brama" / "rusz bramę" / "brama proszę": one impulse for a one-button controller
+TOGGLE = re.compile(r'^(?:(?:rusz\w*|uruchom\w*|nacisnij|wcisnij|kliknij|odpal\w*|pusc|daj|dawaj)\s+)?' + GATE_NOUNS
+                    + r'(?:\s+(?:prosze|teraz|szybko|dawaj))?$')
 STATUS = r'(?:stan|status|czy .*(?:otwart|zamkniet)|jak(?:i|a)? (?:jest )?stan|sprawdz)'
 YES = re.compile(r'^(?:tak|potwierdzam|potwierdz|zrob to|dawaj|jasne|oczywiscie|ok|okej|zgoda|wykonaj|pewnie)[.!]?$')
 PARTS = re.compile(r'\b(?:czesc\w*|zamowien\w*)\b.*\b(?:zamow\w*|brak\w*|potrzeb\w*|drodze|list\w*|jakie|ktore|status)\b'
@@ -24,7 +27,7 @@ NO = re.compile(r'^(?:nie|anuluj|odwolaj|rezygnuje|stop|zostaw|nie trzeba)[.!]?$
 @dataclass(frozen=True)
 class Intent:
     kind: str            # gate | parts | today | confirm | cancel
-    action: str = ''     # open | close | stop | status | list
+    action: str = ''     # open | close | stop | toggle | status | list
     wake: bool = False
     text: str = ''
 
@@ -73,4 +76,6 @@ def parse(message: str) -> Intent | None:
         return Intent('gate', 'close', wake, text)
     if re.search(STATUS, text):
         return Intent('gate', 'status', wake, text)
+    if TOGGLE.fullmatch(text):
+        return Intent('gate', 'toggle', wake, text)
     return None
