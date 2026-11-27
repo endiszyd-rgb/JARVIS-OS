@@ -121,3 +121,11 @@ def test_app_window_profile_allows_the_microphone_only_for_jarvis(tmp_path):
         'http://localhost:17400,*': json.loads((fresh / 'desktop-window' / 'Default' / 'Preferences').read_text())['profile']['content_settings']['exceptions']['media_stream_mic']['http://localhost:17400,*']}
     (fresh / 'desktop-window' / 'Default' / 'Preferences').write_text('not json')
     assert allow_microphone(fresh, 17400) is False  # corrupt profile: never crashes the launcher
+
+
+def test_bundled_camera_tools_are_found_next_to_the_app(tmp_path):
+    from scripts.windows_launcher import bundled_tools
+    assert bundled_tools(tmp_path) == {}
+    (tmp_path / 'go2rtc.exe').write_bytes(b'x')
+    (tmp_path / 'ffmpeg.exe').write_bytes(b'x')
+    assert bundled_tools(tmp_path) == {'JARVIS_GO2RTC_BIN': str(tmp_path / 'go2rtc.exe'), 'JARVIS_FFMPEG_BIN': str(tmp_path / 'ffmpeg.exe')}

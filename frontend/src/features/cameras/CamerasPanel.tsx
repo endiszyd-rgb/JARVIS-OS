@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { Camera as CameraIcon, CircleAlert, Maximize2, Pause, Play, Plus, Save, Trash2 } from 'lucide-react'
+import { Camera as CameraIcon, CircleAlert, Maximize2, Pause, Play, Plus, Save, Search, Trash2 } from 'lucide-react'
 import { ApiError, apiRequest } from '../../api'
 import { FieldLabel } from '../../components/HelpTip'
 import './cameras.css'
@@ -7,8 +7,8 @@ import './cameras.css'
 interface Props { credential: string; onUnauthorized: () => void; owner: boolean }
 export interface CameraSummary { id: string; name: string }
 export interface CameraList { enabled: boolean; refresh_ms: number; cameras: CameraSummary[] }
-export interface CameraEntry { id: string; name: string; stream: string; enabled: boolean }
-export interface CameraConfig { enabled: boolean; go2rtc_url: string; refresh_ms: number; cameras: CameraEntry[] }
+export interface CameraEntry { id: string; name: string; source: 'tuya' | 'rtsp' | 'go2rtc'; stream: string; device_id: string; uid: string; resolution: 'sd' | 'hd'; rtsp_url: string; rtsp_set?: boolean; enabled: boolean }
+export interface CameraConfig { enabled: boolean; mode: 'builtin' | 'external'; go2rtc_url: string; refresh_ms: number; cameras: CameraEntry[] }
 
 const object = (value: unknown): value is Record<string, unknown> => value !== null && typeof value === 'object' && !Array.isArray(value)
 const invalid = (): never => { throw new ApiError(null, 'response') }
@@ -65,49 +65,125 @@ export function CameraView({ camera, credential, refreshMs, running, onUnauthori
   </figure>
 }
 
+const SECRET_MASK = '••••••••'
+export type CameraSource = 'tuya' | 'rtsp' | 'go2rtc'
+export interface BuiltinStatus { available: boolean; running: boolean; ffmpeg: boolean; problems: string[]; error: string | null }
+
+function nextId(cameras: CameraEntry[]) {
+  for (let number = cameras.length + 1; ; number += 1) if (!cameras.some(item => item.id === 'kamera' + number)) return 'kamera' + number
+}
+function blankCamera(cameras: CameraEntry[], mode: CameraConfig['mode']): CameraEntry {
+  return { id: nextId(cameras), name: 'Kamera ' + (cameras.length + 1), source: mode === 'external' ? 'go2rtc' : 'tuya', stream: '', device_id: '', uid: '', resolution: 'sd', rtsp_url: '', enabled: true }
+}
+
+/** Built-in go2rtc state in words — what the owner needs to do next, if anything. */
+function BuiltinState({ status, config }: { status: BuiltinStatus | null; config: CameraConfig }) {
+  if (config.mode !== 'builtin' || !status) return null
+  if (!status.available) return <p className="form-warning" role="status"><CircleAlert aria-hidden="true" />Wbudowany go2rtc nie jest zainstalowany — zainstaluj JARVIS z najnowszego instalatora albo w „Więcej opcji” wybierz własny go2rtc.</p>
+  return <div className="camera-builtin" role="status">
+    <p><span className={status.running ? 'status-dot is-ok' : 'status-dot'} aria-hidden="true" />{status.running ? 'go2rtc działa — kamery są podłączane automatycznie.' : config.enabled && config.cameras.length ? 'go2rtc nie działa — kliknij Zapisz, aby go uruchomić.' : 'go2rtc uruchomi się po dodaniu kamery i zapisaniu.'}{!status.ffmpeg && ' Brak ffmpeg — obraz z kamer Setti może się nie pokazać.'}</p>
+    {status.error && <p className="form-error">{status.error}</p>}
+    {status.problems.length > 0 && <ul className="camera-problems">{status.problems.map(item => <li key={item}>{item}</li>)}</ul>}
+  </div>
+}
+
 function ConfigEditor({ credential, onSaved, onUnauthorized }: { credential: string; onSaved: () => void; onUnauthorized: () => void }) {
   const [draft, setDraft] = useState<CameraConfig | null>(null)
   const [revision, setRevision] = useState(0)
+  const [status, setStatus] = useState<BuiltinStatus | null>(null)
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [checks, setChecks] = useState<Record<number, string>>({})
   useEffect(() => {
     const controller = new AbortController()
     apiRequest('/api/v1/cameras/config', controller.signal, credential).then(value => {
       if (!object(value) || !object(value.config) || !Number.isSafeInteger(value.revision)) return invalid()
-      setDraft(value.config as unknown as CameraConfig); setRevision(value.revision as number)
+      setDraft(normalise(value.config as unknown as CameraConfig)); setRevision(value.revision as number)
+      if (object(value.builtin)) setStatus(value.builtin as unknown as BuiltinStatus)
     }).catch(failure => { if (!controller.signal.aborted) { if (failure instanceof ApiError && failure.status === 401) onUnauthorized(); else setError(message(failure)) } })
     return () => controller.abort()
   }, [credential, onUnauthorized])
   if (!draft) return error ? <p className="form-error" role="alert">{error}</p> : <p role="status">Odczytywanie konfiguracji…</p>
+  const builtin = draft.mode === 'builtin'
   const update = (index: number, patch: Partial<CameraEntry>) => setDraft({ ...draft, cameras: draft.cameras.map((item, position) => position === index ? { ...item, ...patch } : item) })
   async function save() {
     if (!draft || busy) return
     setBusy(true); setError(null)
     try {
-      const value = await apiRequest('/api/v1/cameras/config', new AbortController().signal, credential, { method: 'PUT', body: { revision, config: draft } })
-      if (!object(value) || !Number.isSafeInteger(value.revision)) return invalid()
-      setRevision(value.revision as number); onSaved()
+      const body = { ...draft, cameras: draft.cameras.map(({ rtsp_set: _flag, ...item }) => item) }
+      const value = await apiRequest('/api/v1/cameras/config', new AbortController().signal, credential, { method: 'PUT', body: { revision, config: body } })
+      if (!object(value) || !Number.isSafeInteger(value.revision) || !object(value.config)) return invalid()
+      setRevision(value.revision as number); setDraft(normalise(value.config as unknown as CameraConfig))
+      if (object(value.builtin)) setStatus(value.builtin as unknown as BuiltinStatus)
+      onSaved()
     } catch (failure) { if (failure instanceof ApiError && failure.status === 401) onUnauthorized(); else setError(message(failure)) } finally { setBusy(false) }
+  }
+  async function check(index: number) {
+    const item = draft?.cameras[index]
+    if (!draft || !item) return
+    const deviceId = item.device_id.trim()
+    if (!deviceId) { setChecks({ ...checks, [index]: 'Wpisz najpierw Device ID kamery.' }); return }
+    setChecks({ ...checks, [index]: 'Sprawdzam w chmurze Tuya…' })
+    try {
+      const value = await apiRequest('/api/v1/cameras/tuya-info', new AbortController().signal, credential, { body: { device_id: deviceId } })
+      if (!object(value) || typeof value.uid !== 'string') return invalid()
+      const name = typeof value.name === 'string' && value.name ? value.name : ''
+      update(index, { device_id: deviceId, uid: value.uid, name: /^Kamera \d+$/.test(item.name) && name ? name.slice(0, 60) : item.name })
+      setChecks({ ...checks, [index]: '✓ ' + (name || 'Kamera znaleziona') + (value.online ? ' · online' : ' · offline') + '. Kliknij Zapisz.' })
+    } catch (failure) {
+      if (failure instanceof ApiError && failure.status === 401) { onUnauthorized(); return }
+      const detail = failure instanceof ApiError ? failure.detail ?? '' : ''
+      setChecks({ ...checks, [index]: failure instanceof ApiError && failure.status === 409 ? 'Najpierw zapisz dane chmury Tuya: Ustawienia → Brama → „Setti / Tuya przez chmurę” (Access ID i Secret).'
+        : /Tuya error/.test(detail) ? 'Tuya: ' + detail.replace(/^Tuya error /, '') : 'Nie udało się sprawdzić kamery.' })
+    }
   }
   return <div className="camera-config">
     <label className="voice-check"><input type="checkbox" checked={draft.enabled} onChange={event => setDraft({ ...draft, enabled: event.target.checked })} />Podgląd kamer włączony</label>
-    <div className="camera-config-grid">
-      <div className="form-field"><FieldLabel htmlFor="go2rtc-url" help={<>Adres programu go2rtc na komputerze warsztatowym — zwykle <code>http://127.0.0.1:1984</code>. To go2rtc łączy się z kamerami Setti (źródło Tuya) i trzyma ich hasła; JARVIS pobiera od niego tylko obraz.</>}>Adres go2rtc</FieldLabel><input id="go2rtc-url" value={draft.go2rtc_url} onChange={event => setDraft({ ...draft, go2rtc_url: event.target.value })} placeholder="http://127.0.0.1:1984" /></div>
-      <div className="form-field"><FieldLabel htmlFor="camera-refresh" help="Jak często odświeżać obraz, w milisekundach. 1000 = raz na sekundę. Przy słabym internecie w telefonie ustaw 2000–3000.">Odświeżanie (ms)</FieldLabel><input id="camera-refresh" type="number" min={250} max={10000} step={250} value={draft.refresh_ms} onChange={event => setDraft({ ...draft, refresh_ms: Number(event.target.value) })} /></div>
-    </div>
-    <ul className="camera-rows">{draft.cameras.map((item, index) => <li key={index} className="camera-row">
-      <div className="form-field"><FieldLabel htmlFor={'cam-id-' + index} help="Krótka nazwa techniczna bez spacji i polskich liter, np. zewnetrzna.">Identyfikator</FieldLabel><input id={'cam-id-' + index} value={item.id} onChange={event => update(index, { id: event.target.value.toLowerCase() })} placeholder="brama" /></div>
-      <div className="form-field"><FieldLabel htmlFor={'cam-name-' + index} help="Nazwa widoczna pod podglądem, np. „Wjazd” albo „Hala”.">Nazwa</FieldLabel><input id={'cam-name-' + index} value={item.name} onChange={event => update(index, { name: event.target.value })} placeholder="Wjazd" /></div>
-      <div className="form-field"><FieldLabel htmlFor={'cam-stream-' + index} help="Nazwa strumienia dokładnie taka jak w go2rtc (lista Streams w go2rtc albo plik go2rtc.yaml), np. kamera_zewn.">Strumień go2rtc</FieldLabel><input id={'cam-stream-' + index} value={item.stream} onChange={event => update(index, { stream: event.target.value })} placeholder="nvr_ch1" /></div>
-      <label className="voice-check"><input type="checkbox" checked={item.enabled} onChange={event => update(index, { enabled: event.target.checked })} />Aktywna</label>
-      <button type="button" className="icon-button" aria-label={'Usuń kamerę ' + (item.name || index + 1)} onClick={() => setDraft({ ...draft, cameras: draft.cameras.filter((_, position) => position !== index) })}><Trash2 aria-hidden="true" /></button>
+    <BuiltinState status={status} config={draft} />
+    <ul className="camera-rows">{draft.cameras.map((item, index) => <li key={index} className="camera-card">
+      <div className="camera-card-grid">
+        <div className="form-field"><FieldLabel htmlFor={'cam-name-' + index} help="Nazwa widoczna pod podglądem, np. „Wjazd” albo „Hala”.">Nazwa</FieldLabel><input id={'cam-name-' + index} value={item.name} maxLength={60} onChange={event => update(index, { name: event.target.value })} placeholder="Wjazd" /></div>
+        {builtin ? <div className="form-field"><FieldLabel htmlFor={'cam-source-' + index} help="Kamery Setti działają przez chmurę Tuya — wystarczy ich Device ID. Kamery IP i rejestratory podłączasz adresem RTSP.">Rodzaj kamery</FieldLabel>
+          <select id={'cam-source-' + index} value={item.source} onChange={event => update(index, { source: event.target.value as CameraSource })}><option value="tuya">Setti / Tuya (Device ID)</option><option value="rtsp">Kamera IP / rejestrator (RTSP)</option></select></div>
+          : <div className="form-field"><FieldLabel htmlFor={'cam-stream-' + index} help="Nazwa strumienia dokładnie taka jak w Twoim go2rtc (lista Streams albo plik go2rtc.yaml).">Strumień go2rtc</FieldLabel><input id={'cam-stream-' + index} value={item.stream} onChange={event => update(index, { stream: event.target.value })} placeholder="nvr_ch1" /></div>}
+        {builtin && item.source === 'tuya' && <div className="form-field"><FieldLabel htmlFor={'cam-device-' + index} help="iot.tuya.com → Twój projekt → Devices → All Devices → kolumna Device ID przy kamerze. Kamera musi być na tym samym koncie aplikacji co brama.">Device ID kamery</FieldLabel>
+          <input id={'cam-device-' + index} value={item.device_id} maxLength={64} autoComplete="off" onChange={event => update(index, { device_id: event.target.value.trim(), uid: '' })} placeholder="bf12ab34cd56ef78gh90ij" /></div>}
+        {builtin && item.source === 'rtsp' && <div className="form-field"><FieldLabel htmlFor={'cam-rtsp-' + index} help={<>Adres strumienia z hasłem, np. <code>rtsp://admin:HASLO@192.168.1.64:554/Streaming/Channels/102</code> (Hikvision, podstrumień). Hasło zostaje na tym komputerze i nie jest pokazywane po zapisaniu.</>}>Adres RTSP</FieldLabel>
+          <input id={'cam-rtsp-' + index} type="password" autoComplete="new-password" value={item.rtsp_url === SECRET_MASK ? '' : item.rtsp_url} maxLength={300}
+            placeholder={item.rtsp_url === SECRET_MASK ? 'zapisany ✓ — wpisz nowy tylko, aby zmienić' : 'rtsp://admin:hasło@192.168.1.64:554/...'}
+            onChange={event => update(index, { rtsp_url: event.target.value.trim() === '' && item.rtsp_set ? SECRET_MASK : event.target.value.trim() })} /></div>}
+      </div>
+      <div className="camera-card-actions">
+        {builtin && item.source === 'tuya' && <button type="button" className="button secondary" disabled={busy} onClick={() => { void check(index) }}><Search aria-hidden="true" />Sprawdź kamerę</button>}
+        {builtin && <label className="voice-check"><input type="checkbox" checked={item.resolution === 'hd'} onChange={event => update(index, { resolution: event.target.checked ? 'hd' : 'sd' })} />Wysoka jakość (HD)</label>}
+        <label className="voice-check"><input type="checkbox" checked={item.enabled} onChange={event => update(index, { enabled: event.target.checked })} />Aktywna</label>
+        <button type="button" className="icon-button" aria-label={'Usuń kamerę ' + (item.name || index + 1)} onClick={() => setDraft({ ...draft, cameras: draft.cameras.filter((_, position) => position !== index) })}><Trash2 aria-hidden="true" /></button>
+      </div>
+      {checks[index] && <p className="workshop-caption" role="status">{checks[index]}</p>}
+      {builtin && item.source === 'tuya' && item.device_id && !item.uid && !checks[index] && <p className="workshop-caption">Kliknij „Sprawdź kamerę”, zanim zapiszesz.</p>}
     </li>)}</ul>
     <div className="camera-actions">
-      <button type="button" className="button subtle" disabled={draft.cameras.length >= 16} onClick={() => setDraft({ ...draft, cameras: [...draft.cameras, { id: 'kamera' + (draft.cameras.length + 1), name: 'Kamera ' + (draft.cameras.length + 1), stream: '', enabled: true }] })}><Plus aria-hidden="true" />Dodaj kamerę</button>
+      <button type="button" className="button subtle" disabled={draft.cameras.length >= 16} onClick={() => setDraft({ ...draft, enabled: true, cameras: [...draft.cameras, blankCamera(draft.cameras, draft.mode)] })}><Plus aria-hidden="true" />Dodaj kamerę</button>
       <button type="button" className="button primary" disabled={busy} onClick={() => { void save() }}><Save aria-hidden="true" />Zapisz</button>
     </div>
     {error && <p className="form-error" role="alert">{error}</p>}
+    <details className="settings-more"><summary>Więcej opcji</summary>
+      <div className="camera-config-grid">
+        <div className="form-field"><FieldLabel htmlFor="camera-refresh" help="Jak często odświeżać obraz, w milisekundach. 1000 = raz na sekundę. Przy słabym internecie w telefonie ustaw 2000–3000.">Odświeżanie (ms)</FieldLabel><input id="camera-refresh" type="number" min={250} max={10000} step={250} value={draft.refresh_ms} onChange={event => setDraft({ ...draft, refresh_ms: Number(event.target.value) })} /></div>
+      </div>
+      <label className="voice-check"><input type="checkbox" checked={!builtin} onChange={event => {
+        const mode = event.target.checked ? 'external' : 'builtin'
+        setDraft({ ...draft, mode, cameras: draft.cameras.map(item => ({ ...item, source: mode === 'external' ? 'go2rtc' : item.source === 'go2rtc' ? 'tuya' : item.source })) })
+      }} />Używam własnego go2rtc (zaawansowane)</label>
+      {!builtin && <div className="form-field"><FieldLabel htmlFor="go2rtc-url" help={<>Adres Twojego programu go2rtc, zwykle <code>http://127.0.0.1:1984</code>. Kamery i hasła ustawiasz wtedy w jego pliku go2rtc.yaml, a tutaj tylko nazwy strumieni.</>}>Adres go2rtc</FieldLabel><input id="go2rtc-url" value={draft.go2rtc_url} onChange={event => setDraft({ ...draft, go2rtc_url: event.target.value })} placeholder="http://127.0.0.1:1984" /></div>}
+    </details>
   </div>
+}
+
+const CAMERA_DEFAULTS: Omit<CameraEntry, 'id' | 'name' | 'enabled'> = { source: 'go2rtc', stream: '', device_id: '', uid: '', resolution: 'sd', rtsp_url: '' }
+/** Older saved configs and minimal test doubles may miss the 0.18 fields. */
+function normalise(config: CameraConfig): CameraConfig {
+  return { ...config, mode: config.mode ?? 'external', cameras: config.cameras.map(item => ({ ...CAMERA_DEFAULTS, ...(item as Partial<CameraEntry>) } as CameraEntry)) }
 }
 
 /** Camera settings (owner): go2rtc address and streams. Preview stays in the Cameras view. */
@@ -115,7 +191,7 @@ export function CameraSettings({ credential, onUnauthorized }: { credential: str
   const [saved, setSaved] = useState(false)
   return <div className="settings-block">
     <h2 className="panel-heading"><CameraIcon aria-hidden="true" />Kamery</h2>
-    <p className="panel-description">Kamery Setti łączysz w go2rtc (instrukcja: docs/DOSTEP-ZDALNY.md), a tutaj podajesz, które strumienie pokazywać.</p>
+    <p className="panel-description">Dodaj kamerę, wybierz rodzaj i wpisz Device ID (Setti) albo adres RTSP. JARVIS sam uruchamia i ustawia go2rtc na tym komputerze.</p>
     <ConfigEditor credential={credential} onUnauthorized={onUnauthorized} onSaved={() => setSaved(true)} />
     {saved && <p className="workshop-caption" role="status">Zapisano. Podgląd: <a href="#/cameras">Kamery</a>.</p>}
   </div>

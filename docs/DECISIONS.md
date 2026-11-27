@@ -99,3 +99,12 @@ WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług.
 - Adres sterownika musi być prywatny (RFC 1918 / ULA; bez loopback, link-local, multicast, publicznych). Ten sterownik **nie** używa `JARVIS_NETWORK_ALLOWLIST` (domyślnie tylko loopback), bo inaczej każdy właściciel musiałby edytować `.env`; walidacja adresu zastępuje allowlistę. Konfiguruje go tylko właściciel.
 - Klucz lokalny jest sekretem jak Access Secret: maskowany w odpowiedziach, zachowywany przy zapisie maski. Endpoint `/tuya-local/key` zwraca klucz właścicielowi jednorazowo (żeby wpisał go do formularza i zapisał); audyt zapisuje tylko ID urządzenia.
 - Skan LAN to wyłącznie nasłuch broadcastu UDP (`poll=False`) — bez łączenia się z urządzeniami.
+
+## 2026-11-28 — wbudowany go2rtc dla kamer (0.18.0)
+
+- Instalator dołącza go2rtc v1.9.14 (MIT) i FFmpeg LGPL (BtbN, `latest`): pliki pobierane w CI z wydań GitHub i sprawdzane z SHA-256 podanym przez GitHub (`digest`), w `tools\THIRD-PARTY.txt` wersje, sumy i źródła. Build LGPL, bo GPL wymagałby udostępniania źródeł całości; brak libx264 nie przeszkadza (dekodowanie H.264 i kodowanie JPEG są natywne).
+- JARVIS (proces serwera) uruchamia go2rtc jako proces potomny na 127.0.0.1:1984 z wyłączonym RTSP; konfiguracja jest generowana jako JSON (poprawny YAML), więc żadne pole z panelu nie może wstrzyknąć innych opcji go2rtc. Restart tylko przy zmianie treści pliku.
+- Sekrety (RTSP, client_secret Tuya) są w `go2rtc.yaml` w prywatnym folderze danych — tak samo jak baza SQLite. API zwraca RTSP zamaskowany; zapis maski zachowuje zapisany adres.
+- UID dla źródła Tuya Cloud jest odczytywany z `/v1.0/devices/{id}` tego samego projektu co brama (bez osobnych danych logowania). Kamery Setti wymagają aktywnego IoT Core — w przeciwieństwie do bramy lokalnej.
+- Tryb `external` (adres własnego go2rtc + nazwy strumieni) zostaje dla istniejących konfiguracji i zaawansowanych; nowe instalacje startują w `builtin`.
+

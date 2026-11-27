@@ -341,6 +341,7 @@ Wszystkie funkcje są w zakresie: AI tekst/głos, pamięć i edycja pamięci, zm
 - **Blokady / dalsze kroki:** VERIFIED dopiero po realnym teście właściciela przy bramie (docs/PLAN-ROZWOJU.md, Etap 0). Tuya Cloud wymaga internetu i aktywnej subskrypcji IoT Core.
 - **Aktualizacja 2026-11-27 (0.16.0):** sterownik `tuya_local` (Setti/Tuya w LAN bez chmury, tinytuya 1.21.1, auto‑wersja protokołu), skan sieci i jednorazowe pobranie klucza lokalnego z chmury; panel tłumaczy błędy Tuya. Testy: tests/test_gate_tuya_local.py z atrapą urządzenia PASS; prawdziwy sterownik Setti NOT_RUN — status M5.5 bez zmian.
 - **Aktualizacja 2026-11-27 (0.17.0):** właściciel przy bramie: sterownik Setti działa lokalnie, ale jest impulsowy (Otwórz nic nie robił, Zamknij na przemian otwierał/zamykał, brama zatrzymuje się w połowie). Dodano akcję `toggle` i jeden przycisk „Brama”, komendę „Jarvis, brama”, stan `impulse` („ruszona”), wybór sygnału. Testy z atrapą PASS; ponowny test u właściciela NOT_RUN.
+- **Aktualizacja 2026-11-28 (0.18.0, kamery):** go2rtc v1.9.14 + FFmpeg LGPL w instalatorze, JARVIS uruchamia go2rtc (127.0.0.1) i generuje jego konfigurację; kamery Setti dodawane po Device ID (UID z chmury Tuya), kamery IP po RTSP (hasło maskowane). Testy jednostkowe/API z atrapą procesu PASS; prawdziwe kamery Setti NOT_RUN.
 
 ### M6 — Automatyzacje i zmiany zachowania
 

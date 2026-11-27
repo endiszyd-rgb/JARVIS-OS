@@ -31,6 +31,8 @@ Wymagane: Windows, Python 3.12, gotowe zależności frontend (`npm ci`), Node i 
 
 Ten sam skrypt uruchamia `.github/workflows/windows-installer.yml` na `windows-latest` (choco innosetup, npm ci, szybki podzbiór pytest, build, smoke launchera z zainstalowanego runtime, artefakt; przy tagu `v*` tworzy Release z plikiem .exe i .sha256).
 
+Od 0.18.0 skrypt pobiera też narzędzia kamer do `payload\tools`: go2rtc v1.9.14 (`go2rtc_win64.zip`) i FFmpeg LGPL (BtbN/FFmpeg-Builds, `latest`), oba sprawdzane z SHA-256 podanym przez GitHub; `tools\THIRD-PARTY.txt` zawiera wersje, sumy i źródła, `ffmpeg-LICENSE.txt` licencję FFmpeg. `--no-camera-tools` buduje bez nich (wtedy tylko własny go2rtc). Workflow uruchamia `go2rtc.exe -version`, `ffmpeg.exe -version` i informacyjny test RTSP → go2rtc → JPEG (`scripts/camera_e2e_check.py`). JARVIS uruchamia go2rtc tylko na `127.0.0.1:1984`; konfiguracja i dziennik: `dane\go2rtc`. Kamery: [DOSTEP-ZDALNY.md](DOSTEP-ZDALNY.md#5-kamery-od-0180-wbudowany-go2rtc).
+
 Skrypt wymaga nowego folderu wyniku, kopiuje runtime, instaluje produkcyjne zależności z requirements/lock, kompiluje UI i instalator oraz zapisuje SHA-256. Nie pakuje roboczej bazy, `.env`, node_modules ani `.venv`. Runtime i zależności są zawartością instalatora, nie repozytorium Git. Ich pliki licencji pozostają w paczce.
 
 ## Weryfikacja

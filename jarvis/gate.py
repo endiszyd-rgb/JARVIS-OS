@@ -497,6 +497,20 @@ async def cloud_device_info(config: GateConfig, device_id: str):
     return {'local_key': result['local_key'][:64], 'name': str(result.get('name') or '')[:80]}
 
 
+async def cloud_device_details(config: GateConfig, device_id: str):
+    """Name, owner UID, category and online state of any device in the saved Tuya cloud project (cameras)."""
+    if config.tuya is None or not config.tuya.access_secret:
+        raise HTTPException(409, 'Save the Tuya cloud access (Access ID/Secret) first')
+    cloud = TuyaCloud(config.model_copy(update={'driver': 'tuya_cloud'}))
+    token = await cloud._token()
+    result = await cloud._request('GET', '/v1.0/devices/' + device_id, '', token)
+    uid = result.get('uid') if isinstance(result, dict) else None
+    if not isinstance(uid, str) or not re.fullmatch(r'[A-Za-z0-9_-]{1,64}', uid):
+        raise HTTPException(502, 'Tuya did not return the owner UID for this device')
+    return {'uid': uid, 'name': str(result.get('name') or '')[:80], 'category': str(result.get('category') or '')[:16],
+            'online': bool(result.get('online'))}
+
+
 DRIVERS = {'simulator': Simulator, 'http': Http, 'tuya_cloud': TuyaCloud, 'tuya_local': TuyaLocal, 'home_assistant': HomeAssistant}
 
 

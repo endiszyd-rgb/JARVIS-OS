@@ -15,11 +15,77 @@ import shutil
 import subprocess
 import sys
 import tarfile
+import os
 import urllib.request
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 RUNTIME_RELEASES = 'https://api.github.com/repos/astral-sh/python-build-standalone/releases/latest'
 RUNTIME_ASSET = re.compile(r'^cpython-3\.12\.\d+\+\d+-x86_64-pc-windows-msvc-install_only\.tar\.gz$')
+# Camera previews: go2rtc (MIT) pinned to a release; ffmpeg LGPL static build (BtbN) for JPEG frames.
+GO2RTC_RELEASE = 'https://api.github.com/repos/AlexxIT/go2rtc/releases/tags/v1.9.14'
+GO2RTC_ASSET = re.compile(r'^go2rtc_win64\.zip$')
+FFMPEG_RELEASE = 'https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/tags/latest'
+FFMPEG_ASSET = re.compile(r'^ffmpeg-n(\d+)\.(\d+)-latest-win64-lgpl-\d+\.\d+\.zip$')
+
+
+def github_json(url):
+    request = urllib.request.Request(url, headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'jarvis-installer-build'})
+    if os.environ.get('GITHUB_TOKEN'):
+        request.add_header('Authorization', 'Bearer ' + os.environ['GITHUB_TOKEN'])
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return json.load(response)
+
+
+def download_verified(asset, target: Path) -> Path:
+    """Download a GitHub release asset and check it against the SHA-256 digest GitHub computed for it."""
+    digest = str(asset.get('digest') or '')
+    if not digest.startswith('sha256:'):
+        raise SystemExit('No SHA-256 digest published for ' + asset['name'])
+    path = target / asset['name']
+    urllib.request.urlretrieve(asset['browser_download_url'], path)
+    actual = hashlib.sha256(path.read_bytes()).hexdigest()
+    if actual != digest.split(':', 1)[1]:
+        raise SystemExit('Checksum mismatch for ' + asset['name'])
+    return path
+
+
+def safe_member(name):
+    return not (name.startswith(('/', '\\')) or '..' in Path(name).parts or ':' in name)
+
+
+def download_camera_tools(work: Path, tools: Path) -> dict:
+    """Put go2rtc.exe and ffmpeg.exe (+ licences) into <payload>/tools; returns what was bundled."""
+    work.mkdir(parents=True, exist_ok=True)
+    tools.mkdir(parents=True, exist_ok=True)
+    bundled = {}
+    release = github_json(GO2RTC_RELEASE)
+    asset = next(a for a in release['assets'] if GO2RTC_ASSET.match(a['name']))
+    archive = download_verified(asset, work)
+    with zipfile.ZipFile(archive) as bundle:
+        member = next(n for n in bundle.namelist() if n.lower().endswith('go2rtc.exe') and safe_member(n))
+        (tools / 'go2rtc.exe').write_bytes(bundle.read(member))
+    bundled['go2rtc'] = {'release': release['tag_name'], 'asset': asset['name'], 'sha256': asset['digest'], 'license': 'MIT'}
+    release = github_json(FFMPEG_RELEASE)
+    candidates = [a for a in release['assets'] if FFMPEG_ASSET.match(a['name'])]
+    if not candidates:
+        raise SystemExit('No LGPL win64 ffmpeg build in BtbN/FFmpeg-Builds latest')
+    asset = max(candidates, key=lambda a: tuple(int(x) for x in FFMPEG_ASSET.match(a['name']).groups()))
+    archive = download_verified(asset, work)
+    with zipfile.ZipFile(archive) as bundle:
+        names = [n for n in bundle.namelist() if safe_member(n)]
+        exe = next(n for n in names if n.lower().endswith('/bin/ffmpeg.exe'))
+        (tools / 'ffmpeg.exe').write_bytes(bundle.read(exe))
+        licence = next((n for n in names if n.lower().endswith('/license.txt')), None)
+        if licence:
+            (tools / 'ffmpeg-LICENSE.txt').write_bytes(bundle.read(licence))
+    bundled['ffmpeg'] = {'release': release['tag_name'], 'asset': asset['name'], 'sha256': asset['digest'], 'license': 'LGPL-2.1-or-later'}
+    (tools / 'THIRD-PARTY.txt').write_text(
+        'Narzędzia kamer dołączone do JARVIS OS (podgląd kamer):\n\n'
+        f"- go2rtc {bundled['go2rtc']['release']} — licencja MIT — https://github.com/AlexxIT/go2rtc ({bundled['go2rtc']['sha256']})\n"
+        f"- FFmpeg {bundled['ffmpeg']['asset']} — licencja LGPL (patrz ffmpeg-LICENSE.txt) — build https://github.com/BtbN/FFmpeg-Builds, "
+        f"kod źródłowy https://ffmpeg.org/download.html ({bundled['ffmpeg']['sha256']})\n", encoding='utf-8')
+    return bundled
 
 
 def installer_name():
@@ -66,6 +132,7 @@ def main():
     parser.add_argument('--download-runtime', action='store_true', help='Download the runtime from python-build-standalone into the output folder')
     parser.add_argument('--compiler', type=Path, required=True, help='Path to Inno Setup ISCC.exe')
     parser.add_argument('--output', type=Path, required=True, help='Fresh output folder')
+    parser.add_argument('--no-camera-tools', action='store_true', help='Do not bundle go2rtc/ffmpeg (camera previews then need an external go2rtc)')
     args = parser.parse_args()
     if sys.version_info[:2] != (3, 12) or sys.platform != 'win32':
         raise SystemExit('Build with Windows Python 3.12')
@@ -93,6 +160,7 @@ def main():
     for name in ('requirements.txt', 'requirements.lock'):
         shutil.copy2(ROOT / name, app / name)
     shutil.copy2(ROOT / 'docs' / 'WINDOWS-INSTALLER.md', stage / 'START-HERE.md')
+    bundled = {} if args.no_camera_tools else download_camera_tools(output / 'tools-download', stage / 'tools')
     # Production payload: no source .env, DB, model, venv or developer tooling.
     for path in stage.rglob('*'):
         if path.is_file() and (path.name == '.env' or path.suffix in ('.db', '.sqlite3', '.gguf', '.safetensors')):
@@ -102,7 +170,7 @@ def main():
     exe = output / installer_name()
     digest = hashlib.sha256(exe.read_bytes()).hexdigest()
     (output / (exe.name + '.sha256')).write_text(digest + '  ' + exe.name + '\n', encoding='ascii')
-    print(json.dumps({'installer': str(exe), 'sha256': digest, 'bytes': exe.stat().st_size}))
+    print(json.dumps({'installer': str(exe), 'sha256': digest, 'bytes': exe.stat().st_size, 'camera_tools': bundled}))
 
 
 if __name__ == '__main__':
