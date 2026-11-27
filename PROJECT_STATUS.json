@@ -1,6 +1,6 @@
 {
   "format_version": 1,
-  "application_version": "0.16.0",
+  "application_version": "0.16.1",
   "handoff_revision": "0.10.4-handoff.1",
   "snapshot_date": "2026-11-26",
   "language": "pl",
@@ -234,7 +234,8 @@
         "0.14.1: menu w grupach (Na co dzień / Konto / Zaawansowane), właściciel startuje na ekranie Warsztat, kamery Setti (Tuya) przez go2rtc",
         "0.14.2: wszystkie ustawienia w Zaawansowane → Ustawienia (zakładki), uproszczone formularze, podpowiedzi „?” przy polach",
         "0.15.0: program desktopowy — osobne okno aplikacji (Edge/Chrome w trybie aplikacji) równolegle ze stroną; opcjonalny autostart z Windows",
-        "0.16.0: brama Setti/Tuya w sieci lokalnej bez chmury (skan LAN, klucz lokalny pobierany raz), błędy Tuya po polsku z kolejnym krokiem"
+        "0.16.0: brama Setti/Tuya w sieci lokalnej bez chmury (skan LAN, klucz lokalny pobierany raz), błędy Tuya po polsku z kolejnym krokiem",
+        "0.16.1: sterownik jednoprzyciskowy — „Otwórz” może wysyłać ten sam sygnał co „Zamknij”; wybór sygnału obu przycisków"
       ],
       "pending": [
         "pełny WCAG/czytnik/Safari",
@@ -389,8 +390,8 @@
   },
   "windows_delivery": {
     "status": "build_pipeline_added_not_run",
-    "version": "0.16.0",
-    "installer": "JARVIS-OS-0.16.0-Setup-x64.exe",
+    "version": "0.16.1",
+    "installer": "JARVIS-OS-0.16.1-Setup-x64.exe",
     "sha256": "not_built_yet",
     "bytes": 28223337,
     "release_url": "",

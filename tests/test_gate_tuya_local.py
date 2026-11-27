@@ -149,3 +149,11 @@ def test_local_key_is_read_once_from_the_saved_cloud_project(client, monkeypatch
     response = client.post('/api/v1/devices/gate/tuya-local/key', json={'device_id': LOCAL['device_id']})
     assert response.status_code == 200 and response.json() == {'local_key': LOCAL['local_key'], 'name': 'Sterownik bramy'}
     assert client.post('/api/v1/devices/gate/tuya-local/key', json={'device_id': 'bad id'}).status_code == 422
+
+
+def test_one_button_controller_sends_the_close_signal_for_open():
+    config = gate.GateConfig(driver='tuya_local', tuya_local={**LOCAL, 'version': '3.4', 'open_value': False, 'close_value': False})
+    driver = gate.TuyaLocal(config)
+    asyncio.run(driver.command('open', {}))
+    asyncio.run(driver.command('close', {}))
+    assert FakeDevice.calls == [('set', 3.4, 1, False), ('set', 3.4, 1, False)]

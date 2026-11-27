@@ -153,6 +153,29 @@ describe('Gate settings hints and placement', () => {
     expect(document.body.innerHTML).not.toContain('secret-local-key')
   })
 
+  it('one-button Setti: "Otwórz" can send the same signal as "Zamknij"', async () => {
+    const saved: Record<string, unknown>[] = []
+    const local = { device_id: 'bf98dev', local_key: '••••••••', local_key_set: true, address: '192.168.1.50', version: '3.4', open_dp: 1, open_value: true, close_dp: 1, close_value: false, stop_dp: 0, stop_value: true, status_dp: 0 }
+    vi.stubGlobal('fetch', vi.fn(async (input: RequestInfo | URL, options: RequestInit = {}) => {
+      const path = String(input)
+      if (path === '/api/v1/devices/gate') return json({ ...overview(), config: { ...config, driver: 'tuya_local', tuya_local: saved.at(-1)?.tuya_local ?? local } })
+      if (path === '/api/v1/devices/gate/config') { const body = JSON.parse(String(options.body)); saved.push(body.config); return json({ config: body.config, revision: 2 }) }
+      return json({ detail: 'unexpected' }, 404)
+    }))
+    const user = userEvent.setup()
+    render(<GateSettings credential={KEY} onUnauthorized={vi.fn()} />)
+    const same = await screen.findByLabelText(/„Otwórz” wysyła ten sam sygnał co „Zamknij”/)
+    expect(same).not.toBeChecked()
+    await user.click(same)
+    expect(same).toBeChecked()
+    expect(screen.getByLabelText('Sygnał przycisku Otwórz')).toHaveValue('off')
+    await user.click(screen.getByRole('button', { name: 'Zapisz' }))
+    await waitFor(() => expect(saved).toHaveLength(1))
+    expect(saved[0]).toMatchObject({ tuya_local: { open_dp: 1, open_value: false, close_dp: 1, close_value: false, local_key: '••••••••' } })
+    await user.click(await screen.findByLabelText(/„Otwórz” wysyła ten sam sygnał co „Zamknij”/))
+    expect(screen.getByLabelText('Sygnał przycisku Otwórz')).toHaveValue('on')
+  })
+
   it('explains Tuya errors with the next step', () => {
     expect(explain(new ApiError(502, 'http', 'Tuya error 28841107: No permission. The data center is suspended.'))).toContain('Central Europe')
     expect(explain(new ApiError(502, 'http', 'Tuya error 28841101: expired'))).toContain('Extend Trial Period')

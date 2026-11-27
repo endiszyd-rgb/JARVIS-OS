@@ -1,3 +1,14 @@
+## 0.16.1 — sterownik bramy z jednym sygnałem (2026-11-27)
+
+- Przy sterownikach *Setti / Tuya lokalnie* i *Setti / Tuya przez chmurę* jest nowe pole **„Jeden przycisk w sterowniku: „Otwórz” wysyła ten sam sygnał co „Zamknij””**. Po zaznaczeniu przycisk Otwórz (i komenda głosowa „otwórz bramę”) wysyła dokładnie ten sam sygnał (ta sama funkcja i wartość) co Zamknij. Powód: u właściciela przy bramie Setti działał tylko przycisk Zamknij (raz otwierał, raz zamykał), a Otwórz nic nie robił. Odznaczenie przywraca Otwórz = Włącz, Zamknij = Wyłącz.
+- **Mikrofon w oknie programu**: skrót „JARVIS OS” przed otwarciem okna zapisuje w jego osobnym profilu (`dane\desktop-window`) zgodę na mikrofon tylko dla adresu JARVIS (`http://localhost:<port>`). Wcześniejsze „Blokuj” dla tego adresu zostaje zastąpione „Zezwalaj”; inne strony i zwykła przeglądarka bez zmian (`scripts/windows_launcher.py`, `allow_microphone`). Sprawdzone w Chrome: profil z tym wpisem → `navigator.permissions` = `granted`, czysty profil → `prompt`.
+- W *Więcej opcji* można osobno wybrać **sygnał przycisku Otwórz / Zamknij** (Włącz / Wyłącz); inne wartości ustawione wcześniej są zachowane i pokazane jako „Inna wartość”.
+- Instrukcja: `docs/BRAMA-I-GLOS.md`. Backend bez zmian w logice (wartości otwarcia/zamknięcia były już w konfiguracji), nowy test sprawdza, że przy tym ustawieniu oba przyciski wysyłają `false` na DP 1.
+
+Wykonane kontrole: `.venv/bin/python -m pytest -q` 1010 PASS / 76 skip (nowe: jeden sygnał w `tests/test_gate_tuya_local.py`, zgoda na mikrofon w `tests/test_windows_launcher.py`), `pip check` PASS, `node --check jarvis/app.js` PASS, vitest 182 PASS, typecheck/build PASS; Chrome 390 px — nowe pole w formularzu, 0 błędów konsoli.
+
+Ograniczenia: zgoda na mikrofon działa po zamknięciu i ponownym otwarciu okna programu (otwarty profil przeglądarka nadpisuje przy zamknięciu); w Edge na Windows nie sprawdzono w tej sesji. Mikrofon musi być też dozwolony w Windows (Ustawienia → Prywatność → Mikrofon → aplikacje klasyczne). JARVIS nie wie, w którą stronę ruszy brama przy sterowniku jednoprzyciskowym — stan „otwiera się / zamyka się” to tylko ostatni naciśnięty przycisk, dopóki sterownik nie ma czujnika krańcowego (pole „Numer funkcji stanu”).
+
 ## 0.16.0 — brama Setti/Tuya w sieci warsztatu, bez chmury (2026-11-27)
 
 - **Nowy sterownik „Setti / Tuya lokalnie, bez chmury (zalecane)”** (`jarvis/gate.py`, `TuyaLocal`, biblioteka `tinytuya==1.21.1`): JARVIS łączy się ze sterownikiem bramy bezpośrednio przez Wi‑Fi warsztatu (TCP 6668, szyfrowanie kluczem lokalnym urządzenia). Brama działa bez internetu i nie przestaje działać, gdy wygaśnie okres próbny IoT Core albo Tuya wstrzyma centrum danych. Wersja protokołu „Automatycznie” próbuje 3.3 → 3.4 → 3.5 → 3.1 i zapamiętuje działającą; numery funkcji (DP) otwarcia/zamknięcia/stopu/czujnika w „Więcej opcji” (domyślnie 1 = `switch_1`).

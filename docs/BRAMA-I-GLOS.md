@@ -40,6 +40,8 @@ JARVIS łączy się ze sterownikiem bezpośrednio przez Wi‑Fi (TCP 6668, szyfr
 
 Uwagi: klucz lokalny zmienia się, gdy urządzenie zostanie usunięte i dodane w aplikacji od nowa — wtedy pobierz go ponownie. Dozwolone są tylko adresy prywatne (192.168.x.x, 10.x.x.x, 172.16–31.x.x); ten sterownik nie korzysta z `JARVIS_NETWORK_ALLOWLIST`. „Wersja protokołu: Automatycznie” próbuje 3.3, 3.4, 3.5, 3.1 i zapamiętuje działającą. Numery funkcji (DP): `switch_1` = 1; inne w *Device Debugging*.
 
+**Sterownik jednoprzyciskowy (np. Setti):** jeśli bramę porusza tylko przycisk *Zamknij* (każde naciśnięcie raz otwiera, raz zamyka), zaznacz „Jeden przycisk w sterowniku: „Otwórz” wysyła ten sam sygnał co „Zamknij”” i zapisz. Sygnały obu przycisków (Włącz/Wyłącz) można też ustawić osobno w *Więcej opcji*. Działa tak samo dla sterownika lokalnego i chmurowego.
+
 ### Brama na Smart Life / Tuya przez chmurę
 
 1. Załóż konto na https://iot.tuya.com → *Cloud* → *Create Cloud Project* (Industry: Smart Home, Data Center: **Central Europe**).
