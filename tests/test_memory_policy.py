@@ -20,7 +20,7 @@ def test_schema7_migration_backup_and_restart(tmp_path):
     note=upgraded.get('/api/memory').json()[0]
     assert note['id']==ident and note['text']=='Stara ręczna notatka'
     assert note['source']=='legacy_manual' and note['revision']==0
-    backups=list((tmp_path/'backups').glob('before-schema14-*.sqlite3'))
+    backups=list((tmp_path/'backups').glob('before-schema15-*.sqlite3'))
     assert len(backups)==1
     with sqlite3.connect(backups[0]) as c:
         assert c.execute('PRAGMA user_version').fetchone()[0]==7
@@ -28,7 +28,7 @@ def test_schema7_migration_backup_and_restart(tmp_path):
         assert c.execute("SELECT name FROM sqlite_master WHERE name='memory_sources'").fetchone() is None
     restarted=client(path)
     assert restarted.get('/api/memory').json()[0]['source']=='legacy_manual'
-    assert len(list((tmp_path/'backups').glob('before-schema14-*.sqlite3')))==1
+    assert len(list((tmp_path/'backups').glob('before-schema15-*.sqlite3')))==1
 
 
 def test_policy_is_separate_persistent_and_revisioned(tmp_path):

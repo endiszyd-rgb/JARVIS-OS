@@ -27,7 +27,7 @@ ROLES = MappingProxyType({
     'workshop_reader': frozenset({'status:read', 'workshop:read'}),
     'automation_runner': frozenset({'status:read', 'scheduler:tick'}),
     # Workshop staff on a phone/tablet: gate, voice commands and camera preview only.
-    'operator': frozenset({'status:read', 'gate:control', 'voice:command', 'cameras:view'}),
+    'operator': frozenset({'status:read', 'gate:control', 'voice:command', 'voice:ask', 'cameras:view'}),
 })
 MFA_REQUIRED = 'mfa_required'
 ITERATIONS = 600_000
@@ -115,6 +115,11 @@ def install(c):
         name TEXT NOT NULL, transports TEXT NOT NULL DEFAULT '[]', created REAL NOT NULL, last_used REAL,
         rp_id TEXT NOT NULL)''')
     c.execute('CREATE INDEX IF NOT EXISTS identity_passkeys_user ON identity_passkeys(user_id)')
+    c.execute('''CREATE TABLE IF NOT EXISTS identity_device_keys(
+        id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES identity_users(id) ON DELETE CASCADE,
+        name TEXT NOT NULL, token_digest TEXT NOT NULL UNIQUE, created REAL NOT NULL, last_used REAL,
+        revoked INTEGER NOT NULL DEFAULT 0 CHECK(revoked IN (0,1)))''')
+    c.execute('CREATE INDEX IF NOT EXISTS identity_device_keys_user ON identity_device_keys(user_id)')
 
 
 def _transaction(c):
@@ -388,6 +393,7 @@ def mfa_disable(c, user_id, password, code):
         raise HTTPException(401, 'Invalid credentials')
     c.execute('DELETE FROM identity_mfa WHERE user_id=?', (user['id'],))
     c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (user['id'],))
+    c.execute('UPDATE identity_device_keys SET revoked=1 WHERE user_id=?', (user['id'],))
     return {'enabled': False}
 
 
@@ -399,6 +405,7 @@ def mfa_reset(c, user_id):
     removed = c.execute('DELETE FROM identity_mfa WHERE user_id=?', (str(user_id),)).rowcount > 0
     removed = c.execute('DELETE FROM identity_passkeys WHERE user_id=?', (str(user_id),)).rowcount > 0 or removed
     c.execute('UPDATE identity_sessions SET revoked=1 WHERE user_id=?', (str(user_id),))
+    c.execute('UPDATE identity_device_keys SET revoked=1 WHERE user_id=?', (str(user_id),))
     return {'reset': removed}
 
 
@@ -451,3 +458,69 @@ def passkey_login(c, row, new_sign_count, ttl_seconds, now=None):
     at = _now(now)
     c.execute('UPDATE identity_passkeys SET sign_count=?,last_used=? WHERE id=?', (int(new_sign_count), at, row['passkey_id']))
     return _open_session(c, row, ttl_seconds, at, mfa=True)
+
+
+# --------------------------------------------------------------------------- device keys (Siri shortcut on the owner's phone)
+# A device key lets one phone ask questions and run the gate hands-free through the tunnel, where account
+# sessions would need a fresh 2FA login. It is deliberately narrow: only the scopes below (never settings,
+# memory, cameras or the owner's '*'), only for accounts that have 2FA, shown once, stored as SHA-256 and
+# revoked together with the account's second factor.
+
+DEVICE_SCOPES = frozenset({'voice:ask', 'gate:control'})
+MAX_DEVICE_KEYS = 8
+DEVICE_NAME = re.compile(r'^[\w ąćęłńóśźżĄĆĘŁŃÓŚŹŻ.\'’-]{1,40}$')
+
+
+def _device_scopes(role):
+    allowed = ROLES.get(role, frozenset())
+    return DEVICE_SCOPES if '*' in allowed else DEVICE_SCOPES & allowed
+
+
+def create_device_key(c, user_id, name, now=None):
+    _transaction(c)
+    name = (name or '').strip()
+    if not DEVICE_NAME.fullmatch(name):
+        raise HTTPException(422, 'Device name: 1-40 letters, digits, spaces, dots or dashes')
+    user = _one(c, 'SELECT id,role,enabled FROM identity_users WHERE id=?', (str(user_id),))
+    if user is None or not user['enabled']:
+        raise HTTPException(404, 'Account missing')
+    if c.execute('SELECT 1 FROM identity_mfa WHERE user_id=? AND enabled=1', (user['id'],)).fetchone() is None:
+        raise HTTPException(409, 'Enable two-factor authentication before adding a device key')
+    if not _device_scopes(user['role']):
+        raise HTTPException(403, 'This role cannot use device keys')
+    active = c.execute('SELECT COUNT(*) FROM identity_device_keys WHERE user_id=? AND revoked=0', (user['id'],)).fetchone()[0]
+    if active >= MAX_DEVICE_KEYS:
+        raise HTTPException(409, 'Too many device keys; revoke an unused one first')
+    token = secrets.token_urlsafe(36)
+    ident = str(uuid.uuid4())
+    c.execute('INSERT INTO identity_device_keys(id,user_id,name,token_digest,created) VALUES(?,?,?,?,?)',
+              (ident, user['id'], name, _token_digest(token), _now(now)))
+    return {'id': ident, 'name': name, 'token': token, 'scopes': sorted(_device_scopes(user['role']))}
+
+
+def list_device_keys(c, user_id):
+    rows = _all(c, 'SELECT id,name,created,last_used FROM identity_device_keys WHERE user_id=? AND revoked=0 ORDER BY created',
+                (str(user_id),))
+    return rows
+
+
+def revoke_device_key(c, user_id, ident):
+    _transaction(c)
+    return c.execute('UPDATE identity_device_keys SET revoked=1 WHERE id=? AND user_id=? AND revoked=0',
+                     (str(ident), str(user_id))).rowcount > 0
+
+
+def resolve_device_key(c, token, now=None):
+    digest = _token_digest(token)
+    if digest is None:
+        return None
+    row = _one(c, '''SELECT k.id,k.last_used,u.username,u.role,u.enabled FROM identity_device_keys k
+                    JOIN identity_users u ON u.id=k.user_id WHERE k.token_digest=? AND k.revoked=0''', (digest,))
+    if row is None or not row['enabled'] or row['role'] not in ROLES or not _device_scopes(row['role']):
+        return None
+    at = _now(now)
+    if row['last_used'] is None or at - row['last_used'] > 300:  # coarse, to avoid a write per request
+        c.execute('UPDATE identity_device_keys SET last_used=? WHERE id=?', (at, row['id']))
+    # role 'device' on purpose: never is_owner, so the owner's "*" bypass in authenticate() cannot apply.
+    return Principal(id=row['id'], kind='device', role='device', scopes=_device_scopes(row['role']), username=row['username'])
+

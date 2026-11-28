@@ -5,6 +5,7 @@ import type { ReactNode } from 'react'
 import { ApiError } from '../../api'
 import { FieldLabel } from '../../components/HelpTip'
 import { GateSettings } from '../gate/GateSettings'
+import { WebAnswerSettings } from '../voice/WebAnswerSettings'
 import { VoiceSettings } from '../voice/VoiceSettings'
 import { CameraSettings } from '../cameras/CamerasPanel'
 import { ConnectionSettings } from '../workshop/TodayCard'
@@ -174,7 +175,8 @@ export function SettingsPanel(props: Props) {
       {tab === 'gate' ? <GateSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
         : tab === 'autologika' ? <ConnectionSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} onSaved={() => undefined} />
           : tab === 'cameras' ? <CameraSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
-            : tab === 'voice' ? <VoiceSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
+            : tab === 'voice' ? <><VoiceSettings key={props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} />
+              <WebAnswerSettings key={'web-' + props.credential} credential={props.credential} onUnauthorized={props.onUnauthorized} /></>
               : <AssistantSettings {...props} />}
     </section>
     <p className="settings-footnote">Konta użytkowników, tokeny i sesje: <a href="#/security">Bezpieczeństwo</a>. Twoje 2FA i Face ID: <a href="#/account">Moje konto</a>.</p>

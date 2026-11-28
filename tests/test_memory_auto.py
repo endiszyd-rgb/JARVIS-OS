@@ -178,12 +178,12 @@ def test_schema8_upgrade_backup_preserves_manual_note(tmp_path):
     migrated=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert migrated.get('/api/memory').json()[0]['id']==ident
     assert migrated.get('/api/memory').json()[0]['source']=='owner_manual'
-    backup=list((tmp_path/'backups').glob('before-schema14-*.sqlite3'));assert len(backup)==1
+    backup=list((tmp_path/'backups').glob('before-schema15-*.sqlite3'));assert len(backup)==1
     with sqlite3.connect(backup[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==8
         assert db.execute('SELECT text FROM memory').fetchone()[0]=='Ważna ręczna notatka'
         assert db.execute("SELECT name FROM sqlite_master WHERE name='memory_turns'").fetchone() is None
-    with sqlite3.connect(path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==14
+    with sqlite3.connect(path) as db:assert db.execute('PRAGMA user_version').fetchone()[0]==15
 
 
 def test_source_session_delete_keeps_note_but_reports_source_unavailable(client):

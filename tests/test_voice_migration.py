@@ -18,7 +18,7 @@ def test_schema9_backup_preserves_history_memory_and_marks_old_sessions_text(tmp
     assert migrated.get('/api/chat/sessions/'+turn['session_id']).json()['input_mode']=='text'
     assert migrated.get('/api/chat/sessions/'+turn['session_id']+'/messages').json()==messages
     assert migrated.get('/api/memory').json()[0]['id']==memory
-    backups=list((tmp_path/'backups').glob('before-schema14-*.sqlite3'));assert len(backups)==1
+    backups=list((tmp_path/'backups').glob('before-schema15-*.sqlite3'));assert len(backups)==1
     with sqlite3.connect(backups[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0]==9
         assert db.execute('SELECT content FROM chat_messages ORDER BY id').fetchone()[0]=='Prywatna historia tekstowa'
@@ -26,7 +26,7 @@ def test_schema9_backup_preserves_history_memory_and_marks_old_sessions_text(tmp
         assert db.execute("SELECT name FROM sqlite_master WHERE name='chat_session_modes'").fetchone() is None
     restarted=TestClient(create_app(path,KEY),headers={'X-Jarvis-Key':KEY})
     assert restarted.get('/api/chat/sessions/'+turn['session_id']).json()['input_mode']=='text'
-    assert len(list((tmp_path/'backups').glob('before-schema14-*.sqlite3')))==1
+    assert len(list((tmp_path/'backups').glob('before-schema15-*.sqlite3')))==1
 
 
 def test_voice_mode_survives_restart_and_mode_metadata_cascades_on_delete(tmp_path):
