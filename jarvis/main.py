@@ -1211,8 +1211,9 @@ def create_app(db_path=None, api_key=None):
         ask_window[key]=recent+[now]
         return True
 
-    ASK_ERRORS={'Web answers are not configured':'Odpowiedzi z internetu nie są włączone. Wpisz klucz Claude w Ustawienia, Głos.',
-                'Anthropic rejected the API key':'Klucz Claude został odrzucony. Sprawdź go w ustawieniach JARVIS.',
+    ASK_ERRORS={'Web answers are not configured':'Odpowiedzi z internetu nie są włączone. Wpisz klucz Groq albo Claude w Ustawienia, Głos.',
+                'AI provider rejected the API key':'Klucz AI został odrzucony. Sprawdź go w ustawieniach JARVIS.',
+                'Groq free limit reached':'Wyczerpany darmowy limit Groq. Spróbuj za minutę albo jutro.',
                 'AI answer timed out':'Wyszukiwanie trwało za długo. Spróbuj jeszcze raz.',
                 'Cannot reach the AI service':'Nie mogę połączyć się z usługą AI. Sprawdź internet na komputerze w warsztacie.'}
 
@@ -1254,7 +1255,7 @@ def create_app(db_path=None, api_key=None):
         with db() as c:
             c.execute('BEGIN IMMEDIATE')
             config,revision=web_answer.save(c,body.config,body.revision)
-            audit(c,'web_answer.config_changed',{'revision':revision,'enabled':config.enabled,'model':config.model})
+            audit(c,'web_answer.config_changed',{'revision':revision,'enabled':config.enabled,'provider':config.provider,'model':config.model_name()})
         return {'config':config.masked(),'revision':revision}
 
     def device_owner(principal):

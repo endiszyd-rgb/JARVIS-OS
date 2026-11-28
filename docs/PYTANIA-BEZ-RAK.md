@@ -5,16 +5,17 @@ Cel: przy aucie powiedzieć „Hej Siri, Jarvis”, zapytać o moment dokręcani
 ```
 słuchawka BT ─ iPhone (Siri → skrót „Jarvis”) ─ Tailscale ─ JARVIS na PC warsztatowym
                                                             ├─ „brama”, „tak/nie” → sterownik bramy (lokalnie)
-                                                            └─ inne pytania → Claude API + wyszukiwarka → odpowiedź + źródło
+                                                            └─ inne pytania → Groq (darmowy) albo Claude + wyszukiwarka → odpowiedź + źródło
 ```
 
 ## 1. Odpowiedzi z internetu (komputer warsztatowy)
 
-*Ustawienia → Głos → Odpowiedzi z internetu*:
+*Ustawienia → Głos → Odpowiedzi z internetu* → **Dostawca AI**:
 
-1. Klucz z **console.anthropic.com** → *API Keys* → *Create Key* (`sk-ant-…`). W konsoli ustaw miesięczny limit wydatków. Każde pytanie to 1–3 wyszukiwania + odpowiedź modelu (rozliczane przez Anthropic za użycie).
-2. Zaznacz „Odpowiadaj na pytania z internetu”, model **Claude Sonnet** (zalecany), *Zapisz*.
-3. *Pytanie testowe* → np. „moment dokręcania kół Skoda Octavia 3” → odpowiedź i linki do źródeł.
+- **Groq — darmowy (domyślny):** **console.groq.com** → zaloguj się (Google lub e-mail, bez karty) → *API Keys* → *Create API Key* (`gsk_…`). Model **Compound** (kilka wyszukiwań) albo **Compound Mini** (jedno, szybciej). Darmowy plan ma dzienne limity (dla Compound ok. 250 pytań/dzień według dokumentacji Groq z 2026 r.); po ich przekroczeniu JARVIS mówi „wyczerpany darmowy limit Groq” — bez opłat. Odpowiada na otwartych modelach (GPT-OSS / Llama), przy danych technicznych zwykle mniej precyzyjnie niż Claude.
+- **Claude — płatny, dokładniejszy:** **console.anthropic.com** → *API Keys* → *Create Key* (`sk-ant-…`), w konsoli ustaw miesięczny limit wydatków. Każde pytanie to 1–3 wyszukiwania + odpowiedź modelu (rozliczane przez Anthropic za użycie). Model **Sonnet** (zalecany), Haiku albo Opus.
+
+Oba klucze można zapisać i przełączać dostawcę. Potem: zaznacz „Odpowiadaj na pytania z internetu”, *Zapisz*, *Pytanie testowe* → np. „moment dokręcania kół Skoda Octavia 3” → odpowiedź i linki do źródeł.
 
 JARVIS mówi krótko (do 3 zdań), po polsku, podaje wartość z jednostką i warunkami oraz źródło; gdy źródła się różnią albo brakuje modelu/silnika — mówi to albo dopytuje. Pamięta 3 ostatnie pytania z tego telefonu przez 15 minut („a dla Passata B8?”). **To dane z internetu, nie z dokumentacji producenta** — przy głowicy, zawieszeniu i hamulcach sprawdź wartość.
 
@@ -40,6 +41,6 @@ Odpowiedź API: `{"speech": "...", "kind": "answer|command|error", "sources": [{
 
 ## Ograniczenia
 
-- Nie testowane na prawdziwym iPhonie/Siri ani z prawdziwym kluczem Claude (testy z atrapą API Anthropic).
+- Nie testowane na prawdziwym iPhonie/Siri ani z prawdziwym kluczem Groq/Claude (testy z atrapami API).
 - Siri wymaga internetu w telefonie i włączonego Tailscale; komputer warsztatowy musi działać z JARVIS i Tailscale.
 - Aplikacja Skróty nie pozwala zaimportować niepodpisanego pliku skrótu, dlatego skrót trzeba złożyć z 4 akcji (raz).

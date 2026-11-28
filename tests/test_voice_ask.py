@@ -59,7 +59,7 @@ def account_with_2fa(c, username='endi', role='owner'):
 def configure(c, **changes):
     revision = c.get('/api/v1/config/web-answer', headers=OWNER).json()['revision']
     return c.put('/api/v1/config/web-answer', headers=OWNER, json={'revision': revision, 'config': {
-        'enabled': True, 'api_key': API_KEY, 'model': 'claude-sonnet-5-5', 'max_searches': 3, **changes}})
+        'enabled': True, 'provider': 'anthropic', 'api_key': API_KEY, 'model': 'claude-sonnet-5-5', 'max_searches': 3, **changes}})
 
 
 def phone_key(c, auth, name='iPhone Endi'):
@@ -106,7 +106,7 @@ def test_failures_are_spoken_not_thrown(client):
     configure(client)
     client.replies.append(401)
     rejected = client.post('/api/v1/voice/ask', headers=OWNER, json={'text': 'Pojemność oleju 1.9 TDI?'}).json()
-    assert rejected['kind'] == 'error' and 'Klucz Claude został odrzucony' in rejected['speech']
+    assert rejected['kind'] == 'error' and 'Klucz AI został odrzucony' in rejected['speech']
 
 
 def test_long_search_pause_is_continued(client):
@@ -196,3 +196,76 @@ def test_schema_15_migration_adds_device_keys_and_web_answer_with_a_backup(tmp_p
     assert len(backups) == 1
     with sqlite3.connect(backups[0]) as db:
         assert db.execute('PRAGMA user_version').fetchone()[0] == 14
+
+
+
+# ------------------------------------------------------------------ Groq (free plan, groq/compound with built-in web search)
+
+GROQ_KEY = 'gsk_' + 'A1b2C3d4' * 6
+
+
+def groq_reply(text='Śruby koła Octavii 3 dokręca się momentem 120 Nm — według [skoda-club.pl](https://skoda-club.pl/kola).'):
+    return {'id': 'chatcmpl-1', 'object': 'chat.completion', 'model': 'groq/compound', 'choices': [{'index': 0, 'finish_reason': 'stop',
+        'message': {'role': 'assistant', 'content': '<think>szukam</think>' + text, 'executed_tools': [
+            {'index': 0, 'type': 'search', 'arguments': '{"query": "Octavia 3 moment kół"}', 'output': '...',
+             'search_results': {'results': [
+                 {'title': 'Momenty kół Octavia 3', 'url': 'https://skoda-club.pl/kola', 'content': '120 Nm', 'score': 0.9},
+                 {'title': 'Octavia III dane', 'url': 'https://example.org/octavia', 'content': '...', 'score': 0.5},
+                 {'title': 'bez adresu', 'url': 'ftp://x', 'content': ''}]}}]}}]}
+
+
+def configure_groq(c, **changes):
+    revision = c.get('/api/v1/config/web-answer', headers=OWNER).json()['revision']
+    return c.put('/api/v1/config/web-answer', headers=OWNER, json={'revision': revision, 'config': {
+        'enabled': True, 'provider': 'groq', 'groq_api_key': GROQ_KEY, 'groq_model': 'groq/compound', **changes}})
+
+
+def test_groq_is_the_default_and_answers_with_sources(client):
+    shown = client.get('/api/v1/config/web-answer', headers=OWNER).json()['config']
+    assert shown['provider'] == 'groq' and shown['groq_model'] == 'groq/compound' and shown['groq_api_key_set'] is False
+    assert configure_groq(client).status_code == 200
+    masked = client.get('/api/v1/config/web-answer', headers=OWNER)
+    assert GROQ_KEY not in masked.text and masked.json()['config']['groq_api_key'] == web_answer.SECRET_MASK
+    client.replies.append(groq_reply())
+    body = client.post('/api/v1/voice/ask', headers=OWNER, json={'text': 'Moment dokręcania kół Octavia 3?'}).json()
+    assert body['kind'] == 'answer' and body['model'] == 'groq/compound'
+    assert body['speech'] == 'Śruby koła Octavii 3 dokręca się momentem 120 Nm — według skoda-club.pl.'
+    assert body['sources'] == [{'title': 'Momenty kół Octavia 3', 'url': 'https://skoda-club.pl/kola'},
+                               {'title': 'Octavia III dane', 'url': 'https://example.org/octavia'}]
+    request = client.calls[0]
+    assert str(request.url) == 'https://api.groq.com/openai/v1/chat/completions'
+    assert request.headers['authorization'] == 'Bearer ' + GROQ_KEY
+    sent = json.loads(request.content)
+    assert sent['model'] == 'groq/compound' and sent['messages'][0]['role'] == 'system' and 'Nigdy nie zgaduj' in sent['messages'][0]['content']
+    assert sent['messages'][-1] == {'role': 'user', 'content': 'Moment dokręcania kół Octavia 3?'}
+
+
+def test_groq_free_limit_and_bad_key_are_spoken(client):
+    configure_groq(client)
+    client.replies.append(429)
+    limited = client.post('/api/v1/voice/ask', headers=OWNER, json={'text': 'Pojemność oleju 2.0 TDI?'}).json()
+    assert limited['kind'] == 'error' and 'darmowy limit Groq' in limited['speech']
+    client.replies.append(401)
+    rejected = client.post('/api/v1/voice/ask', headers=OWNER, json={'text': 'Pojemność oleju 2.0 TDI?'}).json()
+    assert 'Klucz AI został odrzucony' in rejected['speech']
+    assert configure_groq(client, groq_api_key='sk-wrong').status_code == 422
+
+
+def test_switching_providers_keeps_both_keys(client):
+    configure_groq(client)
+    assert configure(client, groq_api_key=web_answer.SECRET_MASK).status_code == 200  # now Claude, Groq key kept
+    with sqlite3.connect(client.path) as db:
+        stored = json.loads(db.execute("SELECT value FROM device_config WHERE id='web_answer'").fetchone()[0])
+    assert stored['provider'] == 'anthropic' and stored['groq_api_key'] == GROQ_KEY and stored['api_key'] == API_KEY
+
+
+def test_config_saved_before_groq_keeps_using_claude(tmp_path):
+    path = tmp_path / 'old.db'
+    with TestClient(create_app(path, KEY)):
+        pass
+    with sqlite3.connect(path) as db:
+        db.execute("UPDATE device_config SET value=? WHERE id='web_answer'",
+                   (json.dumps({'enabled': True, 'api_key': API_KEY, 'model': 'claude-haiku-5-5', 'max_searches': 2}),))
+    with sqlite3.connect(path) as db:
+        loaded, _ = web_answer.load(db)
+    assert loaded.provider == 'anthropic' and loaded.key() == API_KEY and loaded.model_name() == 'claude-haiku-5-5'
