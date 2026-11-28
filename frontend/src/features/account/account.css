@@ -21,3 +21,10 @@
 .account-passkeys li { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: 9px; background: #101923; }
 .account-passkeys li div { display: grid; gap: 3px; min-width: 0; }
 .account-passkeys li span { color: var(--subtle); font-size: 12px; overflow-wrap: anywhere; }
+.siri-setup .siri-values { display: grid; gap: 8px; margin: 10px 0; }
+.siri-setup .siri-values > div { display: grid; grid-template-columns: 64px minmax(0, 1fr) auto; gap: 10px; align-items: center; }
+.siri-setup .siri-values span { color: var(--muted, #9fb3c8); font-size: 13px; }
+.siri-setup .siri-values code { overflow-wrap: anywhere; font-size: 12px; padding: 6px 8px; border-radius: 6px; background: #0b131b; }
+.siri-steps { margin: 6px 0 12px; padding-left: 20px; display: grid; gap: 6px; font-size: 14px; line-height: 1.55; }
+.siri-setup .form-warning { margin: 0 0 8px; padding: 10px 12px; border: 1px solid #6a5a2e; border-radius: 9px; background: #2e2716; color: #f5c46b; font-size: 13px; line-height: 1.55; }
+@media (max-width: 560px) { .siri-setup .siri-values > div { grid-template-columns: 1fr; } }

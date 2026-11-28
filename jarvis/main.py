@@ -26,7 +26,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 from .autologika import AUDITED_COMMIT, capabilities as autologika_capabilities
 from . import autologika as autologika_live
 from datetime import datetime
-from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras, go2rtc as go2rtc_runtime
+from . import plugins as transports, home, whatsapp, voice, recall, telephony, reception, reception_ai, memory_policy, memory_auto, audio_sessions, telephony_transport, gate, intents, cameras, go2rtc as go2rtc_runtime, web_answer
 from .body_limit import BodyLimit
 from .runtime_config import RuntimeConfig, readiness
 from .security_limits import SecurityConfig, RateLimit
@@ -147,7 +147,7 @@ class Retention(Strict):
     dry_run: bool = True
 
 
-SCHEMA_VERSION = 14  # 13: operator role, second factor (identity_mfa), session mfa flag, camera config; 14: passkeys
+SCHEMA_VERSION = 15  # 13: operator role, second factor (identity_mfa), session mfa flag, camera config; 14: passkeys; 15: device keys, web answers
 
 
 class VoiceCommand(Strict):
@@ -186,7 +186,7 @@ def create_app(db_path=None, api_key=None):
         finally:
             if manager is not None: await asyncio.to_thread(manager.stop)
             await tasks.close()
-    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.18.0', docs_url=None, redoc_url=None, openapi_url=None)
+    app = FastAPI(lifespan=lifespan,title='JARVIS OS', version='0.19.0', docs_url=None, redoc_url=None, openapi_url=None)
     @app.exception_handler(RequestValidationError)
     async def validation_error(request,exc):
         if request.url.path in ("/api/v1/chat/tasks","/api/chat/tasks") or '/autologika/write-lab' in request.url.path:
@@ -266,6 +266,7 @@ def create_app(db_path=None, api_key=None):
         identity.install(c)
         gate.install(c)
         cameras.install(c)
+        web_answer.install(c)
         c.execute('INSERT OR IGNORE INTO device_config VALUES(?,?,?,?)', ('voice', VoiceConfig().model_dump_json(), 0, time.time()))
         c.execute('PRAGMA user_version='+str(SCHEMA_VERSION))
         c.execute('INSERT OR IGNORE INTO settings VALUES(1,?)', (Settings().model_dump_json(),))
@@ -284,7 +285,7 @@ def create_app(db_path=None, api_key=None):
             if row:
                 return identity.Principal(id=row['id'],kind='service',role='service',
                     scopes=frozenset(json.loads(row['scopes'])),expires_at=row['expires'])
-            return identity.resolve_session(c,key)
+            return identity.resolve_session(c,key) or identity.resolve_device_key(c,key)
 
     def authenticate(key, scope=None):
         if not config.owner_key_configured:
@@ -364,7 +365,7 @@ def create_app(db_path=None, api_key=None):
 
     @app.get('/health')
     def health():
-        return {'status': 'ok', 'version': '0.18.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
+        return {'status': 'ok', 'version': '0.19.0', 'integration_mode': 'demo_with_optional_readonly', 'autologika_audit': AUDITED_COMMIT}
 
     @app.get('/ready')
     @api.get('/ready')
@@ -1185,6 +1186,107 @@ def create_app(db_path=None, api_key=None):
             return {'reply':'Nie ma polecenia do potwierdzenia.','model':'parser','ai_generated':False,'handled':False}
         return dict(result,handled=True)
 
+
+    # ---- Hands-free questions (Siri shortcut / phone): commands first, then the web-search answer ----
+    class VoiceAsk(Strict):
+        text:str=Field(min_length=1,max_length=500)
+
+    class DeviceKeyCreate(Strict):
+        name:str=Field(min_length=1,max_length=40)
+
+    class WebAnswerUpdate(Strict):
+        revision:int=Field(ge=0,strict=True)
+        config:dict
+
+    answer_history=web_answer.History()
+    ask_window={}
+
+    def ask_allowed(key,limit=15,window=60.0):
+        """Each web answer costs money: at most 15 questions per minute per device/account."""
+        now=time.time()
+        recent=[stamp for stamp in ask_window.get(key,[]) if now-stamp<window]
+        if len(recent)>=limit:
+            ask_window[key]=recent
+            return False
+        ask_window[key]=recent+[now]
+        return True
+
+    ASK_ERRORS={'Web answers are not configured':'Odpowiedzi z internetu nie są włączone. Wpisz klucz Claude w Ustawienia, Głos.',
+                'Anthropic rejected the API key':'Klucz Claude został odrzucony. Sprawdź go w ustawieniach JARVIS.',
+                'AI answer timed out':'Wyszukiwanie trwało za długo. Spróbuj jeszcze raz.',
+                'Cannot reach the AI service':'Nie mogę połączyć się z usługą AI. Sprawdź internet na komputerze w warsztacie.'}
+
+    @api.post('/voice/ask')
+    async def voice_ask(body:VoiceAsk,principal=Depends(require('voice:ask'))):
+        """One spoken question → one spoken answer. Gate/confirm commands are handled locally; anything else
+        goes to Claude with web search. Expected failures come back as speech (HTTP 200) for the shortcut."""
+        text=body.text.strip()
+        key='voice:'+principal.id
+        intent=intents.parse(text)
+        if intent is not None and intent.kind in ('gate','confirm','cancel'):
+            if intent.kind=='gate' and not (principal.is_owner or 'gate:control' in principal.scopes):
+                return {'speech':'To urządzenie nie może sterować bramą.','kind':'command','sources':[]}
+            result=await gate_intent(intent,key,'voice')
+            if result is not None:
+                return {'speech':result['reply'],'kind':'command','sources':[],'device':result.get('device')}
+        if intent is not None and intent.kind in ('parts','today') and (principal.is_owner or 'workshop:read' in principal.scopes):
+            result=await (parts_reply() if intent.kind=='parts' else today_reply())
+            return {'speech':result['reply'],'kind':'command','sources':[]}
+        if not ask_allowed(key):
+            return {'speech':'Za dużo pytań naraz. Odczekaj minutę.','kind':'error','sources':[]}
+        with db() as c: config,_=web_answer.load(c)
+        try:
+            answer=await web_answer.ask(config,text,answer_history.get(key),transport=getattr(app.state,'web_answer_transport',None))
+        except HTTPException as exc:
+            with db() as c: audit(c,'voice.ask_failed',{'status':exc.status_code,'detail':str(exc.detail)[:80]})
+            return {'speech':ASK_ERRORS.get(str(exc.detail),'Nie udało się znaleźć odpowiedzi. Spróbuj zapytać inaczej.'),'kind':'error','sources':[],'error':str(exc.detail)}
+        answer_history.add(key,text,answer['speech'])
+        with db() as c: audit(c,'voice.ask',{'chars':len(text),'searches':answer['searches'],'sources':len(answer['sources'])})
+        return {'speech':answer['speech'],'kind':'answer','sources':answer['sources'],'model':answer['model'],'ai_generated':True}
+
+    @api.get('/config/web-answer',dependencies=[Depends(auth)])
+    def web_answer_read():
+        with db() as c: config,revision=web_answer.load(c)
+        return {'config':config.masked(),'revision':revision}
+
+    @api.put('/config/web-answer',dependencies=[Depends(auth)])
+    def web_answer_write(body:WebAnswerUpdate):
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            config,revision=web_answer.save(c,body.config,body.revision)
+            audit(c,'web_answer.config_changed',{'revision':revision,'enabled':config.enabled,'model':config.model})
+        return {'config':config.masked(),'revision':revision}
+
+    def device_owner(principal):
+        if principal.kind!='session':
+            raise HTTPException(403,'Sign in with your account (not the owner key) to manage phone keys')
+        return principal
+
+    @api.get('/auth/device-keys')
+    def device_keys(principal=Depends(require('identity:self'))):
+        device_owner(principal)
+        with db() as c: return {'keys':identity.list_device_keys(c,principal.id)}
+
+    @api.post('/auth/device-keys')
+    def device_key_create(body:DeviceKeyCreate,principal=Depends(require('identity:self'))):
+        device_owner(principal)
+        if not principal.mfa:
+            raise HTTPException(403,'Sign in with your two-factor code to add a phone key')
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            created=identity.create_device_key(c,principal.id,body.name)
+            audit(c,'identity.device_key_created',{'id':created['id'],'name':created['name']})
+        return created
+
+    @api.delete('/auth/device-keys/{ident}')
+    def device_key_revoke(ident:uuid.UUID,principal=Depends(require('identity:self'))):
+        device_owner(principal)
+        with db() as c:
+            c.execute('BEGIN IMMEDIATE')
+            if not identity.revoke_device_key(c,principal.id,ident):
+                raise HTTPException(404,'Device key missing')
+            audit(c,'identity.device_key_revoked',{'id':str(ident)})
+        return {'revoked':True}
 
     async def parts_reply():
         """Parts from the live read-only AutoLogika API when connected, otherwise from the snapshot."""

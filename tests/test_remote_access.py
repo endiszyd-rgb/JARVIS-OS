@@ -286,11 +286,11 @@ def test_schema12_accounts_and_sessions_survive_role_constraint_rebuild(tmp_path
         make_user(c, 'mechanik', 'operator')
         assert c.get('/ready').status_code == 200
     with sqlite3.connect(path) as db:
-        assert db.execute('PRAGMA user_version').fetchone()[0] == 14
+        assert db.execute('PRAGMA user_version').fetchone()[0] == 15
         assert db.execute('PRAGMA foreign_key_check').fetchall() == []
         assert "'operator'" in db.execute("SELECT sql FROM sqlite_master WHERE name='identity_users'").fetchone()[0]
         assert db.execute("SELECT 1 FROM sqlite_master WHERE name='identity_passkeys'").fetchone() is not None
-    assert len(list((tmp_path / 'backups').glob('before-schema14-*.sqlite3'))) == 1
+    assert len(list((tmp_path / 'backups').glob('before-schema15-*.sqlite3'))) == 1
 
 
 def test_identity_rejects_unknown_role_after_migration(tmp_path):

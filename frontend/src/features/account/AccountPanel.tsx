@@ -4,6 +4,7 @@ import { Check, CircleAlert, Fingerprint, Globe, KeyRound, ShieldCheck, ShieldOf
 import qrcode from 'qrcode-generator'
 import { ApiError, apiRequest } from '../../api'
 import { creationOptions, credentialJSON, passkeysSupported } from '../../webauthn'
+import { SiriKeys } from './SiriKeys'
 import './account.css'
 
 interface Props { credential: string; onUnauthorized: () => void; accountSession: boolean }
@@ -182,6 +183,7 @@ function AccountWorkspace({ credential, onUnauthorized, accountSession }: Props)
       {backup && <div className="account-backup" aria-labelledby="account-backup-title"><h3 id="account-backup-title">Kody zapasowe — pokazane tylko raz</h3><p>Każdy działa jednorazowo zamiast kodu z aplikacji (np. po utracie telefonu). Zapisz je w bezpiecznym miejscu.</p><ul>{backup.map(item => <li key={item}><code>{item}</code></li>)}</ul><button className="button secondary" type="button" onClick={() => setBackup(null)}>Zapisałem kody — ukryj</button></div>}
     </section>
     <Passkeys credential={credential} onUnauthorized={unauthorized.current} />
+    <SiriKeys credential={credential} onUnauthorized={unauthorized.current} mfaEnabled={Boolean(status?.enabled)} />
     {remote}
   </div>
 }

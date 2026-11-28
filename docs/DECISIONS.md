@@ -108,3 +108,10 @@ WebSocket Home Assistant jest jednorazowym get_states, bez subskrypcji i usług.
 - UID dla źródła Tuya Cloud jest odczytywany z `/v1.0/devices/{id}` tego samego projektu co brama (bez osobnych danych logowania). Kamery Setti wymagają aktywnego IoT Core — w przeciwieństwie do bramy lokalnej.
 - Tryb `external` (adres własnego go2rtc + nazwy strumieni) zostaje dla istniejących konfiguracji i zaawansowanych; nowe instalacje startują w `builtin`.
 
+## 2026-11-28 — pytania bez rąk: Siri + odpowiedzi z internetu (0.19.0)
+
+- Właściciel wybrał: iPhone w kieszeni + słuchawka, „Hej Siri, Jarvis”, a dane techniczne „niech bierze z internetu”. Odpowiedzi daje Claude API z narzędziem `web_search_20250305` na własnym kluczu właściciela (opcjonalne, wyłączone domyślnie; płatne za użycie po stronie Anthropic). Prompt wymusza: wartość z jednostką i warunkami, nazwę źródła, przyznanie się do rozbieżności, bez zgadywania; odpowiedź zawiera linki źródeł. To nie są dane producenta — opisane w panelu i dokumentacji.
+- Siri nie może logować się z 2FA, więc dodano **klucze telefonu** (`identity_device_keys`, schemat 15): tylko dla kont z włączonym 2FA, tworzone z sesji otwartej kodem 2FA, pokazane raz, przechowywane jako SHA-256, zakres wyłącznie `voice:ask` + `gate:control` (także dla właściciela — rola `device` nie ma obejścia `*`), przez tunel tylko `/api/v1/voice/ask` i `/api/v1/devices/gate/command`, unieważniane przy resecie/wyłączeniu 2FA.
+- `/voice/ask`: polecenia bramy/potwierdzenia obsługuje lokalny parser (nigdy model), resztę model. Błędy wracają jako zdanie (HTTP 200) dla Siri; limit 15 pytań/min na urządzenie (koszty). Audyt zapisuje długość pytania i liczbę wyszukiwań, nie treść.
+- Wpis zakresu w AGENTS.md zostawiony właścicielowi (plik reguł właściciela).
+

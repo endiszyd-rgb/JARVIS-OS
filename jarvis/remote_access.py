@@ -10,6 +10,8 @@ add, or (with remote access enabled) by a Host name that is not local.
   but every other API call needs an account session that was opened with a
   second factor (TOTP). The owner master key and service tokens never work
   remotely.
+* Device keys (Siri shortcut on the owner's phone) work remotely only for the
+  hands-free voice question and the gate command.
 """
 from dataclasses import dataclass
 import ipaddress
@@ -20,6 +22,7 @@ REMOTE_PUBLIC_API = frozenset({'/api/auth/login', '/api/v1/auth/login', '/api/re
                                '/api/auth/passkeys/login/options', '/api/v1/auth/passkeys/login/options',
                                '/api/auth/passkeys/login/verify', '/api/v1/auth/passkeys/login/verify'})
 DEFAULT_LOCAL_HOSTS = ('127.0.0.1', 'localhost', '::1')
+DEVICE_REMOTE_API = frozenset({'/api/v1/voice/ask', '/api/v1/devices/gate/command'})
 # Provider webhooks verify their own request signatures and predate this policy.
 SIGNED_WEBHOOK_PREFIX = '/webhooks/'
 
@@ -71,6 +74,10 @@ def decide(path, principal, config: RemoteConfig):
         return None
     if principal is None:
         return None  # the route answers 401 itself
+    if principal.kind == 'device':
+        if path.rstrip('/') in DEVICE_REMOTE_API:
+            return None
+        return 403, 'A device key works remotely only for voice questions and the gate'
     if principal.kind != 'session':
         return 403, 'Remote access accepts only account sessions (not the owner key or service tokens)'
     if not principal.mfa:
